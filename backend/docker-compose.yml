@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  mariadb:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: example-root-pw
+      MARIADB_DATABASE: briva
+      MARIADB_USER: briva_user
+      MARIADB_PASSWORD: briva_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+volumes:
+  mariadb_data:

@@ -1,3 +1,16 @@
 spring:
-  application:
-    name: backend
+  datasource:
+    url: jdbc:mariadb://localhost:3307/briva
+    username: briva_user
+    password: briva_pass
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+server:
+  port: 8080
+
+app:
+  uploads-path: ./uploads
