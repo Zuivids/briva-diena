@@ -5,9 +5,9 @@ services:
     restart: unless-stopped
     environment:
       MARIADB_ROOT_PASSWORD: example-root-pw
-      MARIADB_DATABASE: briva
-      MARIADB_USER: briva_user
-      MARIADB_PASSWORD: briva_pass
+      MARIADB_DATABASE: briva_diena
+      MARIADB_USER: briva_diena_user
+      MARIADB_PASSWORD: briva_diena_password
     ports:
       - "3307:3306"
     volumes:
