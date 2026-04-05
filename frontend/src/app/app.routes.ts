@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from './shared/services/auth.guard';
 
 export const routes: Routes = [
   {
@@ -52,10 +53,13 @@ export const routes: Routes = [
   },
   {
     path: 'admin/dashboard',
-    loadComponent: () => import('./admin/dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent)
+    loadComponent: () => import('./admin/dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'admin/trips',
-    loadComponent: () => import('./admin/trip-management/trip-management.component').then(m => m.TripManagementComponent)
+    loadComponent: () => import('./admin/trip-management/trip-management.component').then(m => m.TripManagementComponent),
+    canActivate: [AuthGuard]
   }
 ];
+
