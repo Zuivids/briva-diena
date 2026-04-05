@@ -3,40 +3,47 @@
 
 CREATE TABLE IF NOT EXISTS trips (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  title TEXT NOT NULL,
+  name TEXT NOT NULL,
   description TEXT,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
   price_cents BIGINT NOT NULL,
   currency VARCHAR(3) NOT NULL,
+  available_spots INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS trip_images (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  trip_id BIGINT,
+  trip_id BIGINT NOT NULL,
   path VARCHAR(1024),
   is_background BOOLEAN DEFAULT false,
   sort_order INT,
   CONSTRAINT fk_trip FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE IF NOT EXISTS registrations (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  trip_id BIGINT,
-  buyer_email VARCHAR(512) NOT NULL,
-  amount_cents BIGINT NOT NULL,
-  currency VARCHAR(3) NOT NULL,
+  trip_id BIGINT NOT NULL,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  phone VARCHAR(20) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  personal_id_number VARCHAR(20),
+  passport_number VARCHAR(50),
+  passport_expiration_date DATE,
   status VARCHAR(32) DEFAULT 'PENDING',
-  payment_provider_id VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_order_trip FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE SET NULL
+  CONSTRAINT fk_registration_trip FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS payments (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  order_id BIGINT,
+  registration_id BIGINT,
   provider VARCHAR(32),
   provider_payment_id VARCHAR(255),
   status VARCHAR(32),
   received_at TIMESTAMP,
-  CONSTRAINT fk_payment_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+  CONSTRAINT fk_payment_registration FOREIGN KEY (registration_id) REFERENCES registrations(id) ON DELETE CASCADE
 );
+
