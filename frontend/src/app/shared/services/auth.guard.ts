@@ -1,33 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Router, CanActivateFn } from '@angular/router';
-import { AuthService } from './auth.service';
+import { Router, CanActivate } from '@angular/router';
+import { AdminStateService } from './admin-state.service';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class AuthGuard {
-  constructor(private authService: AuthService, private router: Router) {}
+@Injectable({ providedIn: 'root' })
+export class AuthGuard implements CanActivate {
+  constructor(private adminState: AdminStateService, private router: Router) {}
 
   canActivate(): boolean {
-    if (this.authService.isAuthenticated()) {
+    if (this.adminState.isLoggedIn) {
       return true;
-    } else {
-      // Redirect to admin login if not authenticated
-      this.router.navigate(['/admin/login']);
-      return false;
     }
-  }
-}
-
-// Functional guard version for new Angular 15+ syntax
-export const authGuard: CanActivateFn = (route, state) => {
-  const authService = new AuthService(null as any);
-  const router = new Router();
-
-  if (authService.isAuthenticated()) {
-    return true;
-  } else {
-    router.navigate(['/admin/login']);
+    this.router.navigate(['/admin/login']);
     return false;
   }
-};
+}
