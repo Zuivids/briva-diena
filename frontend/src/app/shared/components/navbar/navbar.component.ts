@@ -79,7 +79,10 @@ import { AdminStateService } from '../../services/admin-state.service';
 
             <!-- Admin nav links — visible when logged in -->
             <li class="nav-item ms-1" *ngIf="isAdmin">
-              <a class="nav-link nav-link-admin" routerLink="/admin/dashboard">Admin</a>
+              <a class="nav-link nav-link-admin" routerLink="/admin/dashboard" routerLinkActive="active">Admin</a>
+            </li>
+            <li class="nav-item ms-1" *ngIf="isAdmin">
+              <a class="nav-link nav-link-admin" routerLink="/admin/registrations" routerLinkActive="active">Pieteikumi</a>
             </li>
             <li class="nav-item ms-1" *ngIf="isAdmin">
               <button class="btn btn-sm btn-outline-light" (click)="logout()">Iziet</button>

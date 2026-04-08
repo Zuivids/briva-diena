@@ -38,7 +38,7 @@ import { Review } from '../../shared/models/review.model';
                   <p *ngIf="trip.description" class="trip-desc small text-muted">{{ trip.description }}</p>
                   <div class="trip-footer">
                     <span class="trip-price">&#8364;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
-                    <a routerLink="/trips" class="btn btn-sm btn-register-sm">Pieteikties</a>
+                    <a [routerLink]="['/registration', trip.id]" class="btn btn-sm btn-register-sm">Pieteikties</a>
                   </div>
                 </div>
               </div>
