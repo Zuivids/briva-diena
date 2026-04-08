@@ -7,6 +7,7 @@ export interface Trip {
   priceCents: number;
   currency: string;
   availableSpots: number;
+  landingSection?: string;
   images?: string[];
   createdAt?: string;
 }

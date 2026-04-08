@@ -47,15 +47,15 @@ interface RegistrationRow {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>VÄrds UzvÄrds</th>
+                  <th>Vārds Uzvārds</th>
                   <th>Telefons</th>
                   <th>E-pasts</th>
                   <th>Personas kods</th>
                   <th>Pase / ID</th>
-                  <th>Pases der. termiÅ†Å¡</th>
-                  <th>CeÄ¼ojums</th>
+                  <th>Pases der. termiņš</th>
+                  <th>Ceļojums</th>
                   <th>Statuss</th>
-                  <th>ReÄ£istrÄcijas datums</th>
+                  <th>Reģistrācijas datums</th>
                 </tr>
               </thead>
               <tbody>
