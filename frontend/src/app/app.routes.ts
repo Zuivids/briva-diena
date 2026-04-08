@@ -35,14 +35,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/registration/registration.component').then(m => m.RegistrationComponent)
   },
   {
-    path: 'payment/:registrationId',
-    loadComponent: () => import('./pages/payment/payment.component').then(m => m.PaymentComponent)
-  },
-  {
-    path: 'payment-success/:paymentId',
-    loadComponent: () => import('./pages/payment-success/payment-success.component').then(m => m.PaymentSuccessComponent)
-  },
-  {
     path: 'admin/login',
     loadComponent: () => import('./admin/login/admin-login.component').then(m => m.AdminLoginComponent)
   },
