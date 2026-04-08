@@ -37,13 +37,4 @@ CREATE TABLE IF NOT EXISTS registrations (
   CONSTRAINT fk_registration_trip FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS payments (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  registration_id BIGINT,
-  provider VARCHAR(32),
-  provider_payment_id VARCHAR(255),
-  status VARCHAR(32),
-  received_at TIMESTAMP,
-  CONSTRAINT fk_payment_registration FOREIGN KEY (registration_id) REFERENCES registrations(id) ON DELETE CASCADE
-);
 
