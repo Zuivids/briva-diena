@@ -2,7 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AdminStateService, AdminTrip, AdminReview } from '../../shared/services/admin-state.service';
+import { AdminStateService } from '../../shared/services/admin-state.service';
+import { TripService } from '../../shared/services/trip.service';
+import { ReviewService } from '../../shared/services/review.service';
+import { Trip } from '../../shared/models/trip.model';
+import { Review } from '../../shared/models/review.model';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -49,10 +53,9 @@ import { AdminStateService, AdminTrip, AdminReview } from '../../shared/services
           <div class="items-list mb-3">
             <div *ngFor="let trip of trips" class="list-item">
               <div class="list-item-info">
-                <strong>{{ trip.title }}</strong>
-                <span class="text-muted ms-2 small">{{ trip.destination }}</span>
-                <span class="badge bg-secondary ms-2">{{ trip.dateRange }}</span>
-                <span class="badge bg-primary ms-2">€{{ trip.price }}</span>
+                <strong>{{ trip.name }}</strong>
+                <span class="badge bg-secondary ms-2">{{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }}</span>
+                <span class="badge bg-primary ms-2">&#8364;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
               </div>
               <button class="btn btn-sm btn-outline-danger" (click)="removeTrip(trip.id)">Dzēst</button>
             </div>
@@ -63,28 +66,35 @@ import { AdminStateService, AdminTrip, AdminReview } from '../../shared/services
             <p class="add-form-label">Pievienot ceļojumu</p>
             <div class="row g-2">
               <div class="col-md-6">
-                <input type="text" [(ngModel)]="newTrip.title" name="tTitle"
+                <input type="text" [(ngModel)]="newTripName" name="tName"
                   class="form-control form-control-sm" placeholder="Nosaukums" />
               </div>
-              <div class="col-md-6">
-                <input type="text" [(ngModel)]="newTrip.destination" name="tDest"
-                  class="form-control form-control-sm" placeholder="Galamērķis" />
-              </div>
-              <div class="col-md-5">
-                <input type="text" [(ngModel)]="newTrip.dateRange" name="tDates"
-                  class="form-control form-control-sm" placeholder="Datumi (piem. 12.07–20.07.2026)" />
+              <div class="col-md-3">
+                <input type="date" [(ngModel)]="newTripStartDate" name="tStart"
+                  class="form-control form-control-sm" />
               </div>
               <div class="col-md-3">
-                <input type="number" [(ngModel)]="newTrip.price" name="tPrice"
+                <input type="date" [(ngModel)]="newTripEndDate" name="tEnd"
+                  class="form-control form-control-sm" />
+              </div>
+              <div class="col-md-4">
+                <input type="number" [(ngModel)]="newTripPriceEur" name="tPrice"
                   class="form-control form-control-sm" placeholder="Cena (€)" min="0" />
+              </div>
+              <div class="col-md-4">
+                <input type="number" [(ngModel)]="newTripSpots" name="tSpots"
+                  class="form-control form-control-sm" placeholder="Brīvās vietas" min="0" />
               </div>
               <div class="col-md-4 d-flex align-items-end">
                 <button class="btn btn-primary btn-sm w-100" (click)="addTrip()">Pievienot</button>
               </div>
               <div class="col-12">
-                <textarea [(ngModel)]="newTrip.description" name="tDesc"
+                <textarea [(ngModel)]="newTripDesc" name="tDesc"
                   class="form-control form-control-sm" rows="2"
                   placeholder="Īss apraksts"></textarea>
+              </div>
+              <div *ngIf="tripError" class="col-12">
+                <span class="text-danger small">{{ tripError }}</span>
               </div>
             </div>
           </div>
@@ -112,9 +122,9 @@ import { AdminStateService, AdminTrip, AdminReview } from '../../shared/services
           <div class="items-list mb-3">
             <div *ngFor="let review of reviews" class="list-item">
               <div class="list-item-info">
-                <strong>{{ review.name }}</strong>
+                <strong>{{ review.customerName }}</strong>
                 <span class="ms-2 text-muted small">
-                  {{ review.text.length > 90 ? (review.text | slice:0:90) + '...' : review.text }}
+                  {{ review.reviewText.length > 90 ? (review.reviewText | slice:0:90) + '...' : review.reviewText }}
                 </span>
                 <span class="ms-2">
                   <span *ngFor="let s of getStars(review.rating)" class="star">★</span>
@@ -129,11 +139,11 @@ import { AdminStateService, AdminTrip, AdminReview } from '../../shared/services
             <p class="add-form-label">Pievienot atsauksmi</p>
             <div class="row g-2">
               <div class="col-md-5">
-                <input type="text" [(ngModel)]="newReview.name" name="rName"
+                <input type="text" [(ngModel)]="newReviewName" name="rName"
                   class="form-control form-control-sm" placeholder="Vārds" />
               </div>
               <div class="col-md-3">
-                <select [(ngModel)]="newReview.rating" name="rRating"
+                <select [(ngModel)]="newReviewRating" name="rRating"
                   class="form-select form-select-sm">
                   <option [value]="5">5 ★</option>
                   <option [value]="4">4 ★</option>
@@ -143,12 +153,15 @@ import { AdminStateService, AdminTrip, AdminReview } from '../../shared/services
                 </select>
               </div>
               <div class="col-12">
-                <textarea [(ngModel)]="newReview.text" name="rText"
+                <textarea [(ngModel)]="newReviewText" name="rText"
                   class="form-control form-control-sm" rows="2"
                   placeholder="Atsauksmes teksts"></textarea>
               </div>
               <div class="col-md-3">
                 <button class="btn btn-primary btn-sm" (click)="addReview()">Pievienot</button>
+              </div>
+              <div *ngIf="reviewError" class="col-12">
+                <span class="text-danger small">{{ reviewError }}</span>
               </div>
             </div>
           </div>
@@ -266,22 +279,53 @@ import { AdminStateService, AdminTrip, AdminReview } from '../../shared/services
   `]
 })
 export class AdminDashboardComponent implements OnInit {
-  heroPreview = 'italy_mountain.png';
-  trips: AdminTrip[] = [];
-  reviews: AdminReview[] = [];
+  trips: Trip[] = [];
+  reviews: Review[] = [];
   aboutText = '';
   aboutSaved = false;
+  heroPreview = 'italy_mountain.png';
 
-  newTrip: Omit<AdminTrip, 'id'> = { title: '', destination: '', dateRange: '', price: 0, description: '' };
-  newReview: Omit<AdminReview, 'id'> = { name: '', text: '', rating: 5 };
+  // Trip form
+  newTripName = '';
+  newTripStartDate = '';
+  newTripEndDate = '';
+  newTripPriceEur = 0;
+  newTripSpots = 0;
+  newTripDesc = '';
+  tripError = '';
 
-  constructor(private adminState: AdminStateService, private router: Router) {}
+  // Review form
+  newReviewName = '';
+  newReviewText = '';
+  newReviewRating = 5;
+  reviewError = '';
+
+  constructor(
+    public adminState: AdminStateService,
+    private tripService: TripService,
+    private reviewService: ReviewService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.heroPreview = this.adminState.heroImageSrc$.value;
-    this.trips = [...this.adminState.trips$.value];
-    this.reviews = [...this.adminState.reviews$.value];
     this.aboutText = this.adminState.aboutText$.value;
+    this.loadTrips();
+    this.loadReviews();
+  }
+
+  loadTrips(): void {
+    this.tripService.getAllTrips().subscribe({
+      next: (data) => this.trips = data,
+      error: () => this.tripError = 'Neizdevās ielādēt ceļojumus.'
+    });
+  }
+
+  loadReviews(): void {
+    this.reviewService.getAllReviews().subscribe({
+      next: (data) => this.reviews = data,
+      error: () => this.reviewError = 'Neizdevās ielādēt atsauksmes.'
+    });
   }
 
   onHeroUpload(event: Event): void {
@@ -298,18 +342,39 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   addTrip(): void {
-    if (!this.newTrip.title.trim()) return;
-    const id = Date.now();
-    const updated = [...this.trips, { ...this.newTrip, id }];
-    this.adminState.trips$.next(updated);
-    this.trips = updated;
-    this.newTrip = { title: '', destination: '', dateRange: '', price: 0, description: '' };
+    this.tripError = '';
+    if (!this.newTripName.trim() || !this.newTripStartDate || !this.newTripEndDate) {
+      this.tripError = 'Nosaukums un datumi ir obligāti.';
+      return;
+    }
+    const trip: Partial<Trip> = {
+      name: this.newTripName,
+      description: this.newTripDesc,
+      startDate: this.newTripStartDate,
+      endDate: this.newTripEndDate,
+      priceCents: Math.round(this.newTripPriceEur * 100),
+      currency: 'EUR',
+      availableSpots: this.newTripSpots
+    };
+    this.tripService.createTrip(trip as Trip).subscribe({
+      next: () => {
+        this.newTripName = '';
+        this.newTripDesc = '';
+        this.newTripStartDate = '';
+        this.newTripEndDate = '';
+        this.newTripPriceEur = 0;
+        this.newTripSpots = 0;
+        this.loadTrips();
+      },
+      error: () => this.tripError = 'Neizdevās pievienot ceļojumu.'
+    });
   }
 
-  removeTrip(id: number): void {
-    const updated = this.trips.filter(t => t.id !== id);
-    this.adminState.trips$.next(updated);
-    this.trips = updated;
+  removeTrip(id: string): void {
+    this.tripService.deleteTrip(id).subscribe({
+      next: () => this.loadTrips(),
+      error: () => this.tripError = 'Neizdevās dzēst ceļojumu.'
+    });
   }
 
   saveAbout(): void {
@@ -319,18 +384,32 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   addReview(): void {
-    if (!this.newReview.name.trim() || !this.newReview.text.trim()) return;
-    const id = Date.now();
-    const updated = [...this.reviews, { ...this.newReview, id }];
-    this.adminState.reviews$.next(updated);
-    this.reviews = updated;
-    this.newReview = { name: '', text: '', rating: 5 };
+    this.reviewError = '';
+    if (!this.newReviewName.trim() || !this.newReviewText.trim()) {
+      this.reviewError = 'Vārds un teksts ir obligāti.';
+      return;
+    }
+    const review: Omit<Review, 'id' | 'createdAt'> = {
+      customerName: this.newReviewName,
+      reviewText: this.newReviewText,
+      rating: this.newReviewRating
+    };
+    this.reviewService.createReview(review).subscribe({
+      next: () => {
+        this.newReviewName = '';
+        this.newReviewText = '';
+        this.newReviewRating = 5;
+        this.loadReviews();
+      },
+      error: () => this.reviewError = 'Neizdevās pievienot atsauksmi.'
+    });
   }
 
-  removeReview(id: number): void {
-    const updated = this.reviews.filter(r => r.id !== id);
-    this.adminState.reviews$.next(updated);
-    this.reviews = updated;
+  removeReview(id: string): void {
+    this.reviewService.deleteReview(id).subscribe({
+      next: () => this.loadReviews(),
+      error: () => this.reviewError = 'Neizdevās dzēst atsauksmi.'
+    });
   }
 
   getStars(rating: number): number[] {

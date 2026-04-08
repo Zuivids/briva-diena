@@ -2,14 +2,13 @@ export interface Trip {
   id: string;
   name: string;
   description: string;
-  startDate: Date;
-  endDate: Date;
-  price: number;
+  startDate: string;
+  endDate: string;
+  priceCents: number;
   currency: string;
   availableSpots: number;
-  images: string[];
-  mainImage: string;
-  createdAt: Date;
+  images?: string[];
+  createdAt?: string;
 }
 
 export interface TripFilter {
