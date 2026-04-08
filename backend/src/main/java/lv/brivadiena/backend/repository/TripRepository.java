@@ -45,4 +45,9 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
      */
     @Query("SELECT t FROM Trip t WHERE t.availableSpots > 0 ORDER BY t.startDate ASC")
     List<Trip> findAllWithAvailableSpots();
+
+    /**
+     * Find trips by landing section (TOP or LAST_CHANCE)
+     */
+    List<Trip> findByLandingSectionOrderByStartDate(String landingSection);
 }

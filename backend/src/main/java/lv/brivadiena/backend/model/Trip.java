@@ -34,6 +34,9 @@ public class Trip {
     @Column(nullable = false)
     private Integer availableSpots;
 
+    @Column(length = 20)
+    private String landingSection;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -152,5 +155,13 @@ public class Trip {
 
     public void setRegistrations(List<Registration> registrations) {
         this.registrations = registrations;
+    }
+
+    public String getLandingSection() {
+        return landingSection;
+    }
+
+    public void setLandingSection(String landingSection) {
+        this.landingSection = landingSection;
     }
 }

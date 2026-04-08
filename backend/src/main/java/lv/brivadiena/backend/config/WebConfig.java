@@ -15,6 +15,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${app.uploads-path}")
     private String uploadsPath;
 
+    @Value("${app.images-path}")
+    private String imagesPath;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
@@ -29,5 +32,9 @@ public class WebConfig implements WebMvcConfigurer {
         String uploadPath = "file:" + uploadDir.toString() + "/";
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(uploadPath);
+
+        String imagesDir = "file:" + Paths.get(imagesPath).toAbsolutePath().toString() + "/";
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations(imagesDir);
     }
 }
