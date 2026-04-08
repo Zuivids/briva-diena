@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, AfterViewInit, Inject } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminStateService } from '../../shared/services/admin-state.service';
 import { TripService } from '../../shared/services/trip.service';
 import { ReviewService } from '../../shared/services/review.service';
+import { InstagramService } from '../../shared/services/instagram.service';
 import { Trip } from '../../shared/models/trip.model';
 import { Review } from '../../shared/models/review.model';
 import { forkJoin, of } from 'rxjs';
@@ -99,6 +100,32 @@ import { catchError } from 'rxjs/operators';
           <p class="about-text">{{ adminState.aboutText$ | async }}</p>
         </div>
       </section>
+      
+      <!-- Instagram Section -->
+      <section *ngIf="instagramUrls.length > 0" class="instagram-section py-5 bg-light">
+        <div class="container">
+          <h2 class="section-title mb-4">Ieskaties</h2>
+          <div class="instagram-scroll">
+            <div *ngFor="let url of instagramUrls" class="instagram-item">
+              <blockquote
+                class="instagram-media"
+                [attr.data-instgrm-permalink]="url"
+                data-instgrm-version="14"
+                style="background:#FFF;border:0;border-radius:3px;box-shadow:0 0 1px 0 rgba(0,0,0,.5),0 1px 10px 0 rgba(0,0,0,.15);margin:0;max-width:320px;min-width:280px;padding:0;width:100%;">
+              </blockquote>
+            </div>
+          </div>
+          <div class="text-center mt-4">
+            <a href="https://www.instagram.com/briva.diena/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-dark">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-2" style="vertical-align:-2px">
+                <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm.003 1.44c2.136 0 2.389.009 3.233.048.778.036 1.203.166 1.485.276.373.145.64.319.92.599s.453.546.598.92c.11.281.24.706.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.778-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.706.241-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.778-.036-1.203-.166-1.484-.276a2.47 2.47 0 0 1-.92-.598 2.47 2.47 0 0 1-.6-.92c-.109-.281-.24-.706-.275-1.485C1.449 10.39 1.44 10.136 1.44 8s.009-2.389.047-3.232c.036-.778.166-1.203.276-1.485.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.706-.24 1.485-.276.842-.038 1.096-.047 3.232-.047z"/>
+                <path d="M8 3.892a4.108 4.108 0 1 0 0 8.216 4.108 4.108 0 0 0 0-8.216zm0 6.775a2.667 2.667 0 1 1 0-5.334 2.667 2.667 0 0 1 0 5.334zm5.23-6.937a.96.96 0 1 1-1.92 0 .96.96 0 0 1 1.92 0z"/>
+              </svg>
+              Pieseko!
+            </a>
+          </div>
+        </div>
+      </section>
 
       <!-- Reviews Section -->
       <section class="reviews-section py-5">
@@ -123,6 +150,7 @@ import { catchError } from 'rxjs/operators';
           </div>
         </div>
       </section>
+
     </div>
   `,
   styles: [`
@@ -189,9 +217,25 @@ import { catchError } from 'rxjs/operators';
     .star { color: #f5a623; font-size: 1rem; }
     .review-text { font-size: 0.9rem; color: #555; font-style: italic; line-height: 1.6; }
     .review-name { font-size: 0.875rem; font-weight: 600; color: #333; margin-bottom: 0; }
+
+    .instagram-scroll {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      scroll-snap-type: x mandatory;
+    }
+    .instagram-scroll::-webkit-scrollbar { height: 4px; }
+    .instagram-scroll::-webkit-scrollbar-thumb { background: #c0c8e0; border-radius: 4px; }
+
+    .instagram-item {
+      flex-shrink: 0;
+      width: 320px;
+      scroll-snap-align: start;
+    }
   `]
 })
-export class LandingComponent implements OnInit {
+export class LandingComponent implements OnInit, AfterViewInit {
   topTrips: Trip[] = [];
   lastChanceTrips: Trip[] = [];
   reviews: Review[] = [];
@@ -200,11 +244,14 @@ export class LandingComponent implements OnInit {
   topLoading = true;
   lastChanceLoading = true;
   reviewsLoading = true;
+  instagramUrls: string[] = [];
 
   constructor(
     public adminState: AdminStateService,
     private tripService: TripService,
-    private reviewService: ReviewService
+    private reviewService: ReviewService,
+    private instagramService: InstagramService,
+    @Inject(DOCUMENT) private document: Document
   ) {}
 
   ngOnInit(): void {
@@ -214,6 +261,35 @@ export class LandingComponent implements OnInit {
       next: (data) => { this.reviews = data; this.reviewsLoading = false; },
       error: () => { this.reviewsLoading = false; }
     });
+    this.adminState.instagramPostUrls$.subscribe(urls => {
+      this.instagramUrls = urls;
+      setTimeout(() => this.processInstagramEmbeds(), 200);
+    });
+    this.instagramService.getAll().subscribe({
+      next: (posts) => {
+        const urls = posts.map(p => p.url);
+        this.adminState.instagramPostUrls$.next(urls);
+      },
+      error: () => {}
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.processInstagramEmbeds();
+  }
+
+  private processInstagramEmbeds(): void {
+    if (this.instagramUrls.length === 0) return;
+    const win = window as any;
+    if (win.instgrm) {
+      win.instgrm.Embeds.process();
+    } else if (!this.document.getElementById('instagram-embed-js')) {
+      const script = this.document.createElement('script');
+      script.id = 'instagram-embed-js';
+      script.src = 'https://www.instagram.com/embed.js';
+      script.async = true;
+      this.document.body.appendChild(script);
+    }
   }
 
   private loadSection(section: 'TOP' | 'LAST_CHANCE'): void {

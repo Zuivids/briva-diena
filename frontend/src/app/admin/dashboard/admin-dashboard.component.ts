@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AdminStateService } from '../../shared/services/admin-state.service';
 import { TripService } from '../../shared/services/trip.service';
 import { ReviewService } from '../../shared/services/review.service';
+import { InstagramService, InstagramPost } from '../../shared/services/instagram.service';
 import { Trip } from '../../shared/models/trip.model';
 import { Review } from '../../shared/models/review.model';
 
@@ -195,6 +196,135 @@ import { Review } from '../../shared/models/review.model';
             <button class="btn btn-primary btn-sm" (click)="saveAbout()">Saglabāt</button>
             <span *ngIf="aboutSaved" class="text-success small">Saglabāts!</span>
           </div>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- ── About Page ── -->
+        <section class="admin-section">
+          <h4 class="section-heading">Par mums lapa</h4>
+
+          <p class="hint mb-2">Attēls tiks rādīts kreisajā pusē blakus tekstam.</p>
+          <div class="hero-row mb-3">
+            <ng-container *ngIf="aboutPageImagePreview; else noAboutImg">
+              <img [src]="aboutPageImagePreview" alt="Par mums" class="hero-thumb" />
+              <div class="ms-3 d-flex flex-column gap-2">
+                <label class="btn btn-outline-primary btn-sm upload-btn" for="aboutPageImageFile">
+                  Mainīt attēlu
+                  <input id="aboutPageImageFile" type="file" accept="image/*" class="visually-hidden" (change)="onAboutPageImageUpload($event)" />
+                </label>
+                <button class="btn btn-outline-danger btn-sm" (click)="removeAboutPageImage()">Noņemt attēlu</button>
+              </div>
+            </ng-container>
+            <ng-template #noAboutImg>
+              <label class="btn btn-outline-primary btn-sm upload-btn" for="aboutPageImageFile">
+                Pievienot attēlu
+                <input id="aboutPageImageFile" type="file" accept="image/*" class="visually-hidden" (change)="onAboutPageImageUpload($event)" />
+              </label>
+            </ng-template>
+          </div>
+
+          <p class="hint mb-2">Katrs rindkopas atdalīts ar tukšu rindu.</p>
+          <textarea [(ngModel)]="aboutPageContent" name="aboutPageContent"
+            class="form-control" rows="8"></textarea>
+          <div class="mt-2 d-flex align-items-center gap-2">
+            <button class="btn btn-primary btn-sm" (click)="saveAboutPage()">Saglabāt</button>
+            <span *ngIf="aboutPageSaved" class="text-success small">Saglabāts!</span>
+          </div>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- ── FAQ Page ── -->
+        <section class="admin-section">
+          <h4 class="section-heading">BUJ lapa</h4>
+
+          <div class="items-list mb-3">
+            <div *ngFor="let item of faqItems" class="list-item faq-list-item">
+              <div class="list-item-info faq-item-info">
+                <strong>{{ item.question }}</strong>
+                <span class="text-muted small d-block">{{ item.answer.length > 100 ? (item.answer | slice:0:100) + '...' : item.answer }}</span>
+              </div>
+              <div class="d-flex gap-2 flex-shrink-0">
+                <button class="btn btn-sm btn-outline-primary" (click)="toggleFaqEdit(item)">
+                  {{ editingFaqId === item.id ? 'Atcelt' : 'Rediģēt' }}
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="removeFaqItem(item.id)">Dzēst</button>
+              </div>
+
+              <div *ngIf="editingFaqId === item.id" class="edit-panel w-100">
+                <p class="edit-panel-title">Rediģēt jautājumu</p>
+                <div class="row g-2">
+                  <div class="col-12">
+                    <input type="text" [(ngModel)]="faqEditForm.question" name="faqEditQ"
+                      class="form-control form-control-sm" placeholder="Jautājums" />
+                  </div>
+                  <div class="col-12">
+                    <textarea [(ngModel)]="faqEditForm.answer" name="faqEditA"
+                      class="form-control form-control-sm" rows="3" placeholder="Atbilde"></textarea>
+                  </div>
+                  <div class="col-12 d-flex align-items-center gap-2">
+                    <button class="btn btn-primary btn-sm" (click)="saveFaqEdit()">Saglabāt</button>
+                    <button class="btn btn-secondary btn-sm" (click)="editingFaqId = null">Atcelt</button>
+                    <span *ngIf="faqEditError" class="text-danger small">{{ faqEditError }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p *ngIf="faqItems.length === 0" class="text-muted small mb-0 p-3">Nav pievienotu jautājumu.</p>
+          </div>
+
+          <div class="add-form">
+            <p class="add-form-label">Pievienot jautājumu</p>
+            <div class="row g-2">
+              <div class="col-12">
+                <input type="text" [(ngModel)]="newFaqQuestion" name="faqQ"
+                  class="form-control form-control-sm" placeholder="Jautājums" />
+              </div>
+              <div class="col-12">
+                <textarea [(ngModel)]="newFaqAnswer" name="faqA"
+                  class="form-control form-control-sm" rows="3"
+                  placeholder="Atbilde"></textarea>
+              </div>
+              <div class="col-12 d-flex align-items-center gap-2">
+                <button class="btn btn-primary btn-sm" (click)="addFaqItem()">Pievienot</button>
+                <span *ngIf="faqError" class="text-danger small">{{ faqError }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- ── Instagram ── -->
+        <section class="admin-section">
+          <h4 class="section-heading">Instagram ieraksti <span class="section-url">/</span></h4>
+          <p class="hint mb-3">Max 5 ieraksti.</p>
+
+          <div class="items-list mb-3">
+            <div *ngFor="let post of instagramPosts" class="list-item">
+              <div class="list-item-info">
+                <a [href]="post.url" target="_blank" rel="noopener noreferrer" class="text-primary small">{{ post.url }}</a>
+              </div>
+              <button class="btn btn-sm btn-outline-danger flex-shrink-0" (click)="removeInstagramPost(post.id)">Dzēst</button>
+            </div>
+            <p *ngIf="instagramPosts.length === 0" class="text-muted small mb-0 p-3">Nav pievienotu ierakstu.</p>
+          </div>
+
+          <div *ngIf="instagramPosts.length < 5" class="add-form">
+            <div class="row g-2">
+              <div class="col">
+                <input type="url" [(ngModel)]="newInstagramUrl" name="igUrl"
+                  class="form-control form-control-sm"
+                  placeholder="https://www.instagram.com/p/XXXXX/" />
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-primary btn-sm" (click)="addInstagramPost()">Pievienot</button>
+              </div>
+            </div>
+            <span *ngIf="instagramError" class="text-danger small d-block mt-1">{{ instagramError }}</span>
+          </div>
+          <p *ngIf="instagramPosts.length >= 5" class="hint mt-2">Sasniegts maksimālais skaits (5).</p>
         </section>
 
         <hr class="section-divider" />
@@ -492,6 +622,27 @@ import { Review } from '../../shared/models/review.model';
     .image-upload-btn:hover {
       background: #e8eeff;
     }
+
+    .section-url {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: #888;
+      margin-left: 6px;
+    }
+
+    .faq-list-item {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 8px;
+    }
+
+    .faq-item-info {
+      width: 100%;
+    }
+
+    .faq-list-item .btn-outline-danger {
+      align-self: flex-end;
+    }
   `]
 })
 export class AdminDashboardComponent implements OnInit {
@@ -499,6 +650,19 @@ export class AdminDashboardComponent implements OnInit {
   reviews: Review[] = [];
   aboutText = '';
   aboutSaved = false;
+  aboutPageContent = '';
+  aboutPageSaved = false;
+  aboutPageImagePreview: string | null = null;
+  faqItems: { id: string; question: string; answer: string }[] = [];
+  newFaqQuestion = '';
+  newFaqAnswer = '';
+  faqError = '';
+  editingFaqId: string | null = null;
+  faqEditForm = { question: '', answer: '' };
+  faqEditError = '';
+  instagramPosts: InstagramPost[] = [];
+  newInstagramUrl = '';
+  instagramError = '';
   heroPreview = 'italy_mountain.png';
 
   // Trip form
@@ -528,12 +692,17 @@ export class AdminDashboardComponent implements OnInit {
     public adminState: AdminStateService,
     private tripService: TripService,
     private reviewService: ReviewService,
+    private instagramService: InstagramService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.heroPreview = this.adminState.heroImageSrc$.value;
     this.aboutText = this.adminState.aboutText$.value;
+    this.aboutPageContent = this.adminState.aboutPageContent$.value;
+    this.aboutPageImagePreview = this.adminState.aboutPageImage$.value;
+    this.faqItems = this.adminState.faqItems$.value;
+    this.loadInstagramPosts();
     this.loadTrips();
     this.loadReviews();
   }
@@ -703,6 +872,80 @@ export class AdminDashboardComponent implements OnInit {
     setTimeout(() => (this.aboutSaved = false), 2000);
   }
 
+  saveAboutPage(): void {
+    this.adminState.aboutPageContent$.next(this.aboutPageContent);
+    this.aboutPageSaved = true;
+    setTimeout(() => (this.aboutPageSaved = false), 2000);
+  }
+
+  onAboutPageImageUpload(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const src = e.target!.result as string;
+      this.aboutPageImagePreview = src;
+      this.adminState.aboutPageImage$.next(src);
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+  }
+
+  removeAboutPageImage(): void {
+    this.aboutPageImagePreview = null;
+    this.adminState.aboutPageImage$.next(null);
+  }
+
+  addFaqItem(): void {
+    this.faqError = '';
+    if (!this.newFaqQuestion.trim() || !this.newFaqAnswer.trim()) {
+      this.faqError = 'Jautājums un atbilde ir obligāti.';
+      return;
+    }
+    const updated = [
+      ...this.adminState.faqItems$.value,
+      { id: Date.now().toString(), question: this.newFaqQuestion.trim(), answer: this.newFaqAnswer.trim() }
+    ];
+    this.adminState.faqItems$.next(updated);
+    this.faqItems = updated;
+    this.newFaqQuestion = '';
+    this.newFaqAnswer = '';
+  }
+
+  removeFaqItem(id: string): void {
+    const updated = this.adminState.faqItems$.value.filter(f => f.id !== id);
+    this.adminState.faqItems$.next(updated);
+    this.faqItems = updated;
+    if (this.editingFaqId === id) this.editingFaqId = null;
+  }
+
+  toggleFaqEdit(item: { id: string; question: string; answer: string }): void {
+    if (this.editingFaqId === item.id) {
+      this.editingFaqId = null;
+      return;
+    }
+    this.editingFaqId = item.id;
+    this.faqEditForm = { question: item.question, answer: item.answer };
+    this.faqEditError = '';
+  }
+
+  saveFaqEdit(): void {
+    this.faqEditError = '';
+    if (!this.faqEditForm.question.trim() || !this.faqEditForm.answer.trim()) {
+      this.faqEditError = 'Jautājums un atbilde ir obligāti.';
+      return;
+    }
+    const updated = this.adminState.faqItems$.value.map(f =>
+      f.id === this.editingFaqId
+        ? { ...f, question: this.faqEditForm.question.trim(), answer: this.faqEditForm.answer.trim() }
+        : f
+    );
+    this.adminState.faqItems$.next(updated);
+    this.faqItems = updated;
+    this.editingFaqId = null;
+  }
+
   addReview(): void {
     this.reviewError = '';
     if (!this.newReviewName.trim() || !this.newReviewText.trim()) {
@@ -734,6 +977,44 @@ export class AdminDashboardComponent implements OnInit {
 
   getStars(rating: number): number[] {
     return Array(rating).fill(0);
+  }
+
+  addInstagramPost(): void {
+    this.instagramError = '';
+    const url = this.newInstagramUrl.trim();
+    if (!url) { this.instagramError = 'Ievadiet saiti.'; return; }
+    if (!url.startsWith('https://www.instagram.com/p/') && !url.startsWith('https://www.instagram.com/reel/')) {
+      this.instagramError = 'Saitei jāsākas ar https://www.instagram.com/p/ vai /reel/';
+      return;
+    }
+    this.instagramService.add(url).subscribe({
+      next: (post) => {
+        this.instagramPosts = [...this.instagramPosts, post];
+        this.adminState.instagramPostUrls$.next(this.instagramPosts.map(p => p.url));
+        this.newInstagramUrl = '';
+      },
+      error: () => { this.instagramError = 'Neizdevās pievienot ierakstu.'; }
+    });
+  }
+
+  removeInstagramPost(id: number): void {
+    this.instagramService.delete(id).subscribe({
+      next: () => {
+        this.instagramPosts = this.instagramPosts.filter(p => p.id !== id);
+        this.adminState.instagramPostUrls$.next(this.instagramPosts.map(p => p.url));
+      },
+      error: () => {}
+    });
+  }
+
+  loadInstagramPosts(): void {
+    this.instagramService.getAll().subscribe({
+      next: (posts) => {
+        this.instagramPosts = posts;
+        this.adminState.instagramPostUrls$.next(posts.map(p => p.url));
+      },
+      error: () => {}
+    });
   }
 
   logout(): void {
