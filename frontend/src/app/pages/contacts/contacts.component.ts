@@ -72,7 +72,9 @@ import { FormsModule } from '@angular/forms';
                   name="message"
                 ></textarea>
               </div>
-              <button type="submit" class="btn btn-submit">Nosūtīt ziņu</button>
+              <div class="text-center">
+                <button type="submit" class="btn btn-submit">Nosūtīt ziņu</button>
+              </div>
             </form>
           </div>
         </div>
@@ -146,7 +148,7 @@ import { FormsModule } from '@angular/forms';
     }
 
     .btn-submit {
-      background: #000;
+      background: #e87722;
       color: #fff;
       border: none;
       border-radius: 14px;
@@ -157,7 +159,7 @@ import { FormsModule } from '@angular/forms';
     }
 
     .btn-submit:hover {
-      background: #333;
+      background: #cf6510;
       color: #fff;
     }
   `]

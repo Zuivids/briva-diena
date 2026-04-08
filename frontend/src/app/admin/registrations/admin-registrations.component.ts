@@ -28,7 +28,7 @@ interface RegistrationRow {
 
         <div class="page-header mb-4">
           <h2 class="page-title">Pieteikumi</h2>
-          <span class="badge-count">{{ registrations.length }} kopÄ</span>
+          <span class="badge-count">{{ registrations.length }} kopā</span>
         </div>
 
         <div *ngIf="loading" class="text-center py-5">
