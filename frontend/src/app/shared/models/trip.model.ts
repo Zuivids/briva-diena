@@ -10,6 +10,20 @@ export interface Trip {
   landingSection?: string;
   images?: string[];
   createdAt?: string;
+  transportationType?: string;
+  accommodation?: string;
+  airlineCompany?: string;
+  includedBaggageSize?: string;
+  priceIncluded?: string;
+  extraCharge?: string;
+  itineraryJson?: string;
+}
+
+export interface TripDay {
+  dayNumber: number;
+  date: string;
+  description: string;
+  imagePath?: string | null;
 }
 
 export interface TripFilter {

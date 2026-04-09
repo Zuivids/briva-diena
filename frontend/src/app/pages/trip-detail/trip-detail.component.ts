@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TripService } from '../../shared/services/trip.service';
-import { Trip } from '../../shared/models/trip.model';
+import { Trip, TripDay } from '../../shared/models/trip.model';
 import { HttpStatusCode } from '@angular/common/http';
 
 interface TripImage { id: number; path: string; isCover: boolean; }
@@ -35,8 +35,9 @@ interface TripImage { id: number; path: string; isCover: boolean; }
               <a routerLink="/trips" class="back-link">&#8592; Visi ceļojumi</a>
               <h1 class="trip-hero-title">{{ trip.name }}</h1>
               <div class="trip-hero-meta">
-                <span class="meta-chip">&#128197; {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }}</span>
-                <span class="meta-chip">&#128205; {{ durationDays }} dienas</span>
+                <span class="meta-chip">{{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }}</span>
+                <span class="meta-chip">{{ durationDays }} dienas</span>
+                <span *ngIf="trip.transportationType" class="meta-chip">{{ trip.transportationType }}</span>
                 <span class="meta-chip spots" [class.few-spots]="trip.availableSpots <= 3">
                   {{ trip.availableSpots > 0 ? trip.availableSpots + ' brīvas vietas' : 'Pilns' }}
                 </span>
@@ -48,19 +49,57 @@ interface TripImage { id: number; path: string; isCover: boolean; }
         <div class="container py-5">
           <div class="row g-5">
 
-            <!-- Left — description + gallery -->
+            <!-- â”€â”€ Left column â”€â”€ -->
             <div class="col-lg-8">
 
+              <!-- Ko mēs piedzīvosim / description -->
               <section class="detail-section" *ngIf="trip.description">
-                <h3 class="detail-heading">Par ceļojumu</h3>
+                <h3 class="detail-heading">Ko mēs piedzīvosim</h3>
                 <p class="detail-text">{{ trip.description }}</p>
               </section>
 
-              <!-- Image gallery -->
-              <section class="detail-section" *ngIf="images.length > 0">
+              <!-- Itinerary days -->
+              <section class="detail-section" *ngIf="itinerary.length > 0">
+                <h3 class="detail-heading">Dienas programma</h3>
+                <div *ngFor="let day of itinerary" class="itinerary-day">
+                  <div class="day-header">
+                    <span class="day-badge">{{ day.dayNumber }}. diena</span>
+                    <span *ngIf="day.date" class="day-date">{{ day.date | date:'dd.MM.yyyy' }}</span>
+                  </div>
+                  <div class="day-body" [class.has-image]="day.imagePath">
+                    <p class="day-desc">{{ day.description }}</p>
+                    <img *ngIf="day.imagePath" [src]="imageBase + day.imagePath"
+                         [alt]="'Diena ' + day.dayNumber"
+                         class="day-img"
+                         (click)="openLightbox(day.imagePath!)" />
+                  </div>
+                </div>
+              </section>
+
+              <!-- Price included / Extra charge -->
+              <section class="detail-section" *ngIf="trip.priceIncluded || trip.extraCharge">
+                <h3 class="detail-heading">Cenas informācija</h3>
+                <div class="row g-4">
+                  <div class="col-sm-6" *ngIf="trip.priceIncluded">
+                    <div class="price-block included">
+                      <div class="price-block-title">&#10003; Iekļauts cenā</div>
+                      <p class="price-block-text">{{ trip.priceIncluded }}</p>
+                    </div>
+                  </div>
+                  <div class="col-sm-6" *ngIf="trip.extraCharge">
+                    <div class="price-block extra">
+                      <div class="price-block-title">+ Papildmaksa</div>
+                      <p class="price-block-text">{{ trip.extraCharge }}</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Image gallery (non-cover images) -->
+              <section class="detail-section" *ngIf="galleryImages.length > 0">
                 <h3 class="detail-heading">Foto galerija</h3>
                 <div class="gallery-grid">
-                  <img *ngFor="let img of images"
+                  <img *ngFor="let img of galleryImages"
                        [src]="imageBase + img.path"
                        [alt]="trip.name"
                        class="gallery-img"
@@ -71,7 +110,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
 
             </div>
 
-            <!-- Right — booking card -->
+            <!-- â”€â”€ Right â€” booking card â”€â”€ -->
             <div class="col-lg-4">
               <div class="booking-card">
                 <div class="booking-price">
@@ -82,19 +121,27 @@ interface TripImage { id: number; path: string; isCover: boolean; }
 
                 <ul class="booking-info-list">
                   <li>
-                    <span class="info-icon">&#128197;</span>
-                    <span><strong>Sākums:</strong> {{ trip.startDate | date:'dd. MMMM yyyy':'':'lv' }}</span>
+                    <span><strong>Sākums:</strong> {{ trip.startDate | date:'dd. MMMM yyyy' }}</span>
                   </li>
                   <li>
-                    <span class="info-icon">&#128197;</span>
-                    <span><strong>Beigas:</strong> {{ trip.endDate | date:'dd. MMMM yyyy':'':'lv' }}</span>
+                    <span><strong>Beigas:</strong> {{ trip.endDate | date:'dd. MMMM yyyy' }}</span>
                   </li>
                   <li>
-                    <span class="info-icon">&#9200;</span>
                     <span><strong>Ilgums:</strong> {{ durationDays }} dienas</span>
                   </li>
+                  <li *ngIf="trip.transportationType">
+                    <span><strong>Transports:</strong> {{ trip.transportationType }}</span>
+                  </li>
+                  <li *ngIf="trip.airlineCompany">
+                    <span><strong>Aviokompānija:</strong> {{ trip.airlineCompany }}</span>
+                  </li>
+                  <li *ngIf="trip.includedBaggageSize">
+                    <span><strong>Bagāža:</strong> {{ trip.includedBaggageSize }}</span>
+                  </li>
+                  <li *ngIf="trip.accommodation">
+                    <span><strong>Izmitināšana:</strong> {{ trip.accommodation }}</span>
+                  </li>
                   <li>
-                    <span class="info-icon">&#128101;</span>
                     <span><strong>Brīvas vietas:</strong>
                       <span [class.text-danger]="trip.availableSpots <= 3">{{ trip.availableSpots }}</span>
                     </span>
@@ -197,6 +244,98 @@ interface TripImage { id: number; path: string; isCover: boolean; }
       white-space: pre-line;
     }
 
+    /* Itinerary */
+    .itinerary-day {
+      margin-bottom: 24px;
+      border: 1.5px solid #e0e8f5;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .day-header {
+      background: #1746a0;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .day-badge {
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .day-date {
+      color: rgba(255,255,255,0.75);
+      font-size: 0.85rem;
+    }
+
+    .day-body {
+      padding: 14px 16px;
+      background: #f8faff;
+    }
+
+    .day-body.has-image {
+      display: grid;
+      grid-template-columns: 1fr 200px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .day-desc {
+      color: #444;
+      line-height: 1.7;
+      white-space: pre-line;
+      margin: 0;
+    }
+
+    .day-img {
+      width: 100%;
+      border-radius: 8px;
+      object-fit: cover;
+      aspect-ratio: 4/3;
+      cursor: pointer;
+      transition: opacity 0.18s;
+    }
+
+    .day-img:hover { opacity: 0.88; }
+
+    /* Price blocks */
+    .price-block {
+      border-radius: 10px;
+      padding: 16px;
+      height: 100%;
+    }
+
+    .price-block.included {
+      background: #f0faf4;
+      border: 1.5px solid #b6e8c8;
+    }
+
+    .price-block.extra {
+      background: #fff8f0;
+      border: 1.5px solid #f5d9b0;
+    }
+
+    .price-block-title {
+      font-weight: 700;
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+      color: #1a202c;
+    }
+
+    .price-block.included .price-block-title { color: #1a6e3a; }
+    .price-block.extra .price-block-title { color: #a0540a; }
+
+    .price-block-text {
+      color: #444;
+      font-size: 0.88rem;
+      line-height: 1.7;
+      white-space: pre-line;
+      margin: 0;
+    }
+
     /* Gallery */
     .gallery-grid {
       display: grid;
@@ -236,21 +375,9 @@ interface TripImage { id: number; path: string; isCover: boolean; }
       flex-wrap: wrap;
     }
 
-    .price-label {
-      font-size: 0.8rem;
-      color: #888;
-    }
-
-    .price-value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #1746a0;
-    }
-
-    .price-per {
-      font-size: 0.8rem;
-      color: #888;
-    }
+    .price-label { font-size: 0.8rem; color: #888; }
+    .price-value { font-size: 2rem; font-weight: 700; color: #1746a0; }
+    .price-per { font-size: 0.8rem; color: #888; }
 
     .booking-info-list {
       list-style: none;
@@ -269,7 +396,6 @@ interface TripImage { id: number; path: string; isCover: boolean; }
     }
 
     .booking-info-list li:last-child { border-bottom: none; }
-
     .info-icon { font-size: 1rem; min-width: 20px; }
 
     .btn-book {
@@ -316,6 +442,10 @@ interface TripImage { id: number; path: string; isCover: boolean; }
       cursor: pointer;
       line-height: 1;
     }
+
+    @media (max-width: 576px) {
+      .day-body.has-image { grid-template-columns: 1fr; }
+    }
   `]
 })
 export class TripDetailComponent implements OnInit {
@@ -325,6 +455,7 @@ export class TripDetailComponent implements OnInit {
   lightboxSrc: string | null = null;
   loading = true;
   error = '';
+  itinerary: TripDay[] = [];
   readonly imageBase = 'http://localhost:8080/images/';
 
   constructor(private route: ActivatedRoute, private tripService: TripService) {}
@@ -335,14 +466,13 @@ export class TripDetailComponent implements OnInit {
       next: (trip) => {
         this.trip = trip;
         this.loading = false;
-        // Load gallery images
+        if (trip.itineraryJson) {
+          try { this.itinerary = JSON.parse(trip.itineraryJson); } catch { /* ignore */ }
+        }
         this.tripService.getTripImages(id).subscribe({
-          next: (imgs) => {
-            this.images = imgs;
-          },
+          next: (imgs) => { this.images = imgs; },
           error: () => {}
         });
-        // Load cover separately
         this.tripService.getCoverImage(id).subscribe({
           next: (cover) => { this.heroImage = cover.path; },
           error: () => { this.heroImage = null; }
@@ -362,7 +492,10 @@ export class TripDetailComponent implements OnInit {
     return Math.round((end.getTime() - start.getTime()) / 86400000) + 1;
   }
 
+  get galleryImages(): TripImage[] {
+    return this.images.filter(img => !img.isCover);
+  }
+
   openLightbox(path: string): void { this.lightboxSrc = path; }
   closeLightbox(): void { this.lightboxSrc = null; }
 }
-

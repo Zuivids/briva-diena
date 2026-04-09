@@ -1,0 +1,8 @@
+ALTER TABLE trips
+  ADD COLUMN transportation_type VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN accommodation VARCHAR(255) DEFAULT NULL,
+  ADD COLUMN airline_company VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN included_baggage_size VARCHAR(100) DEFAULT NULL,
+  ADD COLUMN price_included TEXT DEFAULT NULL,
+  ADD COLUMN extra_charge TEXT DEFAULT NULL,
+  ADD COLUMN itinerary_json TEXT DEFAULT NULL;
