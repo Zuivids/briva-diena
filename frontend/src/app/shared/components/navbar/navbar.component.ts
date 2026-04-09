@@ -64,7 +64,7 @@ import { AdminStateService } from '../../services/admin-state.service';
 
             <!-- Pieteikties button -->
             <li class="nav-item ms-1">
-              <a class="btn btn-register" routerLink="/trips">Pieteikties</a>
+              <a class="btn btn-register" routerLink="/registration">Pieteikties</a>
             </li>
 
             <!-- Admin icon — visible when NOT logged in -->
