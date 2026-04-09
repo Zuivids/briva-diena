@@ -79,7 +79,7 @@ import { RouterLink } from '@angular/router';
         <div class="footer-bottom">
           <div class="footer-bottom-left">
             <span class="footer-copyright">&#169; 2026 <a routerLink="/">Brīva diena</a></span>
-            <a routerLink="/contacts" class="footer-policy-link">Privātuma politika</a>
+            <a routerLink="/policies/privacy-policy" class="footer-policy-link">Privātuma politika</a>
           </div>
           <div class="footer-bottom-right">
             <!-- Facebook -->

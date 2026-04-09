@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { TripService } from '../../shared/services/trip.service';
 import { RegistrationService } from '../../shared/services/registration.service';
@@ -9,7 +9,7 @@ import { Trip } from '../../shared/models/trip.model';
 @Component({
   selector: 'app-registration',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
   template: `
     <div class="reg-page">
       <div class="container py-5">
@@ -18,7 +18,7 @@ import { Trip } from '../../shared/models/trip.model';
         <div *ngIf="success" class="success-card mx-auto">
           <div class="success-icon">&#10003;</div>
           <h2 class="success-title">Paldies par pieteikumu!</h2>
-          <p class="success-text">Jūsu pieteikums ir saņemts. Mēs sazināsimies ar jums tuvākajā laikā.</p>
+          <p class="success-text">Tavs pieteikums ir saņemts! Tuvākās darba dienas laikā Tu saņemtsi epastā rēķinu par ceļojumu un līgumu. Jautājumu gadījumā raksti: info&#64;brivadiena.lv vai 29784777</p>
           <a routerLink="/trips" class="btn btn-primary mt-2">Atpakaļ uz ceļojumiem</a>
         </div>
 
@@ -29,6 +29,14 @@ import { Trip } from '../../shared/models/trip.model';
           <div class="reg-header">
             <h2 class="reg-title">Pieteikšanās ceļojumam</h2>
             <p *ngIf="trip" class="reg-subtitle">{{ trip.name }} &nbsp;&bull;&nbsp; {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }}</p>
+          </div>
+
+          <!-- Trip selector -->
+          <div class="trip-selector-wrap" *ngIf="trips.length > 1">
+            <label class="field-label mb-1">Mainīt ceļojumu</label>
+            <select class="form-select field-input" [(ngModel)]="selectedTripId" (ngModelChange)="onTripChange($event)" [ngModelOptions]="{standalone: true}">
+              <option *ngFor="let t of trips" [value]="t.id">{{ t.name }} ({{ t.startDate | date:'dd.MM.yyyy' }})</option>
+            </select>
           </div>
 
           <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
@@ -354,15 +362,22 @@ import { Trip } from '../../shared/models/trip.model';
       margin: 0 auto;
     }
 
+    .trip-selector-wrap {
+      padding: 16px 36px 0;
+    }
+
     @media (max-width: 576px) {
       .reg-header { padding: 22px 20px 18px; }
       form { padding: 20px 16px 24px; }
+      .trip-selector-wrap { padding: 12px 16px 0; }
     }
   `]
 })
 export class RegistrationComponent implements OnInit {
   form: FormGroup;
   trip: Trip | null = null;
+  trips: Trip[] = [];
+  selectedTripId = '';
   loading = false;
   submitted = false;
   success = false;
@@ -388,13 +403,27 @@ export class RegistrationComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const tripId = this.route.snapshot.paramMap.get('tripId');
+    const tripId = this.route.snapshot.paramMap.get('tripId') || '';
+    this.selectedTripId = tripId;
     if (tripId) {
       this.tripService.getTrip(tripId).subscribe({
         next: (trip) => this.trip = trip,
         error: () => {}
       });
     }
+    this.tripService.getAllTrips().subscribe({
+      next: (trips) => { this.trips = trips; },
+      error: () => {}
+    });
+  }
+
+  onTripChange(tripId: string): void {
+    this.selectedTripId = tripId;
+    this.error = '';
+    this.tripService.getTrip(tripId).subscribe({
+      next: (trip) => this.trip = trip,
+      error: () => {}
+    });
   }
 
   get f() { return this.form.controls; }
@@ -405,7 +434,7 @@ export class RegistrationComponent implements OnInit {
     if (this.form.invalid) return;
 
     this.loading = true;
-    const tripId = this.route.snapshot.paramMap.get('tripId') || '';
+    const tripId = this.selectedTripId || this.route.snapshot.paramMap.get('tripId') || '';
     const v = this.form.value;
 
     this.registrationService.createRegistration({
@@ -419,9 +448,13 @@ export class RegistrationComponent implements OnInit {
       passportExpiryDate: v.passportExpiryDate || undefined
     }).subscribe({
       next: () => { this.loading = false; this.success = true; },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.error = 'Kļūda piesakoties. Lūdzu, mēģiniet vēlāk.';
+        if (err.status === 409) {
+          this.error = 'Šis ceļojums ir pilns. Diemžēl nav brīvu vietu.';
+        } else {
+          this.error = 'Kļūda piesakoties. Lūdzu, mēģiniet vēlāk.';
+        }
       }
     });
   }
