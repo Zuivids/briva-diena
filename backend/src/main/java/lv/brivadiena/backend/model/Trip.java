@@ -58,6 +58,9 @@ public class Trip {
     @Column(columnDefinition = "TEXT")
     private String itineraryJson;
 
+    @Column
+    private Integer tripDurationDays;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -240,5 +243,13 @@ public class Trip {
 
     public void setItineraryJson(String itineraryJson) {
         this.itineraryJson = itineraryJson;
+    }
+
+    public Integer getTripDurationDays() {
+        return tripDurationDays;
+    }
+
+    public void setTripDurationDays(Integer tripDurationDays) {
+        this.tripDurationDays = tripDurationDays;
     }
 }

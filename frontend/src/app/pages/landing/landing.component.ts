@@ -61,8 +61,16 @@ import { catchError } from 'rxjs/operators';
         </div>
       </section>
 
+      <!-- About Section -->
+      <section class="about-section py-5 bg-light">
+        <div class="container">
+          <h2 class="section-title">Kas ir Brīva diena?</h2>
+          <p class="about-text">{{ adminState.aboutText$ | async }}</p>
+        </div>
+      </section>
+
       <!-- Last Chance Section -->
-      <section class="last-chance-section py-5 bg-light">
+      <section class="last-chance-section py-5">
         <div class="container">
           <h2 class="section-title mb-4">Pēdējā iespēja</h2>
 
@@ -90,14 +98,6 @@ import { catchError } from 'rxjs/operators';
             </div>
           </div>
           <p *ngIf="lastChanceTrips.length === 0 && !lastChanceLoading" class="text-muted">Šobrīd nav pēdējās iespējas ceļojumu.</p>
-        </div>
-      </section>
-
-      <!-- About Section -->
-      <section class="about-section py-5 bg-light">
-        <div class="container">
-          <h2 class="section-title">Kas ir Brīva diena?</h2>
-          <p class="about-text">{{ adminState.aboutText$ | async }}</p>
         </div>
       </section>
       
