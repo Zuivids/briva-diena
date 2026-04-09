@@ -39,7 +39,8 @@ import { Review } from '../../shared/models/review.model';
 
     .page-title {
       color: #e87722;
-      padding: 60px 20px 50px;
+      font-weight: 700;
+      text-align: center;
     }
 
     .review-card {

@@ -9,13 +9,8 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
   template: `
     <div class="about-page">
 
-      <div class="about-header text-center">
-        <div class="container">
-          <h1 class="about-title">Par mums</h1>
-        </div>
-      </div>
-
-      <div class="container about-body">
+      <div class="container py-5">
+        <h2 class="page-title mb-4">Par mums</h2>
         <div class="about-layout mx-auto" [class.has-image]="imageSrc">
           <div *ngIf="imageSrc" class="about-image-wrap">
             <img [src]="imageSrc" alt="Par mums" class="about-image" />
@@ -31,19 +26,10 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
   styles: [`
     .about-page { min-height: 60vh; }
 
-    .about-header {
+    .page-title {
       color: #e87722;
-      padding: 60px 20px 50px;
-    }
-
-    .about-title {
-      font-size: clamp(2rem, 4vw, 3rem);
       font-weight: 700;
-      margin: 0;
-    }
-
-    .about-body {
-      padding: 60px 20px;
+      text-align: center;
     }
 
     .about-layout {

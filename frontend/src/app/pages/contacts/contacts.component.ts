@@ -9,29 +9,23 @@ import { FormsModule } from '@angular/forms';
   template: `
     <div class="contacts-page">
 
-      <!-- Header -->
-      <div class="contacts-header text-center">
-        <div class="container">
-          <h2 class="contacts-title">Kontakti</h2>
-          <div class="contacts-info">
-            <p>Info tālrunis: <a href="tel:+37126382259"><strong>+371 26 382 259</strong></a></p>
-            <p>E-pasts: <a href="mailto:info&#64;brivadiena.lv"><strong>info&#64;brivadiena.lv</strong></a></p>
-            <h3 class="mt-4">Rekvizīti</h3>
-            <p>
-              <strong>SIA "Brīva diena"</strong><br>
-              PVN nr.: LV123456789<br>
-              Tūrisma operatora licence Nr.T-12345678<br>
-              Juridiskā adrese: Rīga, Latvija
-            </p>
-            <p class="mt-3">Vai arī sazinies izmantojot formu zemāk:</p>
-          </div>
-        </div>
-      </div>
+      <div class="container py-5">
+        <h2 class="page-title mb-4">Kontakti</h2>
 
-      <!-- Contact Form -->
-      <div class="contacts-form-section">
-        <div class="container">
-          <div class="form-wrapper mx-auto">
+        <div class="contacts-info text-center mb-5">
+          <p>Info tālrunis: <a href="tel:+37126382259"><strong>+371 26 382 259</strong></a></p>
+          <p>E-pasts: <a href="mailto:info&#64;brivadiena.lv"><strong>info&#64;brivadiena.lv</strong></a></p>
+          <h3 class="mt-4">Rekvizīti</h3>
+          <p>
+            <strong>SIA "Brīva diena"</strong><br>
+            PVN nr.: LV123456789<br>
+            Tūrisma operatora licence Nr.T-12345678<br>
+            Juridiskā adrese: Rīga, Latvija
+          </p>
+          <p class="mt-3">Vai arī sazinies izmantojot formu zemāk:</p>
+        </div>
+
+        <div class="form-wrapper mx-auto">
             <form (ngSubmit)="onSubmit()" #contactForm="ngForm">
               <div class="row g-3 mb-3">
                 <div class="col-md-6">
@@ -76,8 +70,8 @@ import { FormsModule } from '@angular/forms';
                 <button type="submit" class="btn btn-submit">Nosūtīt ziņu</button>
               </div>
             </form>
-          </div>
         </div>
+
       </div>
 
     </div>
@@ -88,15 +82,10 @@ import { FormsModule } from '@angular/forms';
       background: #fff;
     }
 
-    .contacts-header {
-      padding: 40px 0 32px;
-    }
-
-    .contacts-title {
+    .page-title {
       color: #e87722;
-      font-size: 2.25rem;
-      font-weight: 600;
-      margin-bottom: 24px;
+      font-weight: 700;
+      text-align: center;
     }
 
     .contacts-info {
@@ -118,10 +107,6 @@ import { FormsModule } from '@angular/forms';
     .contacts-info h3 {
       font-size: 1.25rem;
       font-weight: 600;
-    }
-
-    .contacts-form-section {
-      padding: 0 0 80px;
     }
 
     .form-wrapper {

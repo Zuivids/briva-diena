@@ -52,6 +52,7 @@ import { catchError } from 'rxjs/operators';
     .page-title {
       color: #e87722;
       font-weight: 700;
+      text-align: center;
     }
 
     .trip-card {
