@@ -35,6 +35,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/registration/registration.component').then(m => m.RegistrationComponent)
   },
   {
+    path: 'policies/privacy-policy',
+    loadComponent: () => import('./pages/policies/privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent)
+  },
+  {
     path: 'admin/login',
     loadComponent: () => import('./admin/login/admin-login.component').then(m => m.AdminLoginComponent)
   },
