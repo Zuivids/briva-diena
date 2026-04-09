@@ -93,6 +93,7 @@ import { FormsModule } from '@angular/forms';
     }
 
     .contacts-title {
+      color: #e87722;
       font-size: 2.25rem;
       font-weight: 600;
       margin-bottom: 24px;

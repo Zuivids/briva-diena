@@ -37,6 +37,27 @@ public class Trip {
     @Column(length = 20)
     private String landingSection;
 
+    @Column(length = 100)
+    private String transportationType;
+
+    @Column(length = 255)
+    private String accommodation;
+
+    @Column(length = 100)
+    private String airlineCompany;
+
+    @Column(length = 100)
+    private String includedBaggageSize;
+
+    @Column(columnDefinition = "TEXT")
+    private String priceIncluded;
+
+    @Column(columnDefinition = "TEXT")
+    private String extraCharge;
+
+    @Column(columnDefinition = "TEXT")
+    private String itineraryJson;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -163,5 +184,61 @@ public class Trip {
 
     public void setLandingSection(String landingSection) {
         this.landingSection = landingSection;
+    }
+
+    public String getTransportationType() {
+        return transportationType;
+    }
+
+    public void setTransportationType(String transportationType) {
+        this.transportationType = transportationType;
+    }
+
+    public String getAccommodation() {
+        return accommodation;
+    }
+
+    public void setAccommodation(String accommodation) {
+        this.accommodation = accommodation;
+    }
+
+    public String getAirlineCompany() {
+        return airlineCompany;
+    }
+
+    public void setAirlineCompany(String airlineCompany) {
+        this.airlineCompany = airlineCompany;
+    }
+
+    public String getIncludedBaggageSize() {
+        return includedBaggageSize;
+    }
+
+    public void setIncludedBaggageSize(String includedBaggageSize) {
+        this.includedBaggageSize = includedBaggageSize;
+    }
+
+    public String getPriceIncluded() {
+        return priceIncluded;
+    }
+
+    public void setPriceIncluded(String priceIncluded) {
+        this.priceIncluded = priceIncluded;
+    }
+
+    public String getExtraCharge() {
+        return extraCharge;
+    }
+
+    public void setExtraCharge(String extraCharge) {
+        this.extraCharge = extraCharge;
+    }
+
+    public String getItineraryJson() {
+        return itineraryJson;
+    }
+
+    public void setItineraryJson(String itineraryJson) {
+        this.itineraryJson = itineraryJson;
     }
 }

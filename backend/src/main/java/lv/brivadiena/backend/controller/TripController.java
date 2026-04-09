@@ -140,6 +140,13 @@ public class TripController {
             trip.setCurrency(tripDetails.getCurrency());
             trip.setAvailableSpots(tripDetails.getAvailableSpots());
             trip.setLandingSection(tripDetails.getLandingSection());
+            trip.setTransportationType(tripDetails.getTransportationType());
+            trip.setAccommodation(tripDetails.getAccommodation());
+            trip.setAirlineCompany(tripDetails.getAirlineCompany());
+            trip.setIncludedBaggageSize(tripDetails.getIncludedBaggageSize());
+            trip.setPriceIncluded(tripDetails.getPriceIncluded());
+            trip.setExtraCharge(tripDetails.getExtraCharge());
+            trip.setItineraryJson(tripDetails.getItineraryJson());
             Trip updatedTrip = tripRepository.save(trip);
             return ResponseEntity.ok(updatedTrip);
         }

@@ -38,8 +38,8 @@ import { Review } from '../../shared/models/review.model';
     }
 
     .page-title {
-      color: #1746a0;
-      font-weight: 700;
+      color: #e87722;
+      padding: 60px 20px 50px;
     }
 
     .review-card {

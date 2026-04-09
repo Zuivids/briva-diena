@@ -32,8 +32,7 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
     .about-page { min-height: 60vh; }
 
     .about-header {
-      background: linear-gradient(135deg, #1746a0 0%, #2563d4 100%);
-      color: #fff;
+      color: #e87722;
       padding: 60px 20px 50px;
     }
 

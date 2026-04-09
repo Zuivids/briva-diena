@@ -50,7 +50,7 @@ import { catchError } from 'rxjs/operators';
     }
 
     .page-title {
-      color: #1746a0;
+      color: #e87722;
       font-weight: 700;
     }
 

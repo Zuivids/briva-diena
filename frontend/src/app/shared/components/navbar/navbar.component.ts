@@ -82,6 +82,9 @@ import { AdminStateService } from '../../services/admin-state.service';
               <a class="nav-link nav-link-admin" routerLink="/admin/dashboard" routerLinkActive="active">Admin</a>
             </li>
             <li class="nav-item ms-1" *ngIf="isAdmin">
+              <a class="nav-link nav-link-admin" routerLink="/admin/trips" routerLinkActive="active">Ceļojumi</a>
+            </li>
+            <li class="nav-item ms-1" *ngIf="isAdmin">
               <a class="nav-link nav-link-admin" routerLink="/admin/registrations" routerLinkActive="active">Pieteikumi</a>
             </li>
             <li class="nav-item ms-1" *ngIf="isAdmin">
