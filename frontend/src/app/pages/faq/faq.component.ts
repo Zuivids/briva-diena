@@ -9,13 +9,8 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
   template: `
     <div class="faq-page">
 
-      <div class="faq-header text-center">
-        <div class="container">
-          <h1 class="faq-title">Biežāk uzdotie jautājumi</h1>
-        </div>
-      </div>
-
-      <div class="container faq-body">
+      <div class="container py-5">
+        <h2 class="page-title mb-4">Biežāk uzdotie jautājumi</h2>
         <div class="faq-list mx-auto">
           <div *ngIf="faqItems.length === 0" class="text-muted text-center py-5">
             Šobrīd nav pievienotu jautājumu.
@@ -37,19 +32,10 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
   styles: [`
     .faq-page { min-height: 60vh; }
 
-    .faq-header {
+    .page-title {
       color: #e87722;
-      padding: 60px 20px 50px;
-    }
-
-    .faq-title {
-      font-size: clamp(2rem, 4vw, 3rem);
       font-weight: 700;
-      margin: 0;
-    }
-
-    .faq-body {
-      padding: 60px 20px;
+      text-align: center;
     }
 
     .faq-list {
