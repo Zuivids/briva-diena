@@ -31,6 +31,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/faq/faq.component').then(m => m.FAQComponent)
   },
   {
+    path: 'registration',
+    loadComponent: () => import('./pages/registration/registration.component').then(m => m.RegistrationComponent)
+  },
+  {
     path: 'registration/:tripId',
     loadComponent: () => import('./pages/registration/registration.component').then(m => m.RegistrationComponent)
   },

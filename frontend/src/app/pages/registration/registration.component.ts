@@ -32,8 +32,8 @@ import { Trip } from '../../shared/models/trip.model';
           </div>
 
           <!-- Trip selector -->
-          <div class="trip-selector-wrap" *ngIf="trips.length > 1">
-            <label class="field-label mb-1">Mainīt ceļojumu</label>
+          <div class="trip-selector-wrap" *ngIf="noPresetTrip && trips.length > 0">
+            <label class="field-label mb-1">Izvēlēties ceļojumu <span class="req">*</span></label>
             <select class="form-select field-input" [(ngModel)]="selectedTripId" (ngModelChange)="onTripChange($event)" [ngModelOptions]="{standalone: true}">
               <option *ngFor="let t of trips" [value]="t.id">{{ t.name }} ({{ t.startDate | date:'dd.MM.yyyy' }})</option>
             </select>
@@ -378,6 +378,7 @@ export class RegistrationComponent implements OnInit {
   trip: Trip | null = null;
   trips: Trip[] = [];
   selectedTripId = '';
+  noPresetTrip = false;
   loading = false;
   submitted = false;
   success = false;
@@ -405,6 +406,7 @@ export class RegistrationComponent implements OnInit {
   ngOnInit(): void {
     const tripId = this.route.snapshot.paramMap.get('tripId') || '';
     this.selectedTripId = tripId;
+    this.noPresetTrip = !tripId;
     if (tripId) {
       this.tripService.getTrip(tripId).subscribe({
         next: (trip) => this.trip = trip,
@@ -412,7 +414,16 @@ export class RegistrationComponent implements OnInit {
       });
     }
     this.tripService.getAllTrips().subscribe({
-      next: (trips) => { this.trips = trips; },
+      next: (trips) => {
+        this.trips = trips;
+        if (this.noPresetTrip && trips.length > 0) {
+          this.selectedTripId = String(trips[0].id);
+          this.tripService.getTrip(String(trips[0].id)).subscribe({
+            next: (trip) => this.trip = trip,
+            error: () => {}
+          });
+        }
+      },
       error: () => {}
     });
   }
