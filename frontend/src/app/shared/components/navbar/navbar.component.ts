@@ -16,7 +16,6 @@ import { AdminStateService } from '../../services/admin-state.service';
          style="backdrop-filter: blur(6px);">
       <div class="container">
         <a class="navbar-brand fw-bold fs-5" routerLink="/">
-          <img src="logo.png" alt="logo" height="40" />
           <span [class.brand-name]="!isAdmin" [class.brand-name-admin]="isAdmin">Brīva diena</span>
         </a>
         <button
@@ -124,14 +123,20 @@ import { AdminStateService } from '../../services/admin-state.service';
       display: flex;
       align-items: center;
       gap: 8px;
+      min-height: 56px;
+      padding: 12px 0;
     }
 
     .brand-name {
       color: #e87722;
+      line-height: 1.2;
+      font-size: 1.4rem;
     }
 
     .brand-name-admin {
       color: #fff;
+      line-height: 1.2;
+      font-size: 1.4rem;
     }
 
     /* Orange "Pieteikties" button */

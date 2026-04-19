@@ -15,7 +15,6 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
           <div class="col-11 col-sm-8 col-md-5 col-lg-4">
             <div class="login-card">
               <div class="text-center mb-4">
-                <img src="logo.png" alt="logo" height="52" class="mb-3" />
                 <h2 class="login-title">Admin pieslēgšanās</h2>
               </div>
               <form (ngSubmit)="onLogin()">
