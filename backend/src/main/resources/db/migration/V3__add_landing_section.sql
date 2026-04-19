@@ -1,1 +1,0 @@
-ALTER TABLE trips ADD COLUMN landing_section VARCHAR(20) DEFAULT NULL;

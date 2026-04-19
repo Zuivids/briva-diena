@@ -1,2 +1,0 @@
-ALTER TABLE trips
-  ADD COLUMN group_size INT DEFAULT NULL;

@@ -265,6 +265,10 @@ import { AdminStateService } from '../../services/admin-state.service';
       width: 36px;
       height: 36px;
       min-width: 36px;
+      min-height: 36px;
+      max-width: 36px;
+      max-height: 36px;
+      padding: 0;
       border: 1.5px solid #ccc;
       border-radius: 50%;
       color: #666;
@@ -291,23 +295,32 @@ import { AdminStateService } from '../../services/admin-state.service';
         max-width: none;
         height: auto;
         width: auto;
-        background: transparent;
-        border: none;
+        background: transparent !important;
+        border: none !important;
         transform: none !important;
-        padding: 0;
+        padding: 0 !important;
         flex-basis: auto;
         overflow-y: visible;
+        backdrop-filter: none !important;
+      }
+
+      .container {
+        background: transparent !important;
+        backdrop-filter: none !important;
       }
 
       .navbar-collapse-custom .navbar-nav {
         flex-direction: row !important;
         gap: 1rem !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
       }
 
       .navbar-collapse-custom .nav-item {
         width: auto !important;
         margin-left: 1rem !important;
         padding: 0 !important;
+        background: transparent !important;
       }
 
       .navbar-collapse-custom .nav-link {
