@@ -121,25 +121,25 @@ interface TripImage { id: number; path: string; isCover: boolean; }
 
                 <ul class="booking-info-list">
                   <li>
-                    <span><strong>Sākums:</strong> {{ trip.startDate | date:'dd. MMMM yyyy' }}</span>
+                    <span><strong>Sākums:</strong> {{ trip.startDate | date:'dd.MM.yyyy' }}</span>
                   </li>
                   <li>
-                    <span><strong>Beigas:</strong> {{ trip.endDate | date:'dd. MMMM yyyy' }}</span>
+                    <span><strong>Beigas:</strong> {{ trip.endDate | date:'dd.MM.yyyy' }}</span>
                   </li>
                   <li>
                     <span><strong>Ilgums:</strong> {{ durationDays }} dienas</span>
                   </li>
-                  <li *ngIf="trip.transportationType">
-                    <span><strong>Transports:</strong> {{ trip.transportationType }}</span>
-                  </li>
                   <li *ngIf="trip.airlineCompany">
-                    <span><strong>Aviokompānija:</strong> {{ trip.airlineCompany }}</span>
+                    <span><strong>Aviosabiedrība:</strong> {{ trip.airlineCompany }}</span>
                   </li>
                   <li *ngIf="trip.includedBaggageSize">
-                    <span><strong>Bagāža:</strong> {{ trip.includedBaggageSize }}</span>
+                    <span><strong>Cenā iekļautā bagāža:</strong> {{ trip.includedBaggageSize }}</span>
+                  </li>
+                  <li *ngIf="trip.groupSize">
+                    <span><strong>Grupas izmērs:</strong> {{ trip.groupSize }} cilvēki</span>
                   </li>
                   <li *ngIf="trip.accommodation">
-                    <span><strong>Izmitināšana:</strong> {{ trip.accommodation }}</span>
+                    <span><strong>Naktsmītnes:</strong> {{ trip.accommodation }}</span>
                   </li>
                   <li>
                     <span><strong>Brīvas vietas:</strong>
@@ -178,7 +178,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
       height: 420px;
       background-size: cover;
       background-position: center;
-      background-color: #1746a0;
+      background-color: #aa7252;
       position: relative;
     }
 
@@ -232,7 +232,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
     .detail-heading {
       font-size: 1.25rem;
       font-weight: 700;
-      color: #1746a0;
+      color: #aa7252;
       margin-bottom: 12px;
       padding-bottom: 8px;
       border-bottom: 2px solid #e8eef8;
@@ -253,7 +253,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
     }
 
     .day-header {
-      background: #1746a0;
+      background: #aa7252;
       padding: 10px 16px;
       display: flex;
       align-items: center;
@@ -362,7 +362,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
       background: #fff;
       border-radius: 14px;
       padding: 28px;
-      box-shadow: 0 4px 20px rgba(23, 70, 160, 0.1);
+      box-shadow: 0 4px 20px rgba(170, 114, 82, 0.1);
       position: sticky;
       top: 90px;
     }
@@ -376,7 +376,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
     }
 
     .price-label { font-size: 0.8rem; color: #888; }
-    .price-value { font-size: 2rem; font-weight: 700; color: #1746a0; }
+    .price-value { font-size: 2rem; font-weight: 700; color: #aa7252; }
     .price-per { font-size: 0.8rem; color: #888; }
 
     .booking-info-list {

@@ -49,6 +49,9 @@ public class Trip {
     @Column(length = 100)
     private String includedBaggageSize;
 
+    @Column
+    private Integer groupSize;
+
     @Column(columnDefinition = "TEXT")
     private String priceIncluded;
 
@@ -219,6 +222,14 @@ public class Trip {
 
     public void setIncludedBaggageSize(String includedBaggageSize) {
         this.includedBaggageSize = includedBaggageSize;
+    }
+
+    public Integer getGroupSize() {
+        return groupSize;
+    }
+
+    public void setGroupSize(Integer groupSize) {
+        this.groupSize = groupSize;
     }
 
     public String getPriceIncluded() {

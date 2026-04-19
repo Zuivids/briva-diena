@@ -144,6 +144,7 @@ public class TripController {
             trip.setAccommodation(tripDetails.getAccommodation());
             trip.setAirlineCompany(tripDetails.getAirlineCompany());
             trip.setIncludedBaggageSize(tripDetails.getIncludedBaggageSize());
+            trip.setGroupSize(tripDetails.getGroupSize());
             trip.setPriceIncluded(tripDetails.getPriceIncluded());
             trip.setExtraCharge(tripDetails.getExtraCharge());
             trip.setItineraryJson(tripDetails.getItineraryJson());

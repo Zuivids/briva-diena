@@ -28,20 +28,19 @@ import { catchError } from 'rxjs/operators';
       <!-- TOP Trips Section -->
       <section class="featured-trips py-5">
         <div class="container">
-          <h2 class="section-title mb-4">TOP ceļojumi</h2>
+          <h2 class="section-title mb-4">Gaidāmie ceļojumi</h2>
 
           <div *ngIf="topTrips.length > 0" class="row g-4 mb-4">
             <div *ngFor="let trip of topTrips" class="col-md-4">
               <div class="trip-card">
                 <div class="trip-card-img" [style.backgroundImage]="coverMapTop[trip.id] ? 'url(http://localhost:8080/images/' + coverMapTop[trip.id] + ')' : 'none'" [class.no-cover]="!coverMapTop[trip.id]">
-                  <span class="spots-badge">Brīvās vietas {{ trip.availableSpots }}</span>
                 </div>
                 <div class="trip-card-body">
                   <h5 class="trip-title">{{ trip.name }}</h5>
                   <p class="trip-dates small mb-2">
-                    {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }}
+                    {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }} ({{ calculateDays(trip.startDate, trip.endDate) }} dienas)
                   </p>
-                  <p *ngIf="trip.description" class="trip-desc small text-muted">{{ trip.description }}</p>
+                  <p class="trip-spots small mb-2">Brīvās vietas: <strong>{{ trip.availableSpots }}</strong></p>
                   <div class="trip-footer">
                     <span class="trip-price">&#8364;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
                     <div class="trip-actions">
@@ -70,21 +69,21 @@ import { catchError } from 'rxjs/operators';
       </section>
 
       <!-- Last Chance Section -->
-      <section class="last-chance-section py-5">
+      <section *ngIf="lastChanceTrips.length > 0" class="last-chance-section py-5">
         <div class="container">
           <h2 class="section-title mb-4">Pēdējā iespēja</h2>
 
-          <div *ngIf="lastChanceTrips.length > 0" class="row g-4 mb-4">
+          <div class="row g-4 mb-4">
             <div *ngFor="let trip of lastChanceTrips" class="col-md-4">
               <div class="trip-card">
                 <div class="trip-card-img" [style.backgroundImage]="coverMapLastChance[trip.id] ? 'url(http://localhost:8080/images/' + coverMapLastChance[trip.id] + ')' : 'none'" [class.no-cover]="!coverMapLastChance[trip.id]">
-                  <span class="spots-badge">Brīvās vietas {{ trip.availableSpots }}</span>
                 </div>
                 <div class="trip-card-body">
                   <h5 class="trip-title">{{ trip.name }}</h5>
                   <p class="trip-dates small mb-2">
-                    {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }}
+                    {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }} ({{ calculateDays(trip.startDate, trip.endDate) }} dienas)
                   </p>
+                  <p class="trip-spots small mb-2">Brīvās vietas: <strong>{{ trip.availableSpots }}</strong></p>
                   <p *ngIf="trip.description" class="trip-desc small text-muted">{{ trip.description }}</p>
                   <div class="trip-footer">
                     <span class="trip-price">&#8364;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
@@ -97,7 +96,6 @@ import { catchError } from 'rxjs/operators';
               </div>
             </div>
           </div>
-          <p *ngIf="lastChanceTrips.length === 0 && !lastChanceLoading" class="text-muted">Šobrīd nav pēdējās iespējas ceļojumu.</p>
         </div>
       </section>
       
@@ -199,8 +197,10 @@ import { catchError } from 'rxjs/operators';
     }
     .trip-card-body { padding: 20px; }
     .trip-title { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+    .trip-dates { color: #666; }
+    .trip-spots { color: #666; margin-bottom: 8px !important; }
     .trip-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
-    .trip-price { font-size: 1.1rem; font-weight: 700; color: #e87722; }
+    .trip-price { font-size: 2rem; font-weight: 700; color: #e87722; }
     .trip-actions { display: flex; gap: 6px; }
     .btn-register-sm {
       background: #e87722; color: #fff; border: none;
@@ -324,6 +324,13 @@ export class LandingComponent implements OnInit, AfterViewInit {
 
   getStars(rating: number): number[] {
     return Array(rating).fill(0);
+  }
+
+  calculateDays(startDate: any, endDate: any): number {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diff = end.getTime() - start.getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
   }
 }
 

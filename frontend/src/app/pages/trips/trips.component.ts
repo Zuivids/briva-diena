@@ -79,12 +79,11 @@ interface MonthOption { key: string; year: number; month: number; label: string;
                   <div class="trip-card-img"
                     [style.backgroundImage]="coverMap[trip.id] ? 'url(http://localhost:8080/images/' + coverMap[trip.id] + ')' : 'none'"
                     [class.no-cover]="!coverMap[trip.id]">
-                    <span class="spots-badge">Brīvās vietas {{ trip.availableSpots }}</span>
                   </div>
                   <div class="trip-card-body">
                     <h5 class="trip-title">{{ trip.name }}</h5>
-                    <p class="trip-dates small mb-2">{{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }}</p>
-                    <p *ngIf="trip.description" class="trip-desc small text-muted mb-3">{{ trip.description }}</p>
+                    <p class="trip-dates small mb-2">{{ trip.startDate | date:'dd.MM.yyyy' }} – {{ trip.endDate | date:'dd.MM.yyyy' }} ({{ calculateDays(trip.startDate, trip.endDate) }} dienas)</p>
+                    <p class="trip-spots small mb-2">Brīvās vietas: <strong>{{ trip.availableSpots }}</strong></p>
                     <div class="trip-footer">
                       <span class="trip-price">&#8364;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
                       <div class="trip-actions">
@@ -301,6 +300,15 @@ interface MonthOption { key: string; year: number; month: number; label: string;
       margin-bottom: 4px;
     }
 
+    .trip-dates {
+      color: #666;
+    }
+
+    .trip-spots {
+      color: #666;
+      margin-bottom: 8px !important;
+    }
+
     .trip-footer {
       display: flex;
       align-items: center;
@@ -419,6 +427,13 @@ export class TripsComponent implements OnInit {
     const start = new Date(trip.startDate);
     const end = new Date(trip.endDate);
     return Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
+  }
+
+  calculateDays(startDate: any, endDate: any): number {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diff = end.getTime() - start.getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
   }
 
   applyFilters(): void {
