@@ -11,7 +11,7 @@ export interface InstagramPost {
 
 @Injectable({ providedIn: 'root' })
 export class InstagramService {
-  private apiUrl = 'http://localhost:8080/api/instagram-posts';
+  private apiUrl = '/api/instagram-posts';
 
   constructor(private http: HttpClient) {}
 

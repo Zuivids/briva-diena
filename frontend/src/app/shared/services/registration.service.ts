@@ -7,7 +7,7 @@ import { Registration } from '../models/registration.model';
   providedIn: 'root'
 })
 export class RegistrationService {
-  private apiUrl = 'http://localhost:8080/api/registrations';
+  private apiUrl = '/api/registrations';
 
   constructor(private http: HttpClient) {}
 

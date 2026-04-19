@@ -21,7 +21,7 @@ export interface AdminProfile {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/admin';
+  private apiUrl = '/api/admin';
   private tokenKey = 'adminToken';
   private refreshTokenKey = 'adminRefreshToken';
 

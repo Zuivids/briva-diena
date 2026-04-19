@@ -7,7 +7,7 @@ import { Trip, TripFilter } from '../models/trip.model';
   providedIn: 'root'
 })
 export class TripService {
-  private apiUrl = 'http://localhost:8080/api/trips';
+  private apiUrl = '/api/trips';
 
   constructor(private http: HttpClient) {}
 
@@ -119,6 +119,6 @@ export class TripService {
    * Get background images for landing page
    */
   getBackgroundImages(): Observable<string[]> {
-    return this.http.get<string[]>('http://localhost:8080/api/images/background');
+    return this.http.get<string[]>('/api/images/background');
   }
 }
