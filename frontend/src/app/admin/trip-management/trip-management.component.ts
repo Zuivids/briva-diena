@@ -570,7 +570,7 @@ interface TripForm {
   `]
 })
 export class TripManagementComponent implements OnInit {
-  readonly imageBase = 'http://localhost:8080/api/images/';
+  readonly imageBase = '/api/images/';
 
   trips: Trip[] = [];
   loadingTrips = false;
