@@ -117,14 +117,6 @@ Next steps (practical first tasks you can do now)
 
 If you'd like, I can scaffold the initial `backend` and `frontend` projects, create example endpoints for trips and images, and wire a Stripe test flow. Tell me which step to start and any preferences (Maven or Gradle, cloud provider for images, Stripe vs another payments provider).
 
----
-
-Files changed
-
-- `README.md` — expanded project roadmap, detailed steps, and todo list (this change)
-
 Completion summary
 
 - This README now contains a complete roadmap and step-by-step plan to build the Angular + Spring Boot travel site with secure payments and email confirmations. The task checklist was also recorded in the workspace todo tracker so we can mark progress.
-
-Happy to scaffold the initial projects and implement the first endpoints. Which task should I start on now?
