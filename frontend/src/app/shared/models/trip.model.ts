@@ -14,6 +14,7 @@ export interface Trip {
   accommodation?: string;
   airlineCompany?: string;
   includedBaggageSize?: string;
+  groupSize?: number;
   priceIncluded?: string;
   extraCharge?: string;
   itineraryJson?: string;

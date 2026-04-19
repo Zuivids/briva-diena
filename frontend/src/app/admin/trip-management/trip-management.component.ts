@@ -26,6 +26,7 @@ interface TripForm {
   accommodation: string;
   airlineCompany: string;
   includedBaggageSize: string;
+  groupSize: number;
   priceIncluded: string;
   extraCharge: string;
   description: string;
@@ -156,21 +157,26 @@ interface TripForm {
             </div>
           </div>
 
-          <!-- ── 5. Duration / Available spots ── -->
+          <!-- ── 5. Duration / Available spots / Group size ── -->
           <div class="form-section">
-            <h5 class="section-label">5. Ilgums un vietas</h5>
+            <h5 class="section-label">5. Ilgums, vietas un grupas izmērs</h5>
             <div class="row g-3">
-              <div class="col-sm-6">
+              <div class="col-md-4">
                 <label class="field-label">Ceļojuma ilgums (dienas)</label>
                 <div class="form-control field-input bg-light text-muted" style="cursor:default">
                   {{ durationDays > 0 ? durationDays + ' dienas' : '—' }}
                 </div>
                 <small class="text-muted">Aprēķināts automātiski no datumiem</small>
               </div>
-              <div class="col-sm-6">
+              <div class="col-md-4">
                 <label class="field-label">Brīvās vietas <span class="req">*</span></label>
                 <input type="number" [(ngModel)]="form.availableSpots" name="availableSpots"
                        class="form-control field-input" min="0" placeholder="20" />
+              </div>
+              <div class="col-md-4">
+                <label class="field-label">Grupas izmērs (cilvēki)</label>
+                <input type="number" [(ngModel)]="form.groupSize" name="groupSize"
+                       class="form-control field-input" min="0" placeholder="piem., 15" />
               </div>
             </div>
           </div>
@@ -612,7 +618,7 @@ export class TripManagementComponent implements OnInit {
       name: '', startDate: '', endDate: '',
       priceEur: 0, availableSpots: 0,
       transportationType: '', accommodation: '',
-      airlineCompany: '', includedBaggageSize: '',
+      airlineCompany: '', includedBaggageSize: '', groupSize: 0,
       priceIncluded: '', extraCharge: '',
       description: '', landingSection: ''
     };
@@ -649,6 +655,7 @@ export class TripManagementComponent implements OnInit {
       accommodation: trip.accommodation || '',
       airlineCompany: trip.airlineCompany || '',
       includedBaggageSize: trip.includedBaggageSize || '',
+      groupSize: trip.groupSize || 0,
       priceIncluded: trip.priceIncluded || '',
       extraCharge: trip.extraCharge || '',
       description: trip.description || '',
@@ -781,6 +788,7 @@ export class TripManagementComponent implements OnInit {
         accommodation: this.form.accommodation || undefined,
         airlineCompany: this.form.airlineCompany || undefined,
         includedBaggageSize: this.form.includedBaggageSize || undefined,
+        groupSize: this.form.groupSize || undefined,
         priceIncluded: this.form.priceIncluded || undefined,
         extraCharge: this.form.extraCharge || undefined,
       };
