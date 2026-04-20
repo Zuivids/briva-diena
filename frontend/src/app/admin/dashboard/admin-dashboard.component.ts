@@ -16,12 +16,6 @@ import { Review } from '../../shared/models/review.model';
   template: `
     <div class="admin-panel">
 
-      <!-- Panel header -->
-      <div class="panel-header">
-        <span class="panel-title">Admin panelis — Brīva diena</span>
-        <button class="btn btn-sm btn-outline-light" (click)="logout()">Izrakstīties</button>
-      </div>
-
       <div class="container py-4">
 
         <!-- ── Hero Image ── -->

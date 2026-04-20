@@ -12,7 +12,7 @@ import { AdminStateService } from '../../services/admin-state.service';
     <nav class="navbar navbar-expand-lg fixed-top border-bottom"
          [class.navbar-admin]="isAdmin"
          [class.navbar-light]="!isAdmin"
-         [style.background-color]="isAdmin ? 'rgba(13,110,253,0.95)' : 'rgba(255,255,255,0.5)'"
+         [style.background-color]="isAdmin ? 'rgba(105, 70, 5, 0.95)' : 'rgba(255,255,255,0.5)'"
          style="backdrop-filter: blur(6px);">
       <div class="container">
         <a class="navbar-brand fw-bold fs-5" routerLink="/">
