@@ -77,7 +77,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
               <div *ngFor="let trip of filteredTrips" class="col-sm-6 col-xl-4">
                 <div class="trip-card">
                   <div class="trip-card-img"
-                    [style.backgroundImage]="coverMap[trip.id] ? 'url(http://localhost:8080/images/' + coverMap[trip.id] + ')' : 'none'"
+                    [style.backgroundImage]="coverMap[trip.id] ? 'url(/images/' + coverMap[trip.id] + ')' : 'none'"
                     [class.no-cover]="!coverMap[trip.id]">
                   </div>
                   <div class="trip-card-body">
