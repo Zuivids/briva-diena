@@ -208,7 +208,7 @@ export class AdminRegistrationsComponent implements OnInit {
   loading = true;
   error = '';
 
-  private readonly apiUrl = 'http://localhost:8080/api/registrations';
+  private readonly apiUrl = '/api/registrations';
 
   constructor(private http: HttpClient) {}
 

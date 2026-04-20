@@ -33,7 +33,7 @@ import { catchError } from 'rxjs/operators';
           <div *ngIf="topTrips.length > 0" class="row g-4 mb-4">
             <div *ngFor="let trip of topTrips" class="col-md-4">
               <div class="trip-card">
-                <div class="trip-card-img" [style.backgroundImage]="coverMapTop[trip.id] ? 'url(http://localhost:8080/images/' + coverMapTop[trip.id] + ')' : 'none'" [class.no-cover]="!coverMapTop[trip.id]">
+                <div class="trip-card-img" [style.backgroundImage]="coverMapTop[trip.id] ? 'url(/images/' + coverMapTop[trip.id] + ')' : 'none'" [class.no-cover]="!coverMapTop[trip.id]">
                 </div>
                 <div class="trip-card-body">
                   <h5 class="trip-title">{{ trip.name }}</h5>
@@ -76,7 +76,7 @@ import { catchError } from 'rxjs/operators';
           <div class="row g-4 mb-4">
             <div *ngFor="let trip of lastChanceTrips" class="col-md-4">
               <div class="trip-card">
-                <div class="trip-card-img" [style.backgroundImage]="coverMapLastChance[trip.id] ? 'url(http://localhost:8080/images/' + coverMapLastChance[trip.id] + ')' : 'none'" [class.no-cover]="!coverMapLastChance[trip.id]">
+                <div class="trip-card-img" [style.backgroundImage]="coverMapLastChance[trip.id] ? 'url(/images/' + coverMapLastChance[trip.id] + ')' : 'none'" [class.no-cover]="!coverMapLastChance[trip.id]">
                 </div>
                 <div class="trip-card-body">
                   <h5 class="trip-title">{{ trip.name }}</h5>

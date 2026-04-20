@@ -540,7 +540,7 @@ export class AdminDashboardComponent implements OnInit {
   editError = '';
   tripImages: { id: number; path: string; isCover: boolean }[] = [];
   coverImage: { id: number; path: string } | null = null;
-  readonly imageBaseUrl = 'http://localhost:8080/images/';
+  readonly imageBaseUrl = '/images/';
 
   // Review form
   newReviewName = '';

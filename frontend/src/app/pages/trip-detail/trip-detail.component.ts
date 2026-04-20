@@ -456,7 +456,7 @@ export class TripDetailComponent implements OnInit {
   loading = true;
   error = '';
   itinerary: TripDay[] = [];
-  readonly imageBase = 'http://localhost:8080/images/';
+  readonly imageBase = '/images/';
 
   constructor(private route: ActivatedRoute, private tripService: TripService) {}
 
