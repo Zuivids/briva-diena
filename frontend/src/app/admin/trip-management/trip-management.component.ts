@@ -40,15 +40,6 @@ interface TripForm {
   template: `
     <div class="tm-page">
 
-      <!-- Panel header -->
-      <div class="panel-header">
-        <span class="panel-title">Ceļojumu pārvaldīšana</span>
-        <div class="d-flex gap-2">
-          <a routerLink="/admin/dashboard" class="btn btn-sm btn-outline-light">← Dashboard</a>
-          <button class="btn btn-sm btn-outline-light" (click)="logout()">Izrakstīties</button>
-        </div>
-      </div>
-
       <div class="container py-4">
 
         <!-- ── Existing trips ── -->

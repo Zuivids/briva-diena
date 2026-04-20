@@ -215,7 +215,7 @@ export class AdminRegistrationsComponent implements OnInit {
   ngOnInit(): void {
     this.http.get<RegistrationRow[]>(this.apiUrl).subscribe({
       next: (data) => { this.registrations = data; this.loading = false; },
-      error: () => { this.error = 'NeizdevÄs ielÄdÄ“t pieteikumus.'; this.loading = false; }
+      error: () => { this.error = 'Neizdevās ielādēt pieteikumus.'; this.loading = false; }
     });
   }
 
