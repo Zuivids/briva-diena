@@ -233,9 +233,9 @@ interface TripForm {
                       placeholder="Aprakstiet ceļojuma galvenos iespaidus un pieredzi..."></textarea>
           </div>
 
-          <!-- ── 10 + 11. Itinerary days ── -->
+          <!-- ── 10. Itinerary days ── -->
           <div class="form-section">
-            <h5 class="section-label">10–11. Dienas programma</h5>
+            <h5 class="section-label">10.Ceļojuma dienas apraksts</h5>
 
             <div *ngFor="let day of days; let i = index" class="day-card">
               <div class="day-card-header">
@@ -300,7 +300,7 @@ interface TripForm {
             <h5 class="section-label">Rādīt sākumlapā</h5>
             <select [(ngModel)]="form.landingSection" name="landingSection" class="form-select field-input" style="max-width:280px">
               <option value="">Nerādīt</option>
-              <option value="TOP">TOP ceļojums</option>
+              <option value="TOP">Gaidāmie ceļojumi</option>
               <option value="LAST_CHANCE">Pēdējā iespēja</option>
             </select>
           </div>
