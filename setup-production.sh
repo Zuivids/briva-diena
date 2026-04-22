@@ -28,13 +28,17 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 server:
   port: 8080
 
 app:
-  uploads-path: /var/uploads
-  images-path: /var/images
+  uploads-path: \${APP_UPLOADS_PATH:./uploads}
+  images-path: \${APP_IMAGES_PATH:./images}
 EOF
 echo "[OK] Application configuration created"
 
@@ -99,6 +103,8 @@ StandardError=journal
 Environment="SPRING_DATASOURCE_URL=jdbc:mariadb://$RDS_HOST:3306/briva_diena"
 Environment="SPRING_DATASOURCE_USERNAME=$RDS_USER"
 Environment="SPRING_DATASOURCE_PASSWORD=$RDS_PASSWORD"
+Environment="APP_UPLOADS_PATH=/var/uploads"
+Environment="APP_IMAGES_PATH=/var/images"
 
 [Install]
 WantedBy=multi-user.target
@@ -115,6 +121,8 @@ server {
     listen 80 default_server;
     server_name _;
 
+    client_max_body_size 50m;
+
     # Frontend
     location / {
         root /var/www/briva-diena;
@@ -128,6 +136,14 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        client_max_body_size 50m;
+    }
+
+    # Trip images (served from /var/images via Spring Boot)
+    location /images {
+        proxy_pass http://localhost:8080/images;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
     }
 
     # Uploads

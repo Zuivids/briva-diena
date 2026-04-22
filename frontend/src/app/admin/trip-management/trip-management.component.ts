@@ -675,6 +675,12 @@ export class TripManagementComponent implements OnInit {
     this.saveError = '';
     this.saveSuccess = '';
     this.showForm = true;
+
+    // Load existing cover image preview
+    this.tripService.getCoverImage(String(trip.id)).subscribe({
+      next: (cover) => { if (cover?.path) this.coverPhotoPreview = '/images/' + cover.path; },
+      error: () => { /* no cover image, leave null */ }
+    });
   }
 
   cancelForm() {
