@@ -37,7 +37,6 @@ interface TripImage { id: number; path: string; isCover: boolean; }
               <div class="trip-hero-meta">
                 <span class="meta-chip">{{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }}</span>
                 <span class="meta-chip">{{ durationDays }} dienas</span>
-                <span *ngIf="trip.transportationType" class="meta-chip">{{ trip.transportationType }}</span>
                 <span class="meta-chip spots" [class.few-spots]="trip.availableSpots <= 3">
                   {{ trip.availableSpots > 0 ? trip.availableSpots + ' brīvas vietas' : 'Pilns' }}
                 </span>
@@ -110,16 +109,21 @@ interface TripImage { id: number; path: string; isCover: boolean; }
 
             </div>
 
-            <!-- â”€â”€ Right â€” booking card â”€â”€ -->
+            <!-- booking card  -->
             <div class="col-lg-4">
               <div class="booking-card">
                 <div class="booking-price">
-                  <span class="price-label">Cena no</span>
+                  <span class="price-label">Cena </span>
                   <span class="price-value">&euro;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
-                  <span class="price-per">/ personai</span>
+                  <span class="price-per"> personai</span>
                 </div>
 
                 <ul class="booking-info-list">
+                  <li>
+                    <span><strong>Brīvas vietas:</strong>
+                      <span [class.text-danger]="trip.availableSpots <= 3">{{ trip.availableSpots }}</span>
+                    </span>
+                  </li>
                   <li>
                     <span><strong>Sākums:</strong> {{ trip.startDate | date:'dd.MM.yyyy' }}</span>
                   </li>
@@ -140,11 +144,6 @@ interface TripImage { id: number; path: string; isCover: boolean; }
                   </li>
                   <li *ngIf="trip.accommodation">
                     <span><strong>Naktsmītnes:</strong> {{ trip.accommodation }}</span>
-                  </li>
-                  <li>
-                    <span><strong>Brīvas vietas:</strong>
-                      <span [class.text-danger]="trip.availableSpots <= 3">{{ trip.availableSpots }}</span>
-                    </span>
                   </li>
                 </ul>
 
