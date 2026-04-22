@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminStateService } from '../../shared/services/admin-state.service';
+import { AboutImageService } from '../../shared/services/about-image.service';
 
 @Component({
   selector: 'app-about',
@@ -10,13 +11,13 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
     <div class="about-page">
 
       <div class="container py-5">
-        <h2 class="page-title mb-4">Par mums</h2>
-        <div class="about-layout mx-auto" [class.has-image]="imageSrc">
-          <div *ngIf="imageSrc" class="about-image-wrap">
-            <img [src]="imageSrc" alt="Par mums" class="about-image" />
-          </div>
+        <h2 class="page-title mb-4">BRĪVA DIENA</h2>
+        <div class="about-layout mx-auto" [class.has-images]="images.length > 0">
           <div class="about-text-wrap">
             <p *ngFor="let para of paragraphs" class="about-para">{{ para }}</p>
+          </div>
+          <div *ngIf="images.length > 0" class="about-images-wrap">
+            <img *ngFor="let img of images" [src]="img" alt="Par mums" class="about-image" />
           </div>
         </div>
       </div>
@@ -33,25 +34,13 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
     }
 
     .about-layout {
-      max-width: 900px;
+      max-width: 1000px;
     }
 
-    .about-layout.has-image {
+    .about-layout.has-images {
       display: flex;
       gap: 48px;
       align-items: flex-start;
-    }
-
-    .about-image-wrap {
-      flex-shrink: 0;
-      width: 320px;
-    }
-
-    .about-image {
-      width: 100%;
-      border-radius: 12px;
-      object-fit: cover;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
     }
 
     .about-text-wrap {
@@ -66,26 +55,54 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
       margin-bottom: 1.4rem;
     }
 
-    @media (max-width: 700px) {
-      .about-layout.has-image {
+    .about-images-wrap {
+      flex-shrink: 0;
+      width: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .about-image {
+      width: 100%;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+
+    @media (max-width: 768px) {
+      .about-layout.has-images {
         flex-direction: column;
       }
-      .about-image-wrap {
+      .about-images-wrap {
         width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .about-image {
+        width: calc(50% - 8px);
       }
     }
   `]
 })
-export class AboutComponent {
+export class AboutComponent implements OnInit {
   paragraphs: string[] = [];
-  imageSrc: string | null = null;
+  images: string[] = [];
 
-  constructor(private adminState: AdminStateService) {
+  constructor(private adminState: AdminStateService, private aboutImageService: AboutImageService) {
     this.adminState.aboutPageContent$.subscribe(content => {
       this.paragraphs = content.split('\n').filter(p => p.trim().length > 0);
     });
-    this.adminState.aboutPageImage$.subscribe(img => {
-      this.imageSrc = img;
+  }
+
+  ngOnInit(): void {
+    this.aboutImageService.getImages().subscribe({
+      next: (imgs) => {
+        const slots = ['', '', ''];
+        imgs.forEach(img => { if (img.slotIndex >= 0 && img.slotIndex <= 2) slots[img.slotIndex] = '/images/' + img.path; });
+        this.images = slots.filter(s => !!s);
+      },
+      error: () => { this.images = []; }
     });
   }
 }

@@ -6,6 +6,7 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
 import { TripService } from '../../shared/services/trip.service';
 import { ReviewService } from '../../shared/services/review.service';
 import { InstagramService, InstagramPost } from '../../shared/services/instagram.service';
+import { AboutImageService } from '../../shared/services/about-image.service';
 import { Trip } from '../../shared/models/trip.model';
 import { Review } from '../../shared/models/review.model';
 
@@ -58,24 +59,27 @@ import { Review } from '../../shared/models/review.model';
         <section class="admin-section">
           <h4 class="section-heading">Par mums lapa</h4>
 
-          <p class="hint mb-2">Attēls tiks rādīts kreisajā pusē blakus tekstam.</p>
-          <div class="hero-row mb-3">
-            <ng-container *ngIf="aboutPageImagePreview; else noAboutImg">
-              <img [src]="aboutPageImagePreview" alt="Par mums" class="hero-thumb" />
-              <div class="ms-3 d-flex flex-column gap-2">
-                <label class="btn btn-outline-primary btn-sm upload-btn" for="aboutPageImageFile">
-                  Mainīt attēlu
-                  <input id="aboutPageImageFile" type="file" accept="image/*" class="visually-hidden" (change)="onAboutPageImageUpload($event)" />
+          <p class="hint mb-2">Līdz 3 attēliem tiks rādīti labajā pusē blakus tekstam.</p>
+          <div class="d-flex gap-3 flex-wrap mb-3">
+            <div *ngFor="let idx of slotIndices" class="about-img-slot">
+              <ng-container *ngIf="aboutPageImages[idx]; else noSideImg">
+                <div class="about-img-preview-wrap">
+                  <img [src]="aboutPageImages[idx]" alt="Attēls {{idx+1}}" class="about-img-preview" />
+                  <button class="image-delete-btn" (click)="removeAboutPageSideImage(idx)" title="Dzēst">&times;</button>
+                </div>
+                <label class="btn btn-outline-primary btn-sm mt-1 upload-btn" [for]="'aboutSideImg'+idx">
+                  Mainīt
+                  <input [id]="'aboutSideImg'+idx" type="file" accept="image/*" class="visually-hidden" (change)="onAboutPageSideImageUpload($event, idx)" />
                 </label>
-                <button class="btn btn-outline-danger btn-sm" (click)="removeAboutPageImage()">Noņemt attēlu</button>
-              </div>
-            </ng-container>
-            <ng-template #noAboutImg>
-              <label class="btn btn-outline-primary btn-sm upload-btn" for="aboutPageImageFile">
-                Pievienot attēlu
-                <input id="aboutPageImageFile" type="file" accept="image/*" class="visually-hidden" (change)="onAboutPageImageUpload($event)" />
-              </label>
-            </ng-template>
+              </ng-container>
+              <ng-template #noSideImg>
+                <label class="image-upload-btn flex-column gap-1" [for]="'aboutSideImg'+idx">
+                  <span style="font-size:1.4rem;line-height:1">+</span>
+                  <span>Foto {{idx+1}}</span>
+                  <input [id]="'aboutSideImg'+idx" type="file" accept="image/*" class="visually-hidden" (change)="onAboutPageSideImageUpload($event, idx)" />
+                </label>
+              </ng-template>
+            </div>
           </div>
 
           <p class="hint mb-2">Katrs rindkopas atdalīts ar tukšu rindu.</p>
@@ -497,6 +501,26 @@ import { Review } from '../../shared/models/review.model';
     .faq-list-item .btn-outline-danger {
       align-self: flex-end;
     }
+
+    .about-img-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .about-img-preview-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    .about-img-preview {
+      width: 110px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid #e87722;
+      display: block;
+    }
   `]
 })
 export class AdminDashboardComponent implements OnInit {
@@ -507,6 +531,8 @@ export class AdminDashboardComponent implements OnInit {
   aboutPageContent = '';
   aboutPageSaved = false;
   aboutPageImagePreview: string | null = null;
+  aboutPageImages: string[] = [];
+  readonly slotIndices = [0, 1, 2];
   faqItems: { id: string; question: string; answer: string }[] = [];
   newFaqQuestion = '';
   newFaqAnswer = '';
@@ -547,6 +573,7 @@ export class AdminDashboardComponent implements OnInit {
     private tripService: TripService,
     private reviewService: ReviewService,
     private instagramService: InstagramService,
+    private aboutImageService: AboutImageService,
     private router: Router
   ) {}
 
@@ -556,6 +583,7 @@ export class AdminDashboardComponent implements OnInit {
     this.aboutPageContent = this.adminState.aboutPageContent$.value;
     this.aboutPageImagePreview = this.adminState.aboutPageImage$.value;
     this.faqItems = this.adminState.faqItems$.value;
+    this.loadAboutImages();
     this.loadInstagramPosts();
     this.loadTrips();
     this.loadReviews();
@@ -749,6 +777,43 @@ export class AdminDashboardComponent implements OnInit {
   removeAboutPageImage(): void {
     this.aboutPageImagePreview = null;
     this.adminState.aboutPageImage$.next(null);
+  }
+
+  loadAboutImages(): void {
+    this.aboutImageService.getImages().subscribe({
+      next: (imgs) => {
+        const slots = ['', '', ''];
+        imgs.forEach(img => { if (img.slotIndex >= 0 && img.slotIndex <= 2) slots[img.slotIndex] = '/images/' + img.path; });
+        this.aboutPageImages = slots;
+      },
+      error: () => {}
+    });
+  }
+
+  onAboutPageSideImageUpload(event: Event, index: number): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.aboutImageService.uploadImage(index, file).subscribe({
+      next: (img) => {
+        const updated = [...this.aboutPageImages];
+        updated[index] = '/images/' + img.path;
+        this.aboutPageImages = updated;
+      },
+      error: () => {}
+    });
+    input.value = '';
+  }
+
+  removeAboutPageSideImage(index: number): void {
+    this.aboutImageService.deleteImage(index).subscribe({
+      next: () => {
+        const updated = [...this.aboutPageImages];
+        updated[index] = '';
+        this.aboutPageImages = updated;
+      },
+      error: () => {}
+    });
   }
 
   addFaqItem(): void {
