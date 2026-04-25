@@ -79,6 +79,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
                   <div class="trip-card-img"
                     [style.backgroundImage]="coverMap[trip.id] ? 'url(/images/' + coverMap[trip.id] + ')' : 'none'"
                     [class.no-cover]="!coverMap[trip.id]">
+                    <div *ngIf="trip.availableSpots === 0" class="soldout-overlay">Izpārdots</div>
                   </div>
                   <div class="trip-card-body">
                     <h5 class="trip-title">{{ trip.name }}</h5>
@@ -410,6 +411,19 @@ interface MonthOption { key: string; year: number; month: number; label: string;
 
     .trip-card-img.no-cover {
       background-image: linear-gradient(135deg, #c8d6f0 0%, #e8eef8 100%);
+    }
+    .soldout-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
 
     .trip-card:hover {
