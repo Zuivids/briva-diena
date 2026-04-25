@@ -1,0 +1,1 @@
+ALTER TABLE trips ADD COLUMN payment_info TEXT NULL;

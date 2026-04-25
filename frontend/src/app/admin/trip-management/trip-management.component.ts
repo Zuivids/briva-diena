@@ -30,6 +30,7 @@ interface TripForm {
   priceIncluded: string;
   extraCharge: string;
   description: string;
+  paymentInfo: string;
   landingSection: string;
 }
 
@@ -297,9 +298,17 @@ interface TripForm {
             </button>
           </div>
 
-          <!-- ── 12. Additional photos ── -->
+          <!-- ── 12. Apmaksas kārtība ── -->
           <div class="form-section">
-            <h5 class="section-label">12. Papildu foto galerija</h5>
+            <h5 class="section-label">12. Apmaksas kārtība</h5>
+            <textarea [(ngModel)]="form.paymentInfo" name="paymentInfo"
+                      class="form-control field-input" rows="5"
+                      placeholder="Aprakstiet apmaksas kārtību..."></textarea>
+          </div>
+
+          <!-- ── 13. Additional photos ── -->
+          <div class="form-section">
+            <h5 class="section-label">13. Papildu foto galerija</h5>
             <div class="additional-photos-grid">
               <div *ngFor="let preview of additionalPhotoPreviews; let i = index" class="add-photo-thumb">
                 <img [src]="preview" alt="Photo {{i+1}}" />
@@ -636,7 +645,7 @@ export class TripManagementComponent implements OnInit {
       transportationType: '', accommodation: '',
       airlineCompany: '', includedBaggageSize: '', groupSize: 0,
       priceIncluded: '', extraCharge: '',
-      description: '', landingSection: ''
+      description: '', paymentInfo: '', landingSection: ''
     };
   }
 
@@ -676,6 +685,7 @@ export class TripManagementComponent implements OnInit {
       priceIncluded: trip.priceIncluded || '',
       extraCharge: trip.extraCharge || '',
       description: trip.description || '',
+      paymentInfo: trip.paymentInfo || '',
       landingSection: trip.landingSection || ''
     };
     this.days = [];
@@ -829,6 +839,7 @@ export class TripManagementComponent implements OnInit {
         groupSize: this.form.groupSize || undefined,
         priceIncluded: this.form.priceIncluded || undefined,
         extraCharge: this.form.extraCharge || undefined,
+        paymentInfo: this.form.paymentInfo || undefined,
       };
 
       let tripId: string;

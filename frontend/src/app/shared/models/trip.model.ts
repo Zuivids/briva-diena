@@ -19,6 +19,7 @@ export interface Trip {
   extraCharge?: string;
   itineraryJson?: string;
   flightScheduleJson?: string;
+  paymentInfo?: string;
   tripDurationDays?: number;
 }
 

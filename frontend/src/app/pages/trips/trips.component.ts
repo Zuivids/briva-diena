@@ -163,6 +163,18 @@ interface MonthOption { key: string; year: number; month: number; label: string;
                   </div>
                 </section>
 
+                <section class="modal-section" *ngIf="selectedFlightSchedules.length > 0">
+                  <h3 class="modal-heading">Lidojumu datumi un laiki</h3>
+                  <div class="flight-schedule-list">
+                    <p *ngFor="let entry of selectedFlightSchedules" class="flight-entry">{{ entry }}</p>
+                  </div>
+                </section>
+
+                <section class="modal-section" *ngIf="selectedTrip.paymentInfo">
+                  <h3 class="modal-heading">Apmaksas kārtība</h3>
+                  <p class="modal-text">{{ selectedTrip.paymentInfo }}</p>
+                </section>
+
                 <section class="modal-section" *ngIf="selectedTrip.priceIncluded || selectedTrip.extraCharge">
                   <h3 class="modal-heading">Cenas informācija</h3>
                   <div class="row g-4">
@@ -567,6 +579,13 @@ interface MonthOption { key: string; year: number; month: number; label: string;
     .modal-section { margin-bottom: 28px; }
     .modal-heading { font-size: 1.15rem; font-weight: 700; color: #aa7252; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #e8eef8; }
     .modal-text { color: #444; line-height: 1.8; white-space: pre-line; }
+
+    .flight-schedule-list { display: flex; flex-direction: column; gap: 6px; }
+    .flight-entry {
+      margin: 0; color: #333; font-size: 0.97rem; line-height: 1.6;
+      padding: 8px 14px; background: #f4f6fb;
+      border-left: 3px solid #aa7252; border-radius: 0 6px 6px 0;
+    }
     .itinerary-day { margin-bottom: 18px; border: 1.5px solid #e0e8f5; border-radius: 10px; overflow: hidden; }
     .day-header { background: #aa7252; padding: 8px 14px; display: flex; align-items: center; gap: 12px; }
     .day-badge { color: #fff; font-weight: 700; font-size: 0.9rem; }
@@ -616,6 +635,7 @@ export class TripsComponent implements OnInit {
   selectedHeroImage: string | null = null;
   selectedImages: { id: number; path: string; isCover: boolean }[] = [];
   selectedItinerary: TripDay[] = [];
+  selectedFlightSchedules: string[] = [];
   modalLightboxSrc: string | null = null;
   modalLoading = false;
 
@@ -634,6 +654,7 @@ export class TripsComponent implements OnInit {
     this.modalLoading = true;
     this.selectedImages = [];
     this.selectedItinerary = [];
+    this.selectedFlightSchedules = [];
     this.selectedHeroImage = null;
     document.body.style.overflow = 'hidden';
 
@@ -644,6 +665,9 @@ export class TripsComponent implements OnInit {
         this.modalLoading = false;
         if (fullTrip.itineraryJson) {
           try { this.selectedItinerary = JSON.parse(fullTrip.itineraryJson); } catch { /* ignore */ }
+        }
+        if (fullTrip.flightScheduleJson) {
+          try { this.selectedFlightSchedules = JSON.parse(fullTrip.flightScheduleJson); } catch { /* ignore */ }
         }
         this.tripService.getTripImages(id).subscribe({
           next: (imgs) => { this.selectedImages = imgs; },
@@ -662,6 +686,7 @@ export class TripsComponent implements OnInit {
     this.selectedTrip = null;
     this.selectedImages = [];
     this.selectedItinerary = [];
+    this.selectedFlightSchedules = [];
     this.selectedHeroImage = null;
     this.modalLightboxSrc = null;
     document.body.style.overflow = '';

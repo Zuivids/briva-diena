@@ -83,6 +83,12 @@ interface TripImage { id: number; path: string; isCover: boolean; }
                 </div>
               </section>
 
+              <!-- Payment info -->
+              <section class="detail-section" *ngIf="trip.paymentInfo">
+                <h3 class="detail-heading">Apmaksas kārtība</h3>
+                <p class="detail-text">{{ trip.paymentInfo }}</p>
+              </section>
+
               <!-- Price included / Extra charge -->
               <section class="detail-section" *ngIf="trip.priceIncluded || trip.extraCharge">
                 <h3 class="detail-heading">Cenas informācija</h3>
