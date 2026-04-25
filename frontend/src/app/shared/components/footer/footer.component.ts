@@ -80,7 +80,14 @@ import { RouterLink } from '@angular/router';
           <div class="footer-bottom-left">
             <span class="footer-copyright">&#169; 2026 <a routerLink="/">Brīva diena</a></span>
             <a routerLink="/policies/privacy-policy" class="footer-policy-link">Privātuma politika</a>
-            <span class="footer-designedBy">Izstrādāja <a href="https://www.linkedin.com/in/mārtiņš-žaimis-0a9b21394?utm_source=share_via&utm_content=profile&utm_medium=member_ios" target="_blank" rel="noopener noreferrer">Mārtiņš Žaimis</a></span>
+            <span class="footer-designedBy">Izstrādāja
+              <a href="https://www.linkedin.com/in/m%C4%81rti%C5%86%C5%A1-%C5%BEaimis-0a9b21394" target="_blank" rel="noopener noreferrer" class="footer-designedBy-link">
+                <svg class="footer-linkedin-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="13" height="13" aria-hidden="true">
+                  <path d="M17 2H3a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1ZM6.94 15.5H4.56V8h2.38v7.5ZM5.75 6.965a1.378 1.378 0 1 1 0-2.756 1.378 1.378 0 0 1 0 2.756ZM15.5 15.5h-2.38v-3.647c0-.87-.016-1.988-1.212-1.988-1.213 0-1.399.948-1.399 1.927V15.5H8.13V8h2.284v1.023h.031c.318-.602 1.094-1.236 2.252-1.236 2.41 0 2.854 1.587 2.854 3.648L15.5 15.5Z"/>
+                </svg>
+                Mārtiņš Žaimis
+              </a>
+            </span>
           </div>
           <div class="footer-bottom-right">
             <!-- Facebook -->
@@ -266,6 +273,30 @@ import { RouterLink } from '@angular/router';
 
     .footer-policy-link:hover {
       color: #e87722;
+    }
+
+    .footer-designedBy {
+      font-size: 0.75rem;
+      color: #888;
+    }
+
+    .footer-designedBy-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: #555;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+
+    .footer-designedBy-link:hover {
+      color: #0a66c2;
+    }
+
+    .footer-linkedin-icon {
+      vertical-align: middle;
+      flex-shrink: 0;
     }
 
     .footer-bottom-right {
