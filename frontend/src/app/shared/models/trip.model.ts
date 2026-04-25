@@ -18,6 +18,7 @@ export interface Trip {
   priceIncluded?: string;
   extraCharge?: string;
   itineraryJson?: string;
+  flightScheduleJson?: string;
   tripDurationDays?: number;
 }
 

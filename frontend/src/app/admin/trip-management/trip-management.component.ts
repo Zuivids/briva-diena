@@ -279,6 +279,24 @@ interface TripForm {
             </button>
           </div>
 
+          <!-- ── 11. Flight schedule ── -->
+          <div class="form-section">
+            <h5 class="section-label">11. Lidojumu datumi un laiki</h5>
+
+            <div *ngFor="let entry of flightSchedules; let i = index" class="flight-entry-row">
+              <input type="text" [(ngModel)]="flightSchedules[i]" [name]="'flight' + i"
+                     class="form-control field-input"
+                     placeholder="piem., Rīga – Milāna (08:25 – 10:10) 13.06.2026" />
+              <button *ngIf="flightSchedules.length > 1" type="button"
+                      class="btn btn-sm btn-outline-danger ms-2"
+                      (click)="removeFlightEntry(i)">✕</button>
+            </div>
+
+            <button type="button" class="btn btn-outline-primary btn-sm mt-3" (click)="addFlightEntry()">
+              + Pievienot lidojumu
+            </button>
+          </div>
+
           <!-- ── 12. Additional photos ── -->
           <div class="form-section">
             <h5 class="section-label">12. Papildu foto galerija</h5>
@@ -536,6 +554,12 @@ interface TripForm {
 
     .add-photo-add-btn:hover { border-color: #1746a0; }
 
+    .flight-entry-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
     /* Upload labels */
     .upload-label { cursor: pointer; }
 
@@ -570,6 +594,7 @@ export class TripManagementComponent implements OnInit {
 
   form: TripForm = this.emptyForm();
   days: FormDay[] = [this.emptyDay(1)];
+  flightSchedules: string[] = [''];
   coverPhotoFile: File | null = null;
   coverPhotoPreview: string | null = null;
   additionalPhotoFiles: File[] = [];
@@ -625,6 +650,7 @@ export class TripManagementComponent implements OnInit {
     const firstDay = this.emptyDay(1);
     firstDay.date = this.form.startDate; // empty at create time; will auto-set when user picks start date
     this.days = [firstDay];
+    this.flightSchedules = [''];
     this.coverPhotoFile = null;
     this.coverPhotoPreview = null;
     this.additionalPhotoFiles = [];
@@ -668,6 +694,13 @@ export class TripManagementComponent implements OnInit {
       } catch { /* ignore parse errors */ }
     }
     if (this.days.length === 0) this.days = [this.emptyDay(1)];
+    this.flightSchedules = [''];
+    if (trip.flightScheduleJson) {
+      try {
+        const parsed: string[] = JSON.parse(trip.flightScheduleJson);
+        if (parsed.length > 0) this.flightSchedules = parsed;
+      } catch { /* ignore parse errors */ }
+    }
     this.coverPhotoFile = null;
     this.coverPhotoPreview = null;
     this.additionalPhotoFiles = [];
@@ -727,6 +760,14 @@ export class TripManagementComponent implements OnInit {
   removeAdditionalPhoto(index: number) {
     this.additionalPhotoFiles.splice(index, 1);
     this.additionalPhotoPreviews.splice(index, 1);
+  }
+
+  addFlightEntry() {
+    this.flightSchedules.push('');
+  }
+
+  removeFlightEntry(index: number) {
+    this.flightSchedules.splice(index, 1);
   }
 
   addDay() {
@@ -823,8 +864,9 @@ export class TripManagementComponent implements OnInit {
 
       this.saveProgress = 70;
 
-      // Save itinerary JSON back to trip
-      await firstValueFrom(this.tripService.updateTrip(tripId, { ...payload, itineraryJson: JSON.stringify(itinerary) }));
+      // Save itinerary and flight schedule JSON back to trip
+      const flightScheduleJson = JSON.stringify(this.flightSchedules.filter(s => s.trim()));
+      await firstValueFrom(this.tripService.updateTrip(tripId, { ...payload, itineraryJson: JSON.stringify(itinerary), flightScheduleJson }));
 
       this.saveProgress = 85;
 
