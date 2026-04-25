@@ -210,18 +210,28 @@ interface TripForm {
           <!-- ── 8. Price included / Extra charge ── -->
           <div class="form-section">
             <h5 class="section-label">8. Iekļauts cenā un papildmaksa</h5>
-            <div class="row g-3">
+            <div class="row g-4">
               <div class="col-sm-6">
                 <label class="field-label">Iekļauts cenā</label>
-                <textarea [(ngModel)]="form.priceIncluded" name="priceIncluded"
-                          class="form-control field-input" rows="5"
-                          placeholder="• Avioreisi&#10;• Viesnīca&#10;• Gids&#10;• Apdrošināšana"></textarea>
+                <div *ngFor="let item of priceIncludedItems; let i = index" class="flight-entry-row">
+                  <input type="text" [(ngModel)]="priceIncludedItems[i]" [name]="'priceIncluded' + i"
+                         class="form-control field-input" placeholder="piem., Avioreisi" />
+                  <button *ngIf="priceIncludedItems.length > 1" type="button"
+                          class="btn btn-sm btn-outline-danger ms-2"
+                          (click)="removePriceIncluded(i)">✕</button>
+                </div>
+                <button type="button" class="btn btn-outline-success btn-sm mt-2" (click)="addPriceIncluded()">+ Pievienot</button>
               </div>
               <div class="col-sm-6">
                 <label class="field-label">Papildmaksa</label>
-                <textarea [(ngModel)]="form.extraCharge" name="extraCharge"
-                          class="form-control field-input" rows="5"
-                          placeholder="• Pārbaudīta bagāža&#10;• Ekskursijas&#10;• Ēdināšana"></textarea>
+                <div *ngFor="let item of extraChargeItems; let i = index" class="flight-entry-row">
+                  <input type="text" [(ngModel)]="extraChargeItems[i]" [name]="'extraCharge' + i"
+                         class="form-control field-input" placeholder="piem., Pārbaudīta bagāža" />
+                  <button *ngIf="extraChargeItems.length > 1" type="button"
+                          class="btn btn-sm btn-outline-danger ms-2"
+                          (click)="removeExtraCharge(i)">✕</button>
+                </div>
+                <button type="button" class="btn btn-outline-danger btn-sm mt-2" (click)="addExtraCharge()">+ Pievienot</button>
               </div>
             </div>
           </div>
@@ -604,6 +614,8 @@ export class TripManagementComponent implements OnInit {
   form: TripForm = this.emptyForm();
   days: FormDay[] = [this.emptyDay(1)];
   flightSchedules: string[] = [''];
+  priceIncludedItems: string[] = [''];
+  extraChargeItems: string[] = [''];
   coverPhotoFile: File | null = null;
   coverPhotoPreview: string | null = null;
   additionalPhotoFiles: File[] = [];
@@ -660,6 +672,8 @@ export class TripManagementComponent implements OnInit {
     firstDay.date = this.form.startDate; // empty at create time; will auto-set when user picks start date
     this.days = [firstDay];
     this.flightSchedules = [''];
+    this.priceIncludedItems = [''];
+    this.extraChargeItems = [''];
     this.coverPhotoFile = null;
     this.coverPhotoPreview = null;
     this.additionalPhotoFiles = [];
@@ -711,6 +725,14 @@ export class TripManagementComponent implements OnInit {
         if (parsed.length > 0) this.flightSchedules = parsed;
       } catch { /* ignore parse errors */ }
     }
+    this.priceIncludedItems = trip.priceIncluded
+      ? trip.priceIncluded.split('\n').map(s => s.replace(/^[•\-\*]\s*/, '').trim()).filter(s => s)
+      : [''];
+    if (this.priceIncludedItems.length === 0) this.priceIncludedItems = [''];
+    this.extraChargeItems = trip.extraCharge
+      ? trip.extraCharge.split('\n').map(s => s.replace(/^[•\-\*]\s*/, '').trim()).filter(s => s)
+      : [''];
+    if (this.extraChargeItems.length === 0) this.extraChargeItems = [''];
     this.coverPhotoFile = null;
     this.coverPhotoPreview = null;
     this.additionalPhotoFiles = [];
@@ -780,6 +802,11 @@ export class TripManagementComponent implements OnInit {
     this.flightSchedules.splice(index, 1);
   }
 
+  addPriceIncluded() { this.priceIncludedItems.push(''); }
+  removePriceIncluded(index: number) { this.priceIncludedItems.splice(index, 1); }
+  addExtraCharge() { this.extraChargeItems.push(''); }
+  removeExtraCharge(index: number) { this.extraChargeItems.splice(index, 1); }
+
   addDay() {
     const nextDate = this.dateForDayIndex(this.days.length);
     const day = this.emptyDay(this.days.length + 1);
@@ -837,8 +864,8 @@ export class TripManagementComponent implements OnInit {
         airlineCompany: this.form.airlineCompany || undefined,
         includedBaggageSize: this.form.includedBaggageSize || undefined,
         groupSize: this.form.groupSize || undefined,
-        priceIncluded: this.form.priceIncluded || undefined,
-        extraCharge: this.form.extraCharge || undefined,
+        priceIncluded: this.priceIncludedItems.filter(s => s.trim()).join('\n') || undefined,
+        extraCharge: this.extraChargeItems.filter(s => s.trim()).join('\n') || undefined,
         paymentInfo: this.form.paymentInfo || undefined,
       };
 

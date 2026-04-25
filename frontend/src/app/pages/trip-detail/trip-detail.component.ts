@@ -90,20 +90,22 @@ interface TripImage { id: number; path: string; isCover: boolean; }
               </section>
 
               <!-- Price included / Extra charge -->
-              <section class="detail-section" *ngIf="trip.priceIncluded || trip.extraCharge">
+              <section class="detail-section" *ngIf="priceIncludedItems.length > 0 || extraChargeItems.length > 0">
                 <h3 class="detail-heading">Cenas informācija</h3>
-                <div class="row g-4">
-                  <div class="col-sm-6" *ngIf="trip.priceIncluded">
-                    <div class="price-block included">
-                      <div class="price-block-title">&#10003; Iekļauts cenā</div>
-                      <p class="price-block-text">{{ trip.priceIncluded }}</p>
-                    </div>
+                <div *ngIf="priceIncludedItems.length > 0" class="price-items-group">
+                  <div class="price-group-label included-label">Iekļauts cenā</div>
+                  <div class="price-chips-row">
+                    <span *ngFor="let item of priceIncludedItems" class="price-chip included-chip">
+                      <span class="chip-icon">✓</span>{{ item }}
+                    </span>
                   </div>
-                  <div class="col-sm-6" *ngIf="trip.extraCharge">
-                    <div class="price-block extra">
-                      <div class="price-block-title">+ Papildmaksa</div>
-                      <p class="price-block-text">{{ trip.extraCharge }}</p>
-                    </div>
+                </div>
+                <div *ngIf="extraChargeItems.length > 0" class="price-items-group extra-group">
+                  <div class="price-group-label extra-label">Papildmaksa</div>
+                  <div class="price-chips-row">
+                    <span *ngFor="let item of extraChargeItems" class="price-chip extra-chip">
+                      <span class="chip-icon">✕</span>{{ item }}
+                    </span>
                   </div>
                 </div>
               </section>
@@ -328,40 +330,18 @@ interface TripImage { id: number; path: string; isCover: boolean; }
 
     .day-img:hover { opacity: 0.88; }
 
-    /* Price blocks */
-    .price-block {
-      border-radius: 10px;
-      padding: 16px;
-      height: 100%;
-    }
-
-    .price-block.included {
-      background: #f0faf4;
-      border: 1.5px solid #b6e8c8;
-    }
-
-    .price-block.extra {
-      background: #fff8f0;
-      border: 1.5px solid #f5d9b0;
-    }
-
-    .price-block-title {
-      font-weight: 700;
-      font-size: 0.92rem;
-      margin-bottom: 8px;
-      color: #1a202c;
-    }
-
-    .price-block.included .price-block-title { color: #1a6e3a; }
-    .price-block.extra .price-block-title { color: #a0540a; }
-
-    .price-block-text {
-      color: #444;
-      font-size: 0.88rem;
-      line-height: 1.7;
-      white-space: pre-line;
-      margin: 0;
-    }
+    /* Price chips */
+    .price-items-group { margin-bottom: 14px; }
+    .price-items-group.extra-group { margin-bottom: 0; margin-top: 14px; border-top: 1px solid #f0f2f8; padding-top: 14px; }
+    .price-group-label { font-weight: 700; font-size: 0.92rem; margin-bottom: 10px; }
+    .included-label { color: #1a6e3a; }
+    .extra-label { color: #a0540a; font-size: 0.82rem; }
+    .price-chips-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .price-chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 20px; font-size: 0.88rem; }
+    .included-chip { background: #f0faf4; border: 1.5px solid #b6e8c8; color: #1a4a2a; }
+    .included-chip .chip-icon { color: #22a55a; font-weight: 700; }
+    .extra-chip { background: #fff8f0; border: 1.5px solid #f5d9b0; color: #6b3a0a; font-size: 0.82rem; }
+    .extra-chip .chip-icon { color: #e04040; font-weight: 700; }
 
     /* Gallery */
     .gallery-grid {
@@ -495,6 +475,8 @@ export class TripDetailComponent implements OnInit {
   error = '';
   itinerary: TripDay[] = [];
   flightSchedules: string[] = [];
+  priceIncludedItems: string[] = [];
+  extraChargeItems: string[] = [];
   readonly imageBase = '/images/';
 
   constructor(private route: ActivatedRoute, private tripService: TripService) {}
@@ -511,6 +493,12 @@ export class TripDetailComponent implements OnInit {
         if (trip.flightScheduleJson) {
           try { this.flightSchedules = JSON.parse(trip.flightScheduleJson); } catch { /* ignore */ }
         }
+        this.priceIncludedItems = trip.priceIncluded
+          ? trip.priceIncluded.split('\n').map(s => s.replace(/^[•\-\*]\s*/, '').trim()).filter(s => s)
+          : [];
+        this.extraChargeItems = trip.extraCharge
+          ? trip.extraCharge.split('\n').map(s => s.replace(/^[•\-\*]\s*/, '').trim()).filter(s => s)
+          : [];
         this.tripService.getTripImages(id).subscribe({
           next: (imgs) => { this.images = imgs; },
           error: () => {}
