@@ -70,6 +70,9 @@ public class Trip {
     @Column
     private Integer tripDurationDays;
 
+    @Column(nullable = false)
+    private Boolean hidden = false;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -284,5 +287,13 @@ public class Trip {
 
     public void setTripDurationDays(Integer tripDurationDays) {
         this.tripDurationDays = tripDurationDays;
+    }
+
+    public Boolean getHidden() {
+        return hidden;
+    }
+
+    public void setHidden(Boolean hidden) {
+        this.hidden = hidden != null ? hidden : false;
     }
 }

@@ -41,13 +41,20 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     List<Trip> findByMonth(@Param("year") int year, @Param("month") int month);
 
     /**
-     * Find trips with available spots
+     * Find trips with available spots (excluding hidden)
      */
-    @Query("SELECT t FROM Trip t WHERE t.availableSpots > 0 ORDER BY t.startDate ASC")
+    @Query("SELECT t FROM Trip t WHERE t.availableSpots > 0 AND t.hidden = false ORDER BY t.startDate ASC")
     List<Trip> findAllWithAvailableSpots();
 
     /**
-     * Find trips by landing section (TOP or LAST_CHANCE)
+     * Find trips by landing section (TOP or LAST_CHANCE), excluding hidden
      */
-    List<Trip> findByLandingSectionOrderByStartDate(String landingSection);
+    @Query("SELECT t FROM Trip t WHERE t.landingSection = :section AND t.hidden = false ORDER BY t.startDate ASC")
+    List<Trip> findByLandingSectionOrderByStartDate(@Param("section") String section);
+
+    /**
+     * Find upcoming trips ordered by start date, excluding hidden
+     */
+    @Query("SELECT t FROM Trip t WHERE t.startDate >= :date AND t.hidden = false ORDER BY t.startDate ASC")
+    List<Trip> findByStartDateGreaterThanEqualOrderByStartDate(@Param("date") LocalDate date);
 }

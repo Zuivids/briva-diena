@@ -116,6 +116,13 @@ export class TripService {
   }
 
   /**
+   * Toggle trip hidden state (admin only)
+   */
+  setTripHidden(tripId: string, hidden: boolean): Observable<Trip> {
+    return this.http.patch<Trip>(`${this.apiUrl}/${tripId}/hidden`, { hidden });
+  }
+
+  /**
    * Get background images for landing page
    */
   getBackgroundImages(): Observable<string[]> {

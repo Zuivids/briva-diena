@@ -21,6 +21,7 @@ export interface Trip {
   flightScheduleJson?: string;
   paymentInfo?: string;
   tripDurationDays?: number;
+  hidden?: boolean;
 }
 
 export interface TripDay {

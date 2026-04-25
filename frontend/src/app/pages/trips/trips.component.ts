@@ -740,8 +740,9 @@ export class TripsComponent implements OnInit {
   ngOnInit(): void {
     this.tripService.getAllTrips().subscribe({
       next: (data) => {
-        this.trips = data;
-        this.filteredTrips = data;
+        const visible = data.filter(t => !t.hidden);
+        this.trips = visible;
+        this.filteredTrips = visible;
         this.loading = false;
         this.buildFilterOptions();
         if (data.length === 0) return;
