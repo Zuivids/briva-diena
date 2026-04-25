@@ -34,6 +34,7 @@ import { catchError } from 'rxjs/operators';
             <div *ngFor="let trip of topTrips" class="col-md-4">
               <div class="trip-card">
                 <div class="trip-card-img" [style.backgroundImage]="coverMapTop[trip.id] ? 'url(/images/' + coverMapTop[trip.id] + ')' : 'none'" [class.no-cover]="!coverMapTop[trip.id]">
+                  <div *ngIf="trip.availableSpots === 0" class="soldout-overlay">Izpārdots</div>
                 </div>
                 <div class="trip-card-body">
                   <h5 class="trip-title">{{ trip.name }}</h5>
@@ -77,6 +78,7 @@ import { catchError } from 'rxjs/operators';
             <div *ngFor="let trip of lastChanceTrips" class="col-md-4">
               <div class="trip-card">
                 <div class="trip-card-img" [style.backgroundImage]="coverMapLastChance[trip.id] ? 'url(/images/' + coverMapLastChance[trip.id] + ')' : 'none'" [class.no-cover]="!coverMapLastChance[trip.id]">
+                  <div *ngIf="trip.availableSpots === 0" class="soldout-overlay">Izpārdots</div>
                 </div>
                 <div class="trip-card-body">
                   <h5 class="trip-title">{{ trip.name }}</h5>
@@ -288,7 +290,7 @@ import { catchError } from 'rxjs/operators';
     .landing-page { min-height: 100vh; }
 
     .hero-section { position: relative; width: 100%; overflow: hidden; }
-    .hero-image { width: 100%; height: auto; max-height: 70vh; display: block; object-fit: cover; }
+    .hero-image { width: 100%; height: auto; max-height: 40vh; display: block; object-fit: cover; }
     .hero-text { position: absolute; top: 50%; left: 0; transform: translateY(-50%); padding: 0 2rem; }
     .hero-text h1 {
       color: #fff; font-size: clamp(1.75rem, 4vw, 3.5rem); font-weight: 700;
@@ -327,6 +329,19 @@ import { catchError } from 'rxjs/operators';
     }
     .trip-card-img.no-cover {
       background-image: linear-gradient(135deg, #c8d6f0 0%, #e8eef8 100%);
+    }
+    .soldout-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
     .trip-card-body { padding: 20px; }
     .trip-title { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
