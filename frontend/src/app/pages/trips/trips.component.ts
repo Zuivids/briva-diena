@@ -175,20 +175,22 @@ interface MonthOption { key: string; year: number; month: number; label: string;
                   <p class="modal-text">{{ selectedTrip.paymentInfo }}</p>
                 </section>
 
-                <section class="modal-section" *ngIf="selectedTrip.priceIncluded || selectedTrip.extraCharge">
+                <section class="modal-section" *ngIf="selectedPriceIncluded.length > 0 || selectedExtraCharge.length > 0">
                   <h3 class="modal-heading">Cenas informācija</h3>
-                  <div class="row g-4">
-                    <div class="col-sm-6" *ngIf="selectedTrip.priceIncluded">
-                      <div class="price-block included">
-                        <div class="price-block-title">&#10003; Iekļauts cenā</div>
-                        <p class="price-block-text">{{ selectedTrip.priceIncluded }}</p>
-                      </div>
+                  <div *ngIf="selectedPriceIncluded.length > 0" class="price-items-group">
+                    <div class="price-group-label included-label">Iekļauts cenā</div>
+                    <div class="price-chips-row">
+                      <span *ngFor="let item of selectedPriceIncluded" class="price-chip included-chip">
+                        <span class="chip-icon">✓</span>{{ item }}
+                      </span>
                     </div>
-                    <div class="col-sm-6" *ngIf="selectedTrip.extraCharge">
-                      <div class="price-block extra">
-                        <div class="price-block-title">+ Papildmaksa</div>
-                        <p class="price-block-text">{{ selectedTrip.extraCharge }}</p>
-                      </div>
+                  </div>
+                  <div *ngIf="selectedExtraCharge.length > 0" class="price-items-group extra-group">
+                    <div class="price-group-label extra-label">Papildmaksa</div>
+                    <div class="price-chips-row">
+                      <span *ngFor="let item of selectedExtraCharge" class="price-chip extra-chip">
+                        <span class="chip-icon">✕</span>{{ item }}
+                      </span>
                     </div>
                   </div>
                 </section>
@@ -610,13 +612,17 @@ interface MonthOption { key: string; year: number; month: number; label: string;
     .day-desc { color: #444; line-height: 1.7; white-space: pre-line; margin: 0; }
     .day-img { width: 100%; border-radius: 8px; object-fit: cover; aspect-ratio: 4/3; cursor: pointer; transition: opacity 0.18s; }
     .day-img:hover { opacity: 0.88; }
-    .price-block { border-radius: 10px; padding: 14px; height: 100%; }
-    .price-block.included { background: #f0faf4; border: 1.5px solid #b6e8c8; }
-    .price-block.extra { background: #fff8f0; border: 1.5px solid #f5d9b0; }
-    .price-block-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; }
-    .price-block.included .price-block-title { color: #1a6e3a; }
-    .price-block.extra .price-block-title { color: #a0540a; }
-    .price-block-text { color: #444; font-size: 0.87rem; line-height: 1.7; white-space: pre-line; margin: 0; }
+    .price-items-group { margin-bottom: 14px; }
+    .price-items-group.extra-group { margin-bottom: 0; margin-top: 14px; border-top: 1px solid #f0f2f8; padding-top: 14px; }
+    .price-group-label { font-weight: 700; font-size: 0.92rem; margin-bottom: 10px; }
+    .included-label { color: #1a6e3a; }
+    .extra-label { color: #a0540a; font-size: 0.82rem; }
+    .price-chips-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .price-chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 20px; font-size: 0.88rem; }
+    .included-chip { background: #f0faf4; border: 1.5px solid #b6e8c8; color: #1a4a2a; }
+    .included-chip .chip-icon { color: #22a55a; font-weight: 700; }
+    .extra-chip { background: #fff8f0; border: 1.5px solid #f5d9b0; color: #6b3a0a; font-size: 0.82rem; }
+    .extra-chip .chip-icon { color: #e04040; font-weight: 700; }
     .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
     .gallery-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 8px; cursor: pointer; transition: transform 0.18s, box-shadow 0.18s; }
     .gallery-img:hover { transform: scale(1.03); box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
@@ -651,6 +657,8 @@ export class TripsComponent implements OnInit {
   selectedImages: { id: number; path: string; isCover: boolean }[] = [];
   selectedItinerary: TripDay[] = [];
   selectedFlightSchedules: string[] = [];
+  selectedPriceIncluded: string[] = [];
+  selectedExtraCharge: string[] = [];
   modalLightboxSrc: string | null = null;
   modalLoading = false;
 
@@ -670,6 +678,8 @@ export class TripsComponent implements OnInit {
     this.selectedImages = [];
     this.selectedItinerary = [];
     this.selectedFlightSchedules = [];
+    this.selectedPriceIncluded = [];
+    this.selectedExtraCharge = [];
     this.selectedHeroImage = null;
     document.body.style.overflow = 'hidden';
 
@@ -684,6 +694,12 @@ export class TripsComponent implements OnInit {
         if (fullTrip.flightScheduleJson) {
           try { this.selectedFlightSchedules = JSON.parse(fullTrip.flightScheduleJson); } catch { /* ignore */ }
         }
+        this.selectedPriceIncluded = fullTrip.priceIncluded
+          ? fullTrip.priceIncluded.split('\n').map(s => s.replace(/^[•\-\*]\s*/, '').trim()).filter(s => s)
+          : [];
+        this.selectedExtraCharge = fullTrip.extraCharge
+          ? fullTrip.extraCharge.split('\n').map(s => s.replace(/^[•\-\*]\s*/, '').trim()).filter(s => s)
+          : [];
         this.tripService.getTripImages(id).subscribe({
           next: (imgs) => { this.selectedImages = imgs; },
           error: () => {}
@@ -702,6 +718,8 @@ export class TripsComponent implements OnInit {
     this.selectedImages = [];
     this.selectedItinerary = [];
     this.selectedFlightSchedules = [];
+    this.selectedPriceIncluded = [];
+    this.selectedExtraCharge = [];
     this.selectedHeroImage = null;
     this.modalLightboxSrc = null;
     document.body.style.overflow = '';
