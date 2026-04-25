@@ -46,7 +46,8 @@ echo "[OK] Application configuration created"
 echo ""
 echo "Building backend..."
 cd "$SCRIPT_DIR/backend"
-mvn clean package -DskipTests
+chmod +x mvnw
+./mvnw clean package -DskipTests
 
 if [ $? -ne 0 ]; then
     echo "[ERROR] Backend build failed"
@@ -79,7 +80,7 @@ echo "[OK] Directories created"
 # 5. Deploy frontend
 echo ""
 echo "Deploying frontend..."
-sudo cp -r "$SCRIPT_DIR/frontend/dist"/* /var/www/briva-diena/
+sudo cp -r "$SCRIPT_DIR/frontend/dist/frontend/browser/". /var/www/briva-diena/
 echo "[OK] Frontend deployed to /var/www/briva-diena"
 
 # 6. Create systemd service for backend
