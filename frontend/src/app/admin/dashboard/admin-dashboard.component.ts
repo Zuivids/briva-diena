@@ -59,33 +59,94 @@ import { Review } from '../../shared/models/review.model';
         <section class="admin-section">
           <h4 class="section-heading">Par mums lapa</h4>
 
-          <p class="hint mb-2">Līdz 3 attēliem tiks rādīti labajā pusē blakus tekstam.</p>
-          <div class="d-flex gap-3 flex-wrap mb-3">
-            <div *ngFor="let idx of slotIndices" class="about-img-slot">
-              <ng-container *ngIf="aboutPageImages[idx]; else noSideImg">
-                <div class="about-img-preview-wrap">
-                  <img [src]="aboutPageImages[idx]" alt="Attēls {{idx+1}}" class="about-img-preview" />
-                  <button class="image-delete-btn" (click)="removeAboutPageSideImage(idx)" title="Dzēst">&times;</button>
-                </div>
-                <label class="btn btn-outline-primary btn-sm mt-1 upload-btn" [for]="'aboutSideImg'+idx">
-                  Mainīt
-                  <input [id]="'aboutSideImg'+idx" type="file" accept="image/*" class="visually-hidden" (change)="onAboutPageSideImageUpload($event, idx)" />
-                </label>
-              </ng-container>
-              <ng-template #noSideImg>
-                <label class="image-upload-btn flex-column gap-1" [for]="'aboutSideImg'+idx">
-                  <span style="font-size:1.4rem;line-height:1">+</span>
-                  <span>Foto {{idx+1}}</span>
-                  <input [id]="'aboutSideImg'+idx" type="file" accept="image/*" class="visually-hidden" (change)="onAboutPageSideImageUpload($event, idx)" />
-                </label>
-              </ng-template>
+          <!-- Row 1 -->
+          <div class="about-admin-row mb-4">
+            <h6 class="about-row-label">1. rinda <span class="text-muted small">(teksts kreisi, attēls labajā)</span></h6>
+            <div class="about-admin-pair">
+              <div class="about-admin-text">
+                <textarea [(ngModel)]="aboutSections[0]" name="aboutSection0" class="form-control" rows="5"></textarea>
+              </div>
+              <div class="about-admin-img">
+                <ng-container *ngIf="aboutPageImages[0]; else noImg0">
+                  <div class="about-img-preview-wrap">
+                    <img [src]="aboutPageImages[0]" alt="Attēls 1" class="about-img-preview" />
+                    <button class="image-delete-btn" (click)="removeAboutPageSideImage(0)" title="Dzēst">&times;</button>
+                  </div>
+                  <label class="btn btn-outline-primary btn-sm mt-1 upload-btn" for="aboutSideImg0">
+                    Mainīt
+                    <input id="aboutSideImg0" type="file" accept="image/*" class="visually-hidden" (change)="onAboutPageSideImageUpload($event, 0)" />
+                  </label>
+                </ng-container>
+                <ng-template #noImg0>
+                  <label class="image-upload-btn flex-column gap-1" for="aboutSideImg0">
+                    <span style="font-size:1.4rem;line-height:1">+</span>
+                    <span>Foto 1</span>
+                    <input id="aboutSideImg0" type="file" accept="image/*" class="visually-hidden" (change)="onAboutPageSideImageUpload($event, 0)" />
+                  </label>
+                </ng-template>
+              </div>
             </div>
           </div>
 
-          <p class="hint mb-2">Katrs rindkopas atdalīts ar tukšu rindu.</p>
-          <textarea [(ngModel)]="aboutPageContent" name="aboutPageContent"
-            class="form-control" rows="8"></textarea>
-          <div class="mt-2 d-flex align-items-center gap-2">
+          <!-- Row 2 (reversed) -->
+          <div class="about-admin-row mb-4">
+            <h6 class="about-row-label">2. rinda <span class="text-muted small">(attēls kreisi, teksts labajā)</span></h6>
+            <div class="about-admin-pair reversed">
+              <div class="about-admin-text">
+                <textarea [(ngModel)]="aboutSections[1]" name="aboutSection1" class="form-control" rows="5"></textarea>
+              </div>
+              <div class="about-admin-img">
+                <ng-container *ngIf="aboutPageImages[1]; else noImg1">
+                  <div class="about-img-preview-wrap">
+                    <img [src]="aboutPageImages[1]" alt="Attēls 2" class="about-img-preview" />
+                    <button class="image-delete-btn" (click)="removeAboutPageSideImage(1)" title="Dzēst">&times;</button>
+                  </div>
+                  <label class="btn btn-outline-primary btn-sm mt-1 upload-btn" for="aboutSideImg1">
+                    Mainīt
+                    <input id="aboutSideImg1" type="file" accept="image/*" class="visually-hidden" (change)="onAboutPageSideImageUpload($event, 1)" />
+                  </label>
+                </ng-container>
+                <ng-template #noImg1>
+                  <label class="image-upload-btn flex-column gap-1" for="aboutSideImg1">
+                    <span style="font-size:1.4rem;line-height:1">+</span>
+                    <span>Foto 2</span>
+                    <input id="aboutSideImg1" type="file" accept="image/*" class="visually-hidden" (change)="onAboutPageSideImageUpload($event, 1)" />
+                  </label>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="about-admin-row mb-4">
+            <h6 class="about-row-label">3. rinda <span class="text-muted small">(teksts kreisi, attēls labajā)</span></h6>
+            <div class="about-admin-pair">
+              <div class="about-admin-text">
+                <textarea [(ngModel)]="aboutSections[2]" name="aboutSection2" class="form-control" rows="5"></textarea>
+              </div>
+              <div class="about-admin-img">
+                <ng-container *ngIf="aboutPageImages[2]; else noImg2">
+                  <div class="about-img-preview-wrap">
+                    <img [src]="aboutPageImages[2]" alt="Attēls 3" class="about-img-preview" />
+                    <button class="image-delete-btn" (click)="removeAboutPageSideImage(2)" title="Dzēst">&times;</button>
+                  </div>
+                  <label class="btn btn-outline-primary btn-sm mt-1 upload-btn" for="aboutSideImg2">
+                    Mainīt
+                    <input id="aboutSideImg2" type="file" accept="image/*" class="visually-hidden" (change)="onAboutPageSideImageUpload($event, 2)" />
+                  </label>
+                </ng-container>
+                <ng-template #noImg2>
+                  <label class="image-upload-btn flex-column gap-1" for="aboutSideImg2">
+                    <span style="font-size:1.4rem;line-height:1">+</span>
+                    <span>Foto 3</span>
+                    <input id="aboutSideImg2" type="file" accept="image/*" class="visually-hidden" (change)="onAboutPageSideImageUpload($event, 2)" />
+                  </label>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-1 d-flex align-items-center gap-2">
             <button class="btn btn-primary btn-sm" (click)="saveAboutPage()">Saglabāt</button>
             <span *ngIf="aboutPageSaved" class="text-success small">Saglabāts!</span>
           </div>
@@ -508,6 +569,40 @@ import { Review } from '../../shared/models/review.model';
       align-items: flex-start;
     }
 
+    .about-admin-row {
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 16px;
+      background: #fafafa;
+    }
+
+    .about-row-label {
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .about-admin-pair {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .about-admin-pair.reversed {
+      flex-direction: row-reverse;
+    }
+
+    .about-admin-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .about-admin-img {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
     .about-img-preview-wrap {
       position: relative;
       display: inline-block;
@@ -529,6 +624,7 @@ export class AdminDashboardComponent implements OnInit {
   aboutText = '';
   aboutSaved = false;
   aboutPageContent = '';
+  aboutSections: string[] = ['', '', ''];
   aboutPageSaved = false;
   aboutPageImagePreview: string | null = null;
   aboutPageImages: string[] = [];
@@ -581,6 +677,8 @@ export class AdminDashboardComponent implements OnInit {
     this.heroPreview = this.adminState.heroImageSrc$.value;
     this.aboutText = this.adminState.aboutText$.value;
     this.aboutPageContent = this.adminState.aboutPageContent$.value;
+    const parts = this.aboutPageContent.split('\n\n');
+    this.aboutSections = [parts[0] ?? '', parts[1] ?? '', parts[2] ?? ''];
     this.aboutPageImagePreview = this.adminState.aboutPageImage$.value;
     this.faqItems = this.adminState.faqItems$.value;
     this.loadAboutImages();
@@ -755,6 +853,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   saveAboutPage(): void {
+    this.aboutPageContent = this.aboutSections.join('\n\n');
     this.adminState.aboutPageContent$.next(this.aboutPageContent);
     this.aboutPageSaved = true;
     setTimeout(() => (this.aboutPageSaved = false), 2000);
