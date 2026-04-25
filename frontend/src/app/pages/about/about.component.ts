@@ -11,15 +11,19 @@ import { AboutImageService } from '../../shared/services/about-image.service';
     <div class="about-page">
 
       <div class="container py-5">
-        <h2 class="page-title mb-4">BRĪVA DIENA</h2>
-        <div class="about-layout mx-auto" [class.has-images]="images.length > 0">
-          <div class="about-text-wrap">
-            <p *ngFor="let para of paragraphs" class="about-para">{{ para }}</p>
+        <h2 class="page-title mb-5">BRĪVA DIENA</h2>
+
+        <div *ngFor="let t of sectionTexts; let i = index"
+             class="about-row"
+             [class.reversed]="i === 1">
+          <div class="about-row-text">
+            <p class="about-para" *ngIf="sectionTexts[i]">{{ sectionTexts[i] }}</p>
           </div>
-          <div *ngIf="images.length > 0" class="about-images-wrap">
-            <img *ngFor="let img of images" [src]="img" alt="Par mums" class="about-image" />
+          <div class="about-row-image" *ngIf="slotImages[i]">
+            <img [src]="slotImages[i]" alt="Par mums" class="about-image" />
           </div>
         </div>
+
       </div>
 
     </div>
@@ -33,34 +37,35 @@ import { AboutImageService } from '../../shared/services/about-image.service';
       text-align: center;
     }
 
-    .about-layout {
-      max-width: 1000px;
-    }
-
-    .about-layout.has-images {
+    .about-row {
       display: flex;
       gap: 48px;
-      align-items: flex-start;
+      align-items: center;
+      margin-bottom: 64px;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
-    .about-text-wrap {
+    .about-row.reversed {
+      flex-direction: row-reverse;
+    }
+
+    .about-row-text {
       flex: 1;
       min-width: 0;
+    }
+
+    .about-row-image {
+      flex-shrink: 0;
+      width: 340px;
     }
 
     .about-para {
       font-size: 1.05rem;
       line-height: 1.8;
       color: #444;
-      margin-bottom: 1.4rem;
-    }
-
-    .about-images-wrap {
-      flex-shrink: 0;
-      width: 280px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
+      margin-bottom: 0;
     }
 
     .about-image {
@@ -71,38 +76,36 @@ import { AboutImageService } from '../../shared/services/about-image.service';
     }
 
     @media (max-width: 768px) {
-      .about-layout.has-images {
+      .about-row,
+      .about-row.reversed {
         flex-direction: column;
+        gap: 24px;
       }
-      .about-images-wrap {
+      .about-row-image {
         width: 100%;
-        flex-direction: row;
-        flex-wrap: wrap;
-      }
-      .about-image {
-        width: calc(50% - 8px);
       }
     }
   `]
 })
 export class AboutComponent implements OnInit {
-  paragraphs: string[] = [];
-  images: string[] = [];
+  sectionTexts: string[] = ['', '', ''];
+  slotImages: (string | null)[] = [null, null, null];
 
   constructor(private adminState: AdminStateService, private aboutImageService: AboutImageService) {
     this.adminState.aboutPageContent$.subscribe(content => {
-      this.paragraphs = content.split('\n').filter(p => p.trim().length > 0);
+      const parts = content.split('\n\n');
+      this.sectionTexts = [parts[0] ?? '', parts[1] ?? '', parts[2] ?? ''];
     });
   }
 
   ngOnInit(): void {
     this.aboutImageService.getImages().subscribe({
       next: (imgs) => {
-        const slots = ['', '', ''];
+        const slots: (string | null)[] = [null, null, null];
         imgs.forEach(img => { if (img.slotIndex >= 0 && img.slotIndex <= 2) slots[img.slotIndex] = '/images/' + img.path; });
-        this.images = slots.filter(s => !!s);
+        this.slotImages = slots;
       },
-      error: () => { this.images = []; }
+      error: () => { this.slotImages = [null, null, null]; }
     });
   }
 }
