@@ -68,11 +68,14 @@ interface TripForm {
                   <span class="badge bg-light text-dark">{{ trip.availableSpots }} vietas</span>
                   <span *ngIf="trip.landingSection === 'TOP'" class="badge bg-success">TOP</span>
                   <span *ngIf="trip.landingSection === 'LAST_CHANCE'" class="badge bg-warning text-dark">Pēdējā iespēja</span>
+                  <span *ngIf="trip.hidden" class="badge bg-danger">Noslēpts</span>
                 </div>
               </div>
               <div class="trip-list-actions">
                 <a [routerLink]="['/trip', trip.id]" class="btn btn-sm btn-outline-secondary" target="_blank">Apskatīt</a>
                 <button class="btn btn-sm btn-outline-primary" (click)="openEditForm(trip)">Rediģēt</button>
+                <button class="btn btn-sm btn-outline-info" (click)="copyTrip(trip)">Kopēt</button>
+                <button class="btn btn-sm" [ngClass]="trip.hidden ? 'btn-warning' : 'btn-outline-secondary'" (click)="toggleHidden(trip)">{{ trip.hidden ? 'Parādīt' : 'Noslēpt' }}</button>
                 <button class="btn btn-sm btn-outline-danger" (click)="deleteTrip(String(trip.id))">Dzēst</button>
               </div>
             </div>
@@ -616,6 +619,7 @@ export class TripManagementComponent implements OnInit {
   flightSchedules: string[] = [''];
   priceIncludedItems: string[] = [''];
   extraChargeItems: string[] = [''];
+  editingTripHidden = false;
   coverPhotoFile: File | null = null;
   coverPhotoPreview: string | null = null;
   additionalPhotoFiles: File[] = [];
@@ -674,6 +678,7 @@ export class TripManagementComponent implements OnInit {
     this.flightSchedules = [''];
     this.priceIncludedItems = [''];
     this.extraChargeItems = [''];
+    this.editingTripHidden = false;
     this.coverPhotoFile = null;
     this.coverPhotoPreview = null;
     this.additionalPhotoFiles = [];
@@ -733,6 +738,7 @@ export class TripManagementComponent implements OnInit {
       ? trip.extraCharge.split('\n').map(s => s.replace(/^[•\-\*]\s*/, '').trim()).filter(s => s)
       : [''];
     if (this.extraChargeItems.length === 0) this.extraChargeItems = [''];
+    this.editingTripHidden = trip.hidden ?? false;
     this.coverPhotoFile = null;
     this.coverPhotoPreview = null;
     this.additionalPhotoFiles = [];
@@ -807,6 +813,70 @@ export class TripManagementComponent implements OnInit {
   addExtraCharge() { this.extraChargeItems.push(''); }
   removeExtraCharge(index: number) { this.extraChargeItems.splice(index, 1); }
 
+  copyTrip(trip: Trip) {
+    this.editingTripId = null;
+    this.editingTripHidden = false;
+    this.form = {
+      name: 'Kopija - ' + trip.name,
+      startDate: trip.startDate,
+      endDate: trip.endDate,
+      priceEur: trip.priceCents / 100,
+      availableSpots: trip.availableSpots,
+      transportationType: trip.transportationType || '',
+      accommodation: trip.accommodation || '',
+      airlineCompany: trip.airlineCompany || '',
+      includedBaggageSize: trip.includedBaggageSize || '',
+      groupSize: trip.groupSize || 0,
+      priceIncluded: trip.priceIncluded || '',
+      extraCharge: trip.extraCharge || '',
+      description: trip.description || '',
+      paymentInfo: trip.paymentInfo || '',
+      landingSection: trip.landingSection || ''
+    };
+    this.days = [];
+    if (trip.itineraryJson) {
+      try {
+        const parsed: { dayNumber: number; date: string; description: string; imagePath: string | null }[] =
+          JSON.parse(trip.itineraryJson);
+        this.days = parsed.map(d => ({
+          dayNumber: d.dayNumber, date: d.date, description: d.description,
+          imageFile: null, imagePreview: null, existingImagePath: d.imagePath ?? null
+        }));
+      } catch { /* ignore */ }
+    }
+    if (this.days.length === 0) this.days = [this.emptyDay(1)];
+    this.flightSchedules = [''];
+    if (trip.flightScheduleJson) {
+      try {
+        const parsed: string[] = JSON.parse(trip.flightScheduleJson);
+        if (parsed.length > 0) this.flightSchedules = parsed;
+      } catch { /* ignore */ }
+    }
+    this.priceIncludedItems = trip.priceIncluded
+      ? trip.priceIncluded.split('\n').map(s => s.replace(/^[•\-\*]\s*/, '').trim()).filter(s => s)
+      : [''];
+    if (this.priceIncludedItems.length === 0) this.priceIncludedItems = [''];
+    this.extraChargeItems = trip.extraCharge
+      ? trip.extraCharge.split('\n').map(s => s.replace(/^[•\-\*]\s*/, '').trim()).filter(s => s)
+      : [''];
+    if (this.extraChargeItems.length === 0) this.extraChargeItems = [''];
+    this.coverPhotoFile = null;
+    this.coverPhotoPreview = null;
+    this.additionalPhotoFiles = [];
+    this.additionalPhotoPreviews = [];
+    this.saveError = '';
+    this.saveSuccess = '';
+    this.showForm = true;
+  }
+
+  toggleHidden(trip: Trip) {
+    const newHidden = !trip.hidden;
+    this.tripService.setTripHidden(String(trip.id), newHidden).subscribe({
+      next: () => this.loadTrips(),
+      error: () => alert('Neizdevās mainīt redzamību.')
+    });
+  }
+
   addDay() {
     const nextDate = this.dateForDayIndex(this.days.length);
     const day = this.emptyDay(this.days.length + 1);
@@ -866,6 +936,7 @@ export class TripManagementComponent implements OnInit {
         groupSize: this.form.groupSize || undefined,
         priceIncluded: this.priceIncludedItems.filter(s => s.trim()).join('\n') || undefined,
         extraCharge: this.extraChargeItems.filter(s => s.trim()).join('\n') || undefined,
+        hidden: this.editingTripHidden,
         paymentInfo: this.form.paymentInfo || undefined,
       };
 

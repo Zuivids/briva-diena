@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.web.bind.annotation.PatchMapping;
 
 @RestController
 @RequestMapping("/api/trips")
@@ -151,6 +152,9 @@ public class TripController {
             trip.setFlightScheduleJson(tripDetails.getFlightScheduleJson());
             trip.setPaymentInfo(tripDetails.getPaymentInfo());
             trip.setTripDurationDays(tripDetails.getTripDurationDays());
+            if (tripDetails.getHidden() != null) {
+                trip.setHidden(tripDetails.getHidden());
+            }
             Trip updatedTrip = tripRepository.save(trip);
             return ResponseEntity.ok(updatedTrip);
         }
@@ -167,6 +171,19 @@ public class TripController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    /**
+     * PATCH /api/trips/{id}/hidden - Toggle trip visibility (admin)
+     */
+    @PatchMapping("/{id}/hidden")
+    public ResponseEntity<Trip> setTripHidden(@PathVariable Long id, @RequestBody Map<String, Boolean> body) {
+        Optional<Trip> opt = tripRepository.findById(id);
+        if (opt.isEmpty())
+            return ResponseEntity.notFound().build();
+        Trip trip = opt.get();
+        trip.setHidden(body.getOrDefault("hidden", false));
+        return ResponseEntity.ok(tripRepository.save(trip));
     }
 
     /**
