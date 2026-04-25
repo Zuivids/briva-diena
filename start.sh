@@ -24,12 +24,12 @@ kill_process() {
 echo "Stopping any existing processes..."
 echo ""
 
-# Kill Node processes (frontend)
-kill_process "node"
+# Kill frontend (ng serve)
+kill_process "ng serve"
 echo "[OK] Frontend stopped (if any)"
 
-# Kill Java processes (backend)
-kill_process "java"
+# Kill backend (Spring Boot)
+kill_process "spring-boot:run"
 echo "[OK] Backend stopped (if any)"
 
 echo ""
@@ -61,7 +61,8 @@ echo ""
 
 # Start backend in the background
 cd "$SCRIPT_DIR/backend"
-mvn clean spring-boot:run > /tmp/backend.log 2>&1 &
+chmod +x mvnw
+./mvnw spring-boot:run > /tmp/backend.log 2>&1 &
 BACKEND_PID=$!
 echo "[OK] Backend starting (PID: $BACKEND_PID)"
 

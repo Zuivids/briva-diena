@@ -8,12 +8,12 @@ echo ""
 
 # Stop backend
 echo "Stopping backend..."
-pkill -f "mvn clean spring-boot:run"
+pkill -f "spring-boot:run" || true
 echo "[OK] Backend stopped"
 
 # Stop frontend
 echo "Stopping frontend..."
-pkill -f "npm start"
+pkill -f "ng serve" || true
 echo "[OK] Frontend stopped"
 
 # Stop database
