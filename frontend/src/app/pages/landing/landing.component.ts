@@ -479,8 +479,8 @@ import { catchError } from 'rxjs/operators';
     .day-header { background: #aa7252; padding: 8px 14px; display: flex; align-items: center; gap: 12px; }
     .day-badge { color: #fff; font-weight: 700; font-size: 0.9rem; }
     .day-date { color: rgba(255,255,255,0.75); font-size: 0.83rem; }
-    .day-body { padding: 12px 14px; background: #f8faff; }
-    .day-body.has-image { display: grid; grid-template-columns: 1fr 160px; gap: 14px; align-items: start; }
+    .day-body { padding: 14px 16px; background: #f8faff; }
+    .day-body.has-image { display: grid; grid-template-columns: 1fr 320px; gap: 16px; align-items: start; }
     .day-desc { color: #444; line-height: 1.7; white-space: pre-line; margin: 0; }
     .day-img { width: 100%; border-radius: 8px; object-fit: cover; aspect-ratio: 4/3; cursor: pointer; transition: opacity 0.18s; }
     .day-img:hover { opacity: 0.88; }
