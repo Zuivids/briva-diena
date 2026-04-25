@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TripService } from '../../shared/services/trip.service';
-import { Trip } from '../../shared/models/trip.model';
+import { Trip, TripDay } from '../../shared/models/trip.model';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -87,7 +87,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
                     <div class="trip-footer">
                       <span class="trip-price">&#8364;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
                       <div class="trip-actions">
-                        <a [routerLink]="['/trip', trip.id]" class="btn btn-sm btn-outline-secondary">Apskatīt</a>
+                        <button class="btn btn-sm btn-outline-secondary" (click)="openTripModal(trip)">Apskatīt</button>
                         <a [routerLink]="['/registration', trip.id]" class="btn btn-sm btn-orange">Pieteikties</a>
                       </div>
                     </div>
@@ -106,6 +106,133 @@ interface MonthOption { key: string; year: number; month: number; label: string;
         </div>
       </div>
     </div>
+
+    <!-- ──── Trip Detail Modal ──── -->
+    <div *ngIf="selectedTrip" class="trip-modal-overlay" (click)="closeTripModal()">
+      <div class="trip-modal-content" (click)="$event.stopPropagation()">
+        <div class="trip-modal-inner">
+
+        <button class="modal-close-btn" (click)="closeTripModal()">&#x2715;</button>
+
+        <div *ngIf="modalLoading" class="text-center py-5">
+          <div class="spinner-border text-primary"></div>
+        </div>
+
+        <ng-container *ngIf="!modalLoading && selectedTrip">
+
+          <div class="modal-hero" [style.backgroundImage]="selectedHeroImage ? 'url(/images/' + selectedHeroImage + ')' : 'none'">
+            <div class="modal-hero-overlay">
+              <div class="container">
+                <h1 class="modal-hero-title">{{ selectedTrip.name }}</h1>
+                <div class="modal-hero-meta">
+                  <span class="meta-chip">{{ selectedTrip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ selectedTrip.endDate | date:'dd.MM.yyyy' }}</span>
+                  <span class="meta-chip">{{ modalDurationDays }} dienas</span>
+                  <span class="meta-chip" [class.few-spots]="selectedTrip.availableSpots <= 3">
+                    {{ selectedTrip.availableSpots > 0 ? selectedTrip.availableSpots + ' brīvas vietas' : 'Pilns' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="container py-4">
+            <div class="row g-4">
+
+              <div class="col-lg-8">
+
+                <section class="modal-section" *ngIf="selectedTrip.description">
+                  <h3 class="modal-heading">Ko mēs piedzīvosim</h3>
+                  <p class="modal-text">{{ selectedTrip.description }}</p>
+                </section>
+
+                <section class="modal-section" *ngIf="selectedItinerary.length > 0">
+                  <h3 class="modal-heading">Dienas programma</h3>
+                  <div *ngFor="let day of selectedItinerary" class="itinerary-day">
+                    <div class="day-header">
+                      <span class="day-badge">{{ day.dayNumber }}. diena</span>
+                      <span *ngIf="day.date" class="day-date">{{ day.date | date:'dd.MM.yyyy' }}</span>
+                    </div>
+                    <div class="day-body" [class.has-image]="day.imagePath">
+                      <p class="day-desc">{{ day.description }}</p>
+                      <img *ngIf="day.imagePath" [src]="'/images/' + day.imagePath"
+                           [alt]="'Diena ' + day.dayNumber"
+                           class="day-img"
+                           (click)="openModalLightbox(day.imagePath!)" />
+                    </div>
+                  </div>
+                </section>
+
+                <section class="modal-section" *ngIf="selectedTrip.priceIncluded || selectedTrip.extraCharge">
+                  <h3 class="modal-heading">Cenas informācija</h3>
+                  <div class="row g-4">
+                    <div class="col-sm-6" *ngIf="selectedTrip.priceIncluded">
+                      <div class="price-block included">
+                        <div class="price-block-title">&#10003; Iekļauts cenā</div>
+                        <p class="price-block-text">{{ selectedTrip.priceIncluded }}</p>
+                      </div>
+                    </div>
+                    <div class="col-sm-6" *ngIf="selectedTrip.extraCharge">
+                      <div class="price-block extra">
+                        <div class="price-block-title">+ Papildmaksa</div>
+                        <p class="price-block-text">{{ selectedTrip.extraCharge }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="modal-section" *ngIf="modalGalleryImages.length > 0">
+                  <h3 class="modal-heading">Foto galerija</h3>
+                  <div class="gallery-grid">
+                    <img *ngFor="let img of modalGalleryImages"
+                         [src]="'/images/' + img.path"
+                         [alt]="selectedTrip.name"
+                         class="gallery-img"
+                         (click)="openModalLightbox(img.path)" />
+                  </div>
+                </section>
+
+              </div>
+
+              <div class="col-lg-4">
+                <div class="modal-booking-card">
+                  <div class="modal-booking-price">
+                    <span class="price-label-sm">Cena </span>
+                    <span class="price-value">&euro;{{ (selectedTrip.priceCents / 100) | number:'1.0-0' }}</span>
+                    <span class="price-per"> personai</span>
+                  </div>
+                  <ul class="modal-booking-list">
+                    <li><span><strong>Brīvas vietas:</strong> <span [class.text-danger]="selectedTrip.availableSpots <= 3">{{ selectedTrip.availableSpots }}</span></span></li>
+                    <li><span><strong>Sākums:</strong> {{ selectedTrip.startDate | date:'dd.MM.yyyy' }}</span></li>
+                    <li><span><strong>Beigas:</strong> {{ selectedTrip.endDate | date:'dd.MM.yyyy' }}</span></li>
+                    <li><span><strong>Ilgums:</strong> {{ modalDurationDays }} dienas</span></li>
+                    <li *ngIf="selectedTrip.airlineCompany"><span><strong>Aviosabiedrība:</strong> {{ selectedTrip.airlineCompany }}</span></li>
+                    <li *ngIf="selectedTrip.includedBaggageSize"><span><strong>Cenā iekļautā bagāža:</strong> {{ selectedTrip.includedBaggageSize }}</span></li>
+                    <li *ngIf="selectedTrip.groupSize"><span><strong>Grupas izmērs:</strong> {{ selectedTrip.groupSize }} cilvēki</span></li>
+                    <li *ngIf="selectedTrip.accommodation"><span><strong>Naktsmītnes:</strong> {{ selectedTrip.accommodation }}</span></li>
+                  </ul>
+                  <a *ngIf="selectedTrip.availableSpots > 0"
+                     [routerLink]="['/registration', selectedTrip.id]"
+                     class="btn btn-modal-book w-100"
+                     (click)="closeTripModal()">Pieteikties</a>
+                  <button *ngIf="selectedTrip.availableSpots === 0" class="btn btn-modal-book w-100" disabled>Pilns</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </ng-container>
+
+        </div><!-- /.trip-modal-inner -->
+
+        <div *ngIf="modalLightboxSrc" class="modal-lightbox" (click)="closeModalLightbox()">
+          <img [src]="'/images/' + modalLightboxSrc" class="modal-lightbox-img" (click)="$event.stopPropagation()" />
+          <button class="modal-lightbox-close" (click)="closeModalLightbox()">&#x2715;</button>
+        </div>
+
+      </div>
+    </div>
+
   `,
   styles: [`
     .trips-page {
@@ -356,6 +483,113 @@ interface MonthOption { key: string; year: number; month: number; label: string;
         position: static;
       }
     }
+
+    /* ──── Trip Detail Modal ──── */
+    .trip-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 1500;
+      cursor: pointer;
+    }
+    .trip-modal-content {
+      position: fixed;
+      top: 5%;
+      left: 5%;
+      right: 5%;
+      bottom: 5%;
+      background: #f8f9fc;
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: default;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+    }
+    .trip-modal-inner {
+      overflow-y: auto;
+      flex: 1 1 auto;
+    }
+    .modal-close-btn {
+      position: sticky;
+      top: 12px;
+      float: right;
+      margin: 12px 16px 0 0;
+      background: rgba(0,0,0,0.5);
+      border: none;
+      color: #fff;
+      font-size: 1.3rem;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      line-height: 1;
+    }
+    .modal-close-btn:hover { background: rgba(0,0,0,0.75); }
+    .modal-hero {
+      height: 240px;
+      background-size: cover;
+      background-position: center;
+      background-color: #aa7252;
+      border-radius: 14px 14px 0 0;
+    }
+    .modal-hero-overlay {
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.65) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-bottom: 20px;
+      border-radius: 14px 14px 0 0;
+    }
+    .modal-hero-title { color: #fff; font-size: 1.7rem; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+    .modal-hero-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+    .meta-chip { background: rgba(255,255,255,0.18); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.82rem; backdrop-filter: blur(4px); }
+    .meta-chip.few-spots { background: rgba(220,53,69,0.6); }
+    .modal-section { margin-bottom: 28px; }
+    .modal-heading { font-size: 1.15rem; font-weight: 700; color: #aa7252; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #e8eef8; }
+    .modal-text { color: #444; line-height: 1.8; white-space: pre-line; }
+    .itinerary-day { margin-bottom: 18px; border: 1.5px solid #e0e8f5; border-radius: 10px; overflow: hidden; }
+    .day-header { background: #aa7252; padding: 8px 14px; display: flex; align-items: center; gap: 12px; }
+    .day-badge { color: #fff; font-weight: 700; font-size: 0.9rem; }
+    .day-date { color: rgba(255,255,255,0.75); font-size: 0.83rem; }
+    .day-body { padding: 12px 14px; background: #f8faff; }
+    .day-body.has-image { display: grid; grid-template-columns: 1fr 160px; gap: 14px; align-items: start; }
+    .day-desc { color: #444; line-height: 1.7; white-space: pre-line; margin: 0; }
+    .day-img { width: 100%; border-radius: 8px; object-fit: cover; aspect-ratio: 4/3; cursor: pointer; transition: opacity 0.18s; }
+    .day-img:hover { opacity: 0.88; }
+    .price-block { border-radius: 10px; padding: 14px; height: 100%; }
+    .price-block.included { background: #f0faf4; border: 1.5px solid #b6e8c8; }
+    .price-block.extra { background: #fff8f0; border: 1.5px solid #f5d9b0; }
+    .price-block-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; }
+    .price-block.included .price-block-title { color: #1a6e3a; }
+    .price-block.extra .price-block-title { color: #a0540a; }
+    .price-block-text { color: #444; font-size: 0.87rem; line-height: 1.7; white-space: pre-line; margin: 0; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+    .gallery-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 8px; cursor: pointer; transition: transform 0.18s, box-shadow 0.18s; }
+    .gallery-img:hover { transform: scale(1.03); box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
+    .modal-booking-card { background: #fff; border-radius: 12px; padding: 22px; box-shadow: 0 4px 18px rgba(170,114,82,0.12); position: sticky; top: 16px; }
+    .modal-booking-price { display: flex; align-items: baseline; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .price-label-sm { font-size: 0.8rem; color: #888; }
+    .price-value { font-size: 1.7rem; font-weight: 700; color: #aa7252; }
+    .price-per { font-size: 0.8rem; color: #888; }
+    .modal-booking-list { list-style: none; padding: 0; margin: 0 0 18px; }
+    .modal-booking-list li { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f0f2f8; font-size: 0.88rem; color: #444; }
+    .modal-booking-list li:last-child { border-bottom: none; }
+    .btn-modal-book {
+      background: #e87722; color: #fff; border: none; border-radius: 8px;
+      font-size: 1rem; font-weight: 600; padding: 11px; transition: background 0.18s;
+      display: block; width: 100%; text-align: center; text-decoration: none;
+    }
+    .btn-modal-book:hover:not(:disabled) { background: #cf6510; color: #fff; }
+    .btn-modal-book:disabled { background: #aaa; cursor: not-allowed; }
+    .modal-lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.88); display: flex; align-items: center; justify-content: center; z-index: 2000; cursor: pointer; }
+    .modal-lightbox-img { max-width: 90vw; max-height: 85vh; border-radius: 8px; cursor: default; }
+    .modal-lightbox-close { position: absolute; top: 20px; right: 28px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; line-height: 1; }
   `]
 })
 export class TripsComponent implements OnInit {
@@ -363,6 +597,13 @@ export class TripsComponent implements OnInit {
   filteredTrips: Trip[] = [];
   coverMap: Record<string, string> = {};
   loading = true;
+
+  selectedTrip: Trip | null = null;
+  selectedHeroImage: string | null = null;
+  selectedImages: { id: number; path: string; isCover: boolean }[] = [];
+  selectedItinerary: TripDay[] = [];
+  modalLightboxSrc: string | null = null;
+  modalLoading = false;
 
   availableMonths: MonthOption[] = [];
   availableDurations: number[] = [];
@@ -373,6 +614,56 @@ export class TripsComponent implements OnInit {
   maxPrice: number | null = null;
 
   constructor(private tripService: TripService) {}
+
+  openTripModal(trip: Trip): void {
+    this.selectedTrip = trip;
+    this.modalLoading = true;
+    this.selectedImages = [];
+    this.selectedItinerary = [];
+    this.selectedHeroImage = null;
+    document.body.style.overflow = 'hidden';
+
+    const id = String(trip.id);
+    this.tripService.getTrip(id).subscribe({
+      next: (fullTrip) => {
+        this.selectedTrip = fullTrip;
+        this.modalLoading = false;
+        if (fullTrip.itineraryJson) {
+          try { this.selectedItinerary = JSON.parse(fullTrip.itineraryJson); } catch { /* ignore */ }
+        }
+        this.tripService.getTripImages(id).subscribe({
+          next: (imgs) => { this.selectedImages = imgs; },
+          error: () => {}
+        });
+        this.tripService.getCoverImage(id).subscribe({
+          next: (cover) => { this.selectedHeroImage = cover.path; },
+          error: () => {}
+        });
+      },
+      error: () => { this.modalLoading = false; }
+    });
+  }
+
+  closeTripModal(): void {
+    this.selectedTrip = null;
+    this.selectedImages = [];
+    this.selectedItinerary = [];
+    this.selectedHeroImage = null;
+    this.modalLightboxSrc = null;
+    document.body.style.overflow = '';
+  }
+
+  get modalDurationDays(): number {
+    if (!this.selectedTrip) return 0;
+    return this.calculateDays(this.selectedTrip.startDate, this.selectedTrip.endDate);
+  }
+
+  get modalGalleryImages(): { id: number; path: string; isCover: boolean }[] {
+    return this.selectedImages.filter(img => !img.isCover);
+  }
+
+  openModalLightbox(path: string): void { this.modalLightboxSrc = path; }
+  closeModalLightbox(): void { this.modalLightboxSrc = null; }
 
   ngOnInit(): void {
     this.tripService.getAllTrips().subscribe({
