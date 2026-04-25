@@ -75,6 +75,14 @@ interface TripImage { id: number; path: string; isCover: boolean; }
                 </div>
               </section>
 
+              <!-- Flight schedule -->
+              <section class="detail-section" *ngIf="flightSchedules.length > 0">
+                <h3 class="detail-heading">Lidojumu datumi un laiki</h3>
+                <div class="flight-schedule-list">
+                  <p *ngFor="let entry of flightSchedules" class="flight-entry">{{ entry }}</p>
+                </div>
+              </section>
+
               <!-- Price included / Extra charge -->
               <section class="detail-section" *ngIf="trip.priceIncluded || trip.extraCharge">
                 <h3 class="detail-heading">Cenas informācija</h3>
@@ -243,6 +251,20 @@ interface TripImage { id: number; path: string; isCover: boolean; }
       white-space: pre-line;
     }
 
+    /* Flight schedule */
+    .flight-schedule-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .flight-entry {
+      margin: 0;
+      color: #333;
+      font-size: 0.97rem;
+      line-height: 1.6;
+      padding: 8px 14px;
+      background: #f4f6fb;
+      border-left: 3px solid #aa7252;
+      border-radius: 0 6px 6px 0;
+    }
+
     /* Itinerary */
     .itinerary-day {
       margin-bottom: 24px;
@@ -277,7 +299,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
 
     .day-body.has-image {
       display: grid;
-      grid-template-columns: 1fr 200px;
+      grid-template-columns: 1fr 320px;
       gap: 16px;
       align-items: start;
     }
@@ -455,6 +477,7 @@ export class TripDetailComponent implements OnInit {
   loading = true;
   error = '';
   itinerary: TripDay[] = [];
+  flightSchedules: string[] = [];
   readonly imageBase = '/images/';
 
   constructor(private route: ActivatedRoute, private tripService: TripService) {}
@@ -467,6 +490,9 @@ export class TripDetailComponent implements OnInit {
         this.loading = false;
         if (trip.itineraryJson) {
           try { this.itinerary = JSON.parse(trip.itineraryJson); } catch { /* ignore */ }
+        }
+        if (trip.flightScheduleJson) {
+          try { this.flightSchedules = JSON.parse(trip.flightScheduleJson); } catch { /* ignore */ }
         }
         this.tripService.getTripImages(id).subscribe({
           next: (imgs) => { this.images = imgs; },

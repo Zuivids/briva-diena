@@ -148,6 +148,7 @@ public class TripController {
             trip.setPriceIncluded(tripDetails.getPriceIncluded());
             trip.setExtraCharge(tripDetails.getExtraCharge());
             trip.setItineraryJson(tripDetails.getItineraryJson());
+            trip.setFlightScheduleJson(tripDetails.getFlightScheduleJson());
             trip.setTripDurationDays(tripDetails.getTripDurationDays());
             Trip updatedTrip = tripRepository.save(trip);
             return ResponseEntity.ok(updatedTrip);
