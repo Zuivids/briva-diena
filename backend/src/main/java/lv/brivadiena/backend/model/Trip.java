@@ -64,6 +64,9 @@ public class Trip {
     @Column(columnDefinition = "TEXT")
     private String flightScheduleJson;
 
+    @Column(columnDefinition = "TEXT")
+    private String paymentInfo;
+
     @Column
     private Integer tripDurationDays;
 
@@ -265,6 +268,14 @@ public class Trip {
 
     public void setFlightScheduleJson(String flightScheduleJson) {
         this.flightScheduleJson = flightScheduleJson;
+    }
+
+    public String getPaymentInfo() {
+        return paymentInfo;
+    }
+
+    public void setPaymentInfo(String paymentInfo) {
+        this.paymentInfo = paymentInfo;
     }
 
     public Integer getTripDurationDays() {
