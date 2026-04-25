@@ -13,9 +13,10 @@ import java.util.List;
 public interface TripRepository extends JpaRepository<Trip, Long> {
     /**
      * Find trips that start on or after the given date, ordered by start date
-     * (nearest first)
+     * (nearest first), excluding hidden
      */
-    List<Trip> findByStartDateGreaterThanEqualOrderByStartDate(LocalDate startDate);
+    @Query("SELECT t FROM Trip t WHERE t.startDate >= :date AND t.hidden = false ORDER BY t.startDate ASC")
+    List<Trip> findByStartDateGreaterThanEqualOrderByStartDate(@Param("date") LocalDate date);
 
     /**
      * Find trips within a date range
@@ -51,10 +52,4 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
      */
     @Query("SELECT t FROM Trip t WHERE t.landingSection = :section AND t.hidden = false ORDER BY t.startDate ASC")
     List<Trip> findByLandingSectionOrderByStartDate(@Param("section") String section);
-
-    /**
-     * Find upcoming trips ordered by start date, excluding hidden
-     */
-    @Query("SELECT t FROM Trip t WHERE t.startDate >= :date AND t.hidden = false ORDER BY t.startDate ASC")
-    List<Trip> findByStartDateGreaterThanEqualOrderByStartDate(@Param("date") LocalDate date);
 }
