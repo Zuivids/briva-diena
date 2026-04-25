@@ -473,6 +473,17 @@ interface TripImage { id: number; path: string; isCover: boolean; }
     @media (max-width: 576px) {
       .day-body.has-image { grid-template-columns: 1fr; }
     }
+
+    @media (min-width: 577px) and (max-width: 1199px) {
+      .day-body.has-image { display: block; }
+      .day-body.has-image .day-img {
+        float: right;
+        width: 200px;
+        margin-left: 16px;
+        margin-bottom: 8px;
+      }
+      .day-body.has-image::after { content: ''; display: table; clear: both; }
+    }
   `]
 })
 export class TripDetailComponent implements OnInit {

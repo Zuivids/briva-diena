@@ -481,6 +481,21 @@ import { catchError } from 'rxjs/operators';
     .day-date { color: rgba(255,255,255,0.75); font-size: 0.83rem; }
     .day-body { padding: 14px 16px; background: #f8faff; }
     .day-body.has-image { display: grid; grid-template-columns: 1fr 320px; gap: 16px; align-items: start; }
+
+    @media (min-width: 577px) and (max-width: 1199px) {
+      .day-body.has-image { display: block; }
+      .day-body.has-image .day-img {
+        float: right;
+        width: 200px;
+        margin-left: 16px;
+        margin-bottom: 8px;
+      }
+      .day-body.has-image::after { content: ''; display: table; clear: both; }
+    }
+
+    @media (max-width: 576px) {
+      .day-body.has-image { display: block; }
+    }
     .day-desc { color: #444; line-height: 1.7; white-space: pre-line; margin: 0; }
     .day-img { width: 100%; border-radius: 8px; object-fit: cover; aspect-ratio: 4/3; cursor: pointer; transition: opacity 0.18s; }
     .day-img:hover { opacity: 0.88; }
