@@ -56,7 +56,7 @@ echo ============================================
 echo.
 
 REM Start backend in a new terminal (with clean build)
-start "Briva Diena - Backend" cmd /k "cd /d "%SCRIPT_DIR%backend" && mvn clean spring-boot:run"
+start "Briva Diena - Backend" cmd /k "cd /d "%SCRIPT_DIR%backend" && mvnw.cmd clean spring-boot:run"
 
 REM Wait for backend to initialize
 timeout /t 10 /nobreak
