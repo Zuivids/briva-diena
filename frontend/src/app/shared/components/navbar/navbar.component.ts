@@ -16,7 +16,7 @@ import { AdminStateService } from '../../services/admin-state.service';
          style="backdrop-filter: blur(6px);">
       <div class="container">
         <a class="navbar-brand fw-bold fs-5" routerLink="/">
-          <span [class.brand-name]="!isAdmin" [class.brand-name-admin]="isAdmin">Brīva diena</span>
+          <span [class.brand-name]="!isAdmin" [class.brand-name-admin]="isAdmin">BRĪVA DIENA</span>
         </a>
         <button
           class="navbar-toggler"
@@ -227,7 +227,7 @@ import { AdminStateService } from '../../services/admin-state.service';
     }
 
     .brand-name {
-      color: #e87722;
+      color: #5C4033;
       line-height: 1.2;
       font-size: 1.4rem;
     }
