@@ -62,22 +62,12 @@ import { AdminStateService } from '../../services/admin-state.service';
 
             <!-- Pieteikties button -->
             <li class="nav-item ms-1">
-              <a class="btn btn-register" routerLink="/registration" (click)="closeMenu()">Pieteikties</a>
-            </li>
-
-            <!-- Admin icon — visible when NOT logged in -->
-            <li class="nav-item ms-1" *ngIf="!isAdmin">
-              <a class="btn btn-admin-icon" routerLink="/admin/login"
-                title="Admin pieslēgšanās" aria-label="Admin pieslēgšanās" (click)="closeMenu()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.029 10 8 10c-2.029 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
-                </svg>
-              </a>
+              <a class="btn btn-register" routerLink="/registration" (click)="closeMenu()">PIETEIKTIES</a>
             </li>
 
             <!-- Admin nav links — visible when logged in -->
             <li class="nav-item ms-1" *ngIf="isAdmin">
-              <a class="nav-link nav-link-admin" routerLink="/admin/dashboard" routerLinkActive="active" (click)="closeMenu()">Admin</a>
+              <a class="nav-link nav-link-admin" routerLink="/admin/dashboard" routerLinkActive="active" (click)="closeMenu()">Sākums</a>
             </li>
             <li class="nav-item ms-1" *ngIf="isAdmin">
               <a class="nav-link nav-link-admin" routerLink="/admin/trips" routerLinkActive="active" (click)="closeMenu()">Ceļojumi</a>
@@ -106,12 +96,12 @@ import { AdminStateService } from '../../services/admin-state.service';
       right: 0;
       width: 30%;
       height: fit-content;
-      background-color: rgba(255, 255, 255, 0.5);
-      backdrop-filter: blur(6px);
+      background-color: #ffffff;
+      backdrop-filter: none;
       z-index: 1040;
       padding: 20px;
       border-left: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 0 0 32px 32px;
+      border-radius: 0 0 0 0;
       transform: translateX(100%);
       transition: transform 0.3s ease;
       overflow-y: auto;

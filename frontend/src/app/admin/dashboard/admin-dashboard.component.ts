@@ -7,6 +7,7 @@ import { TripService } from '../../shared/services/trip.service';
 import { ReviewService } from '../../shared/services/review.service';
 import { InstagramService, InstagramPost } from '../../shared/services/instagram.service';
 import { AboutImageService } from '../../shared/services/about-image.service';
+import { HeroImageService } from '../../shared/services/hero-image.service';
 import { Trip } from '../../shared/models/trip.model';
 import { Review } from '../../shared/models/review.model';
 
@@ -670,11 +671,21 @@ export class AdminDashboardComponent implements OnInit {
     private reviewService: ReviewService,
     private instagramService: InstagramService,
     private aboutImageService: AboutImageService,
+    private heroImageService: HeroImageService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.heroPreview = this.adminState.heroImageSrc$.value;
+    this.heroImageService.getHeroImage().subscribe({
+      next: (res) => {
+        if (res.path) {
+          const src = '/images/' + res.path;
+          this.heroPreview = src;
+          this.adminState.heroImageSrc$.next(src);
+        }
+      },
+      error: () => {}
+    });
     this.aboutText = this.adminState.aboutText$.value;
     this.aboutPageContent = this.adminState.aboutPageContent$.value;
     const parts = this.aboutPageContent.split('\n\n');
@@ -705,13 +716,14 @@ export class AdminDashboardComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const src = e.target!.result as string;
-      this.heroPreview = src;
-      this.adminState.heroImageSrc$.next(src);
-    };
-    reader.readAsDataURL(file);
+    this.heroImageService.uploadHeroImage(file).subscribe({
+      next: (res) => {
+        const src = '/images/' + res.path;
+        this.heroPreview = src;
+        this.adminState.heroImageSrc$.next(src);
+      },
+      error: () => {}
+    });
   }
 
   addTrip(): void {

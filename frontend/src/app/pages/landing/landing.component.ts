@@ -5,6 +5,7 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
 import { TripService } from '../../shared/services/trip.service';
 import { ReviewService } from '../../shared/services/review.service';
 import { InstagramService } from '../../shared/services/instagram.service';
+import { HeroImageService } from '../../shared/services/hero-image.service';
 import { Trip, TripDay } from '../../shared/models/trip.model';
 import { Review } from '../../shared/models/review.model';
 import { forkJoin, of } from 'rxjs';
@@ -565,10 +566,19 @@ export class LandingComponent implements OnInit, AfterViewInit {
     private tripService: TripService,
     private reviewService: ReviewService,
     private instagramService: InstagramService,
+    private heroImageService: HeroImageService,
     @Inject(DOCUMENT) private document: Document
   ) {}
 
   ngOnInit(): void {
+    this.heroImageService.getHeroImage().subscribe({
+      next: (res) => {
+        if (res.path) {
+          this.adminState.heroImageSrc$.next('/images/' + res.path);
+        }
+      },
+      error: () => {}
+    });
     this.loadSection('TOP');
     this.loadSection('LAST_CHANCE');
     this.reviewService.getLatestReviews(3).subscribe({
