@@ -41,14 +41,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/landing-page").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/trips-count").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/about-images/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/hero-image").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/instagram-posts/**").permitAll()
                         // Customers submitting their own registration — public
                         .requestMatchers(HttpMethod.POST, "/api/registrations").permitAll()
                         // Static file serving
                         .requestMatchers("/uploads/**", "/images/**").permitAll()
                         // Everything else requires a valid JWT
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -64,7 +64,9 @@ public class SecurityConfig {
      */
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> { throw new UsernameNotFoundException("JWT authentication only"); };
+        return username -> {
+            throw new UsernameNotFoundException("JWT authentication only");
+        };
     }
 
     @Bean
