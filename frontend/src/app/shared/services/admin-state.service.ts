@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { AuthService } from './auth.service';
 
 export interface AdminTrip {
   id: number;
@@ -19,11 +20,13 @@ export interface AdminReview {
 
 @Injectable({ providedIn: 'root' })
 export class AdminStateService {
-  private readonly SESSION_KEY = 'bd_admin_auth';
 
-  private _isLoggedIn = new BehaviorSubject<boolean>(
-    typeof sessionStorage !== 'undefined' && sessionStorage.getItem('bd_admin_auth') === '1'
-  );
+  constructor(private authService: AuthService) {
+    // Keep isLoggedIn$ in sync with the JWT-based AuthService
+    this.authService.isAuthenticated$.subscribe(val => this._isLoggedIn.next(val));
+  }
+
+  private _isLoggedIn = new BehaviorSubject<boolean>(false);
   isLoggedIn$ = this._isLoggedIn.asObservable();
 
   heroImageSrc$ = new BehaviorSubject<string>('italy_mountain.png');
@@ -44,20 +47,10 @@ export class AdminStateService {
   reviews$ = new BehaviorSubject<AdminReview[]>([]);
 
   get isLoggedIn(): boolean {
-    return this._isLoggedIn.value;
-  }
-
-  login(username: string, password: string): boolean {
-    if (username === 'admin' && password === 'admin') {
-      sessionStorage.setItem(this.SESSION_KEY, '1');
-      this._isLoggedIn.next(true);
-      return true;
-    }
-    return false;
+    return this.authService.isAuthenticated();
   }
 
   logout(): void {
-    sessionStorage.removeItem(this.SESSION_KEY);
-    this._isLoggedIn.next(false);
+    this.authService.logout();
   }
 }

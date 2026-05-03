@@ -3,18 +3,22 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
+export interface LoginResponse {
+  mfaRequired?: boolean;
+  mfaSetupRequired?: boolean;
+  preToken?: string;
+  secret?: string;
+  qrCodeUri?: string;
+}
+
 export interface AuthToken {
   token: string;
-  refreshToken?: string;
   expiresIn: number;
 }
 
 export interface AdminProfile {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
+  username: string;
+  mfaEnabled: boolean;
 }
 
 @Injectable({
@@ -23,138 +27,57 @@ export interface AdminProfile {
 export class AuthService {
   private apiUrl = '/api/admin';
   private tokenKey = 'adminToken';
-  private refreshTokenKey = 'adminRefreshToken';
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  private adminProfileSubject = new BehaviorSubject<AdminProfile | null>(null);
-  public adminProfile$ = this.adminProfileSubject.asObservable();
+  constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) {
-    this.checkTokenValidity();
+  /** Step 1: validate username + password. Returns MFA challenge info. */
+  login(username: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { username, password });
   }
 
-  /**
-   * Admin login with email and password
-   */
-  login(email: string, password: string): Observable<AuthToken> {
-    return this.http.post<AuthToken>(`${this.apiUrl}/login`, { email, password }).pipe(
+  /** Step 2: verify TOTP code and receive the full access token. */
+  verifyMfa(preToken: string, code: string): Observable<AuthToken> {
+    return this.http.post<AuthToken>(`${this.apiUrl}/login/verify-mfa`, { preToken, code }).pipe(
       tap(response => {
         this.setToken(response.token);
-        if (response.refreshToken) {
-          this.setRefreshToken(response.refreshToken);
-        }
         this.isAuthenticatedSubject.next(true);
       })
     );
   }
 
-  /**
-   * Admin logout
-   */
   logout(): void {
     this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
-      next: () => {
-        this.clearTokens();
-        this.isAuthenticatedSubject.next(false);
-        this.adminProfileSubject.next(null);
-      },
-      error: () => {
-        // Clear tokens even if logout request fails
-        this.clearTokens();
-        this.isAuthenticatedSubject.next(false);
-        this.adminProfileSubject.next(null);
-      }
+      error: () => {} // ignore errors — stateless logout
     });
+    this.clearTokens();
+    this.isAuthenticatedSubject.next(false);
   }
 
-  /**
-   * Get current admin profile
-   */
   getProfile(): Observable<AdminProfile> {
-    return this.http.get<AdminProfile>(`${this.apiUrl}/profile`).pipe(
-      tap(profile => {
-        this.adminProfileSubject.next(profile);
-      })
-    );
+    return this.http.get<AdminProfile>(`${this.apiUrl}/profile`);
   }
 
-  /**
-   * Refresh authentication token
-   */
-  refreshToken(): Observable<AuthToken> {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
-    return this.http.post<AuthToken>(`${this.apiUrl}/refresh-token`, { refreshToken }).pipe(
-      tap(response => {
-        this.setToken(response.token);
-        if (response.refreshToken) {
-          this.setRefreshToken(response.refreshToken);
-        }
-      })
-    );
-  }
-
-  /**
-   * Check if user is authenticated
-   */
   isAuthenticated(): boolean {
     return this.hasToken();
   }
 
-  /**
-   * Get the authentication token
-   */
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
 
-  /**
-   * Get the refresh token
-   */
-  private getRefreshToken(): string | null {
-    return localStorage.getItem(this.refreshTokenKey);
-  }
-
-  /**
-   * Set the authentication token
-   */
   private setToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
   }
 
-  /**
-   * Set the refresh token
-   */
-  private setRefreshToken(token: string): void {
-    localStorage.setItem(this.refreshTokenKey, token);
-  }
-
-  /**
-   * Clear all tokens
-   */
   private clearTokens(): void {
     localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.refreshTokenKey);
   }
 
-  /**
-   * Check if token exists
-   */
   private hasToken(): boolean {
     return !!localStorage.getItem(this.tokenKey);
   }
-
-  /**
-   * Check token validity
-   */
-  private checkTokenValidity(): void {
-    if (this.hasToken()) {
-      this.isAuthenticatedSubject.next(true);
-    }
-  }
 }
+
