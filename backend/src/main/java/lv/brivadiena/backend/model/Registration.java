@@ -1,6 +1,7 @@
 package lv.brivadiena.backend.model;
 
 import jakarta.persistence.*;
+import lv.brivadiena.backend.config.EncryptedStringConverter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -30,10 +31,12 @@ public class Registration {
     @Column(nullable = false, length = 255)
     private String email;
 
-    @Column(length = 20)
+    @Convert(converter = EncryptedStringConverter.class)
+    @Column(length = 512)
     private String personalIdNumber;
 
-    @Column(length = 50)
+    @Convert(converter = EncryptedStringConverter.class)
+    @Column(length = 512)
     private String passportNumber;
 
     @Column(name = "passport_expiration_date")

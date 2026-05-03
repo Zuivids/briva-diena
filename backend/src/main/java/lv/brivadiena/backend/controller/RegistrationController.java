@@ -30,7 +30,7 @@ public class RegistrationController {
 
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> getAllRegistrations() {
-        List<Map<String, Object>> result = registrationRepository.findAll().stream()
+        List<Map<String, Object>> result = registrationRepository.findAllWithTrip().stream()
                 .map(this::toMap)
                 .toList();
         return ResponseEntity.ok(result);
@@ -38,7 +38,7 @@ public class RegistrationController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getRegistrationById(@PathVariable Long id) {
-        return registrationRepository.findById(id)
+        return registrationRepository.findByIdWithTrip(id)
                 .map(r -> ResponseEntity.ok(toMap(r)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -62,9 +62,10 @@ public class RegistrationController {
     }
 
     @GetMapping("/trip/{tripId}")
-    public ResponseEntity<List<Registration>> getRegistrationsByTrip(@PathVariable Long tripId) {
+    public ResponseEntity<List<Map<String, Object>>> getRegistrationsByTrip(@PathVariable Long tripId) {
         return tripRepository.findById(tripId)
-                .map(trip -> ResponseEntity.ok(registrationRepository.findByTrip(trip)))
+                .map(trip -> ResponseEntity.ok(
+                        registrationRepository.findByTripWithTrip(trip).stream().map(this::toMap).toList()))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -74,12 +75,32 @@ public class RegistrationController {
      */
     @PostMapping
     public ResponseEntity<?> createRegistration(@RequestBody Map<String, Object> body) {
-        log.info("Received registration request: {}", body);
+        log.info("Received registration request for tripId={}", body.get("tripId"));
         try {
+            // --- Input validation ---
             Object tripIdRaw = body.get("tripId");
             if (tripIdRaw == null) {
-                log.warn("Registration rejected: missing tripId. Body: {}", body);
                 return ResponseEntity.badRequest().body("Missing tripId");
+            }
+
+            String firstName = getString(body, "firstName");
+            String lastName  = getString(body, "lastName");
+            String phone     = getString(body, "phone");
+            String email     = getString(body, "email");
+
+            if (firstName == null || firstName.isBlank()) return ResponseEntity.badRequest().body("Missing firstName");
+            if (lastName  == null || lastName.isBlank())  return ResponseEntity.badRequest().body("Missing lastName");
+            if (phone     == null || phone.isBlank())     return ResponseEntity.badRequest().body("Missing phone");
+            if (email     == null || email.isBlank())     return ResponseEntity.badRequest().body("Missing email");
+
+            if (!email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+                return ResponseEntity.badRequest().body("Invalid email address");
+            }
+            if (firstName.length() > 100 || lastName.length() > 100) {
+                return ResponseEntity.badRequest().body("Name too long");
+            }
+            if (phone.length() > 20) {
+                return ResponseEntity.badRequest().body("Phone number too long");
             }
 
             Long tripId = Long.parseLong(tripIdRaw.toString());
@@ -97,12 +118,12 @@ public class RegistrationController {
 
             Registration reg = new Registration();
             reg.setTrip(trip);
-            reg.setFirstName((String) body.get("firstName"));
-            reg.setLastName((String) body.get("lastName"));
-            reg.setPhone((String) body.get("phone"));
-            reg.setEmail((String) body.get("email"));
-            reg.setPersonalIdNumber((String) body.get("personalId"));
-            reg.setPassportNumber((String) body.get("passportNumber"));
+            reg.setFirstName(firstName);
+            reg.setLastName(lastName);
+            reg.setPhone(phone);
+            reg.setEmail(email);
+            reg.setPersonalIdNumber(getString(body, "personalId"));
+            reg.setPassportNumber(getString(body, "passportNumber"));
 
             Object expiryRaw = body.get("passportExpiryDate");
             if (expiryRaw != null && !expiryRaw.toString().isBlank()) {
@@ -121,9 +142,14 @@ public class RegistrationController {
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("id", saved.getId()));
 
         } catch (Exception e) {
-            log.error("Error creating registration. Body: {}. Error: {}", body, e.getMessage(), e);
+            log.error("Error creating registration for tripId={}: {}", body.get("tripId"), e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal error: " + e.getMessage());
         }
+    }
+
+    private String getString(Map<String, Object> body, String key) {
+        Object val = body.get(key);
+        return val instanceof String s ? s.strip() : null;
     }
 
     @PutMapping("/{id}")
@@ -131,7 +157,7 @@ public class RegistrationController {
             @PathVariable Long id,
             @RequestBody Map<String, String> body) {
         String newStatus = body.get("status");
-        return registrationRepository.findById(id).map(reg -> {
+        return registrationRepository.findByIdWithTrip(id).map(reg -> {
             reg.setStatus(newStatus);
             Registration saved = registrationRepository.save(reg);
             log.info("Registration {} status updated to {}", id, newStatus);
@@ -141,7 +167,7 @@ public class RegistrationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> cancelRegistration(@PathVariable Long id) {
-        Optional<Registration> optionalRegistration = registrationRepository.findById(id);
+        Optional<Registration> optionalRegistration = registrationRepository.findByIdWithTrip(id);
         if (optionalRegistration.isPresent()) {
             Registration registration = optionalRegistration.get();
             if ("CONFIRMED".equals(registration.getStatus()) || "PENDING".equals(registration.getStatus())) {
