@@ -155,6 +155,11 @@ import { AdminStateService } from '../../services/admin-state.service';
       color: #444 !important;
     }
 
+    .navbar-collapse-custom .nav-link-admin {
+      color: rgba(255, 255, 255, 0.88) !important;
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+
     .navbar-collapse-custom .nav-link:last-of-type {
       border-bottom: none;
     }
