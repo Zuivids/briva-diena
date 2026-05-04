@@ -27,7 +27,7 @@ import { Trip } from '../../shared/models/trip.model';
 
           <!-- Header -->
           <div class="reg-header">
-            <h2 class="reg-title">Pieteikšanās ceļojumam</h2>
+            <h2 class="reg-title">PIETEIKŠANĀS CEĻOJUMAM</h2>
             <p *ngIf="trip" class="reg-subtitle">{{ trip.name }} &nbsp;&bull;&nbsp; {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }}</p>
           </div>
 
@@ -165,27 +165,27 @@ import { Trip } from '../../shared/models/trip.model';
 
     .reg-card, .success-card {
       background: #fff;
-      border-radius: 16px;
       box-shadow: 0 4px 24px rgba(23, 70, 160, 0.09);
       max-width: 680px;
       overflow: hidden;
     }
 
     .reg-header {
-      background: linear-gradient(135deg, #1746a0 0%, #2563d4 100%);
+      background: #5C4033;
       padding: 28px 36px 24px;
     }
 
     .reg-title {
       color: #fff;
+      text-align: center;
       font-size: 1.45rem;
       font-weight: 700;
-      margin: 0 0 4px;
     }
 
     .reg-subtitle {
       color: rgba(255,255,255,0.82);
       font-size: 0.9rem;
+      text-align: center;
       margin: 0;
     }
 
@@ -202,7 +202,7 @@ import { Trip } from '../../shared/models/trip.model';
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #1746a0;
+      color: #5C4033;
       margin-bottom: 14px;
       padding-bottom: 8px;
       border-bottom: 2px solid #e8eef8;
@@ -235,8 +235,8 @@ import { Trip } from '../../shared/models/trip.model';
     }
 
     .field-input:focus {
-      border-color: #1746a0;
-      box-shadow: 0 0 0 3px rgba(23, 70, 160, 0.12);
+      border-color: #5C4033;
+      box-shadow: 0 0 0 3px rgba(92, 64, 51, 0.12);
     }
 
     .field-input.is-invalid {
@@ -278,18 +278,18 @@ import { Trip } from '../../shared/models/trip.model';
       width: 17px;
       height: 17px;
       margin-top: 2px;
-      accent-color: #1746a0;
+      accent-color: #5C4033;
       cursor: pointer;
     }
 
     .policy-link {
-      color: #1746a0;
+      color: #e87722;
       text-decoration: underline;
       font-weight: 600;
     }
 
     .policy-link:hover {
-      color: #0f34a0;
+      color: #e87722;
     }
 
     .consent-error-msg {
@@ -301,7 +301,7 @@ import { Trip } from '../../shared/models/trip.model';
 
     /* Submit */
     .btn-submit {
-      background: #1746a0;
+      background: #e87722;
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -312,7 +312,7 @@ import { Trip } from '../../shared/models/trip.model';
     }
 
     .btn-submit:hover:not(:disabled) {
-      background: #0f34a0;
+      background: #5C4033;
       color: #fff;
     }
 

@@ -315,7 +315,7 @@ import { catchError } from 'rxjs/operators';
     .section-title { color: #5C4033;text-align: center; font-weight: 700; }
 
     .trip-card {
-      border: 1px solid #e8ebf4; border-radius: 10px; height: 100%;
+      border: 1px solid #e8ebf4; border-radius: 0; height: 100%;
       background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
       transition: transform 0.18s, box-shadow 0.18s;
       overflow: hidden;
@@ -374,7 +374,7 @@ import { catchError } from 'rxjs/operators';
     .about-text { font-size: 1.05rem; line-height: 1.7; color: #444; }
 
     .review-card {
-      background: #fff; border: 1px solid #e8ebf4; border-radius: 10px;
+      background: #fff; border: 1px solid #e8ebf4;
       padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); height: 100%;
     }
     .star { color: #f5a623; font-size: 1rem; }

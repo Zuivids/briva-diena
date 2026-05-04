@@ -70,7 +70,6 @@ import { AboutImageService } from '../../shared/services/about-image.service';
 
     .about-image {
       width: 100%;
-      border-radius: 12px;
       object-fit: cover;
       box-shadow: 0 4px 20px rgba(0,0,0,0.12);
     }
