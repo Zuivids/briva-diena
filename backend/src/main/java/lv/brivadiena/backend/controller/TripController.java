@@ -60,7 +60,7 @@ public class TripController {
     @GetMapping("/landing")
     public ResponseEntity<List<Trip>> getLandingTrips(@RequestParam String section) {
         List<Trip> trips = tripRepository.findByLandingSectionOrderByStartDate(section);
-        return ResponseEntity.ok(trips.stream().limit(3).toList());
+        return ResponseEntity.ok(trips.stream().limit(6).toList());
     }
 
     /**
