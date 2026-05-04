@@ -69,12 +69,12 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
 
     .faq-question:hover { background: #f4f6fb; }
 
-    .faq-item.open .faq-question { color: #1746a0; background: #f0f4ff; }
+    .faq-item.open .faq-question { color: #5C4033; background: #f0f4ff; }
 
     .faq-icon {
       font-size: 1.3rem;
       font-weight: 400;
-      color: #1746a0;
+      color: #e87722;
       flex-shrink: 0;
       margin-left: 12px;
     }
