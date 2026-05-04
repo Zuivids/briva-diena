@@ -136,7 +136,6 @@ interface MonthOption { key: string; year: number; month: number; label: string;
       width: 210px;
       background: #fff;
       border: 1px solid #e8ebf4;
-      border-radius: 10px;
       padding: 20px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
       position: sticky;
@@ -263,7 +262,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
     .trip-card {
       background: #fff;
       border: 1px solid #e8ebf4;
-      border-radius: 10px;
+      // border-radius: 10px;
       height: 100%;
       box-shadow: 0 2px 10px rgba(0,0,0,0.06);
       transition: transform 0.18s, box-shadow 0.18s;
@@ -288,7 +287,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
       font-size: 0.75rem;
       font-weight: 600;
       padding: 3px 10px;
-      border-radius: 20px;
+      // border-radius: 20px;
       backdrop-filter: blur(4px);
       letter-spacing: 0.01em;
     }
