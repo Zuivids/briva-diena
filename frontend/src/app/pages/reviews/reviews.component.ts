@@ -10,7 +10,7 @@ import { Review } from '../../shared/models/review.model';
   template: `
     <div class="reviews-page">
       <div class="container py-5">
-        <h2 class="page-title mb-4">Atsauksmes</h2>
+        <h2 class="page-title mb-4">ATSAUKSMES</h2>
 
         <div *ngIf="reviews.length > 0" class="row g-4">
           <div *ngFor="let review of reviews" class="col-md-6 col-lg-4">
@@ -38,7 +38,7 @@ import { Review } from '../../shared/models/review.model';
     }
 
     .page-title {
-      color: #e87722;
+      color: #5C4033;
       font-weight: 700;
       text-align: center;
     }

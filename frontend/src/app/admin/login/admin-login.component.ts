@@ -119,10 +119,10 @@ type LoginStep = 'credentials' | 'mfa-setup' | 'mfa-verify';
     .login-title { font-size: 1.35rem; font-weight: 600; color: #1a1a2e; margin: 0; }
     .form-label { font-size: .875rem; font-weight: 500; color: #333; }
     .btn-primary {
-      background: #0d6efd; border: none; padding: 10px;
+      background: #5C4033; border: none; padding: 10px;
       font-size: .95rem; font-weight: 500; border-radius: 8px;
     }
-    .btn-primary:hover:not(:disabled) { background: #0b5ed7; }
+    .btn-primary:hover:not(:disabled) { background: #e87722; }
     .qr-code { width: 180px; height: 180px; border: 1px solid #dee2e6; border-radius: 8px; padding: 4px; }
     .secret-box {
       background: #f8f9fa; border: 1px dashed #ced4da;

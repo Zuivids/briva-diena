@@ -29,7 +29,7 @@ import { catchError } from 'rxjs/operators';
       <!-- TOP Trips Section -->
       <section class="featured-trips py-5">
         <div class="container">
-          <h2 class="section-title mb-4">Gaidāmie ceļojumi</h2>
+          <h2 class="section-title mb-4">GAIDĀMIE CEĻOJUMI</h2>
 
           <div *ngIf="topTrips.length > 0" class="row g-4 mb-4">
             <div *ngFor="let trip of topTrips" class="col-md-4">
@@ -65,7 +65,7 @@ import { catchError } from 'rxjs/operators';
       <!-- About Section -->
       <section class="about-section py-5 bg-light">
         <div class="container">
-          <h2 class="section-title">Kas ir Brīva diena?</h2>
+          <h2 class="section-title">KAS IR BRĪVA DIENA?</h2>
           <p class="about-text">{{ adminState.aboutText$ | async }}</p>
         </div>
       </section>
@@ -73,7 +73,7 @@ import { catchError } from 'rxjs/operators';
       <!-- Last Chance Section -->
       <section *ngIf="lastChanceTrips.length > 0" class="last-chance-section py-5">
         <div class="container">
-          <h2 class="section-title mb-4">Pēdējā iespēja</h2>
+          <h2 class="section-title mb-4">PĒDĒJĀ IESPĒJA</h2>
 
           <div class="row g-4 mb-4">
             <div *ngFor="let trip of lastChanceTrips" class="col-md-4">
@@ -105,7 +105,7 @@ import { catchError } from 'rxjs/operators';
       <!-- Instagram Section -->
       <section *ngIf="instagramUrls.length > 0" class="instagram-section py-5 bg-light">
         <div class="container">
-          <h2 class="section-title mb-4">Ieskaties</h2>
+          <h2 class="section-title mb-4">IESKATIES</h2>
           <div class="instagram-scroll">
             <div *ngFor="let url of instagramUrls" class="instagram-item">
               <blockquote
@@ -131,7 +131,7 @@ import { catchError } from 'rxjs/operators';
       <!-- Reviews Section -->
       <section class="reviews-section py-5">
         <div class="container">
-          <h2 class="section-title">Atsauksmes</h2>
+          <h2 class="section-title">ATSAUKSMES</h2>
 
           <div *ngIf="reviews.length > 0" class="row g-4 mb-4">
             <div *ngFor="let review of reviews" class="col-md-4">
@@ -312,7 +312,7 @@ import { catchError } from 'rxjs/operators';
       text-shadow: 0 2px 12px rgba(0,0,0,0.45); margin: 0; line-height: 1.2;
     }
 
-    .section-title { color: #1746a0; font-weight: 700; }
+    .section-title { color: #5C4033;text-align: center; font-weight: 700; }
 
     .trip-card {
       border: 1px solid #e8ebf4; border-radius: 10px; height: 100%;
