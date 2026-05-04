@@ -23,7 +23,7 @@ import { RouterLink } from '@angular/router';
                   d="M6.033 3.5c-.2.533-.333 1.1-.333 1.667 0 .566.1 1.1.3 1.6L4.633 8.133A8.567 8.567 0 0 0 11.867 15.4l1.366-1.366c.5.2 1.034.3 1.6.3.567 0 1.134-.133 1.667-.333v3.3c0 .367-.3.666-.667.666C7.8 18 2 12.2 2 5c0-.367.3-.667.667-.667h3.3c-.034.034 0 .034.066.167Z"/>
               </svg>
             </span>
-            <a href="tel:+37126382259" class="footer-contact-link">+371 12345678</a>
+            <a href="tel:+37126382259" class="footer-contact-link">+371 29784777</a>
           </div>
           <div class="footer-contact-item">
             <span class="footer-contact-icon">

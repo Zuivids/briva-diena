@@ -41,7 +41,7 @@ import { catchError } from 'rxjs/operators';
                 <div class="trip-card-body">
                   <h5 class="trip-title">{{ trip.name }}</h5>
                   <p class="trip-dates small mb-2">
-                    {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }} ({{ calculateDays(trip.startDate, trip.endDate) }} dienas)
+                    {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }} 
                   </p>
                   <p class="trip-spots small mb-2">Brīvās vietas: <strong>{{ trip.availableSpots }}</strong></p>
                   <div class="trip-footer">
@@ -85,7 +85,7 @@ import { catchError } from 'rxjs/operators';
                 <div class="trip-card-body">
                   <h5 class="trip-title">{{ trip.name }}</h5>
                   <p class="trip-dates small mb-2">
-                    {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }} ({{ calculateDays(trip.startDate, trip.endDate) }} dienas)
+                    {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }}
                   </p>
                   <p class="trip-spots small mb-2">Brīvās vietas: <strong>{{ trip.availableSpots }}</strong></p>
                   <p *ngIf="trip.description" class="trip-desc small text-muted">{{ trip.description }}</p>
@@ -372,7 +372,7 @@ import { catchError } from 'rxjs/operators';
       text-transform: uppercase;
     }
     .trip-card-body { padding: 20px; }
-    .trip-title { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+    .trip-title { font-size: 2rem; font-weight: 600; margin-bottom: 4px; }
     .trip-dates { color: #666; }
     .trip-spots { color: #666; margin-bottom: 8px !important; }
     .trip-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }

@@ -83,7 +83,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
                   </div>
                   <div class="trip-card-body">
                     <h5 class="trip-title">{{ trip.name }}</h5>
-                    <p class="trip-dates small mb-2">{{ trip.startDate | date:'dd.MM.yyyy' }} – {{ trip.endDate | date:'dd.MM.yyyy' }} ({{ calculateDays(trip.startDate, trip.endDate) }} dienas)</p>
+                    <p class="trip-dates small mb-2">{{ trip.startDate | date:'dd.MM.yyyy' }} – {{ trip.endDate | date:'dd.MM.yyyy' }}</p>
                     <p class="trip-spots small mb-2">Brīvās vietas: <strong>{{ trip.availableSpots }}</strong></p>
                     <div class="trip-footer">
                       <span class="trip-price">&#8364;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
@@ -450,7 +450,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
     }
 
     .trip-title {
-      font-size: 1rem;
+      font-size: 2rem;
       font-weight: 600;
       margin-bottom: 4px;
     }
