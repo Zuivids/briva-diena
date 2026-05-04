@@ -10,7 +10,7 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
     <div class="faq-page">
 
       <div class="container py-5">
-        <h2 class="page-title mb-4">Biežāk uzdotie jautājumi</h2>
+        <h2 class="page-title mb-4">BIEŽĀK UZDOTIE JAUTĀJUMI</h2>
         <div class="faq-list mx-auto">
           <div *ngIf="faqItems.length === 0" class="text-muted text-center py-5">
             Šobrīd nav pievienotu jautājumu.
@@ -33,7 +33,7 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
     .faq-page { min-height: 60vh; }
 
     .page-title {
-      color: #e87722;
+      color: #5C4033;
       font-weight: 700;
       text-align: center;
     }

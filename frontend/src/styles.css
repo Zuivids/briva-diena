@@ -1,11 +1,26 @@
 /* You can add global styles to this file, and also import other style files */
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
-
 * {
-  font-family: 'Lora', serif;
+  font-family: 'Playfair Display', serif;
 }
 
 /* Offset page content so it starts below the fixed navbar (navbar height ~60px) */
 body {
   padding-top: 64px;
+}
+
+/* Global button overrides */
+.btn-outline-primary,
+.btn-outline-dark,
+.btn-primary.btn-lg {
+  background-color: #5C4033 !important;
+  border-color: #5C4033 !important;
+  color: #fff !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-dark:hover,
+.btn-primary.btn-lg:hover {
+  background-color: #e87722 !important;
+  border-color: #e87722 !important;
+  color: #fff !important;
 }

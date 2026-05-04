@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
     <div class="contacts-page">
 
       <div class="container py-5">
-        <h2 class="page-title mb-4">Kontakti</h2>
+        <h2 class="page-title mb-4">KONTAKTI</h2>
 
         <div class="contacts-info text-center mb-5">
           <p>Info tālrunis: <a href="tel:+37126382259"><strong>+371 26 382 259</strong></a></p>
@@ -83,7 +83,7 @@ import { FormsModule } from '@angular/forms';
     }
 
     .page-title {
-      color: #e87722;
+      color: #5C4033;
       font-weight: 700;
       text-align: center;
     }

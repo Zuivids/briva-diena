@@ -21,7 +21,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
   template: `
     <div class="trips-page">
       <div class="container py-5">
-        <h2 class="page-title mb-4">Ceļojumi</h2>
+        <h2 class="page-title mb-4">CEĻOJUMI</h2>
 
         <div class="page-layout">
 
@@ -256,7 +256,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
     }
 
     .page-title {
-      color: #e87722;
+      color: #5C4033;
       font-weight: 700;
       text-align: center;
     }

@@ -32,7 +32,7 @@ import { AboutImageService } from '../../shared/services/about-image.service';
     .about-page { min-height: 60vh; }
 
     .page-title {
-      color: #e87722;
+      color: #5C4033;
       font-weight: 700;
       text-align: center;
     }

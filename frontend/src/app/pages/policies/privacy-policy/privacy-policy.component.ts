@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
     <div class="policy-page">
       <div class="policy-header text-center">
         <div class="container">
-          <h1 class="policy-title">Privātuma politika</h1>
+          <h1 class="policy-title">PRIVĀTUMA POLITIKA</h1>
         </div>
       </div>
 

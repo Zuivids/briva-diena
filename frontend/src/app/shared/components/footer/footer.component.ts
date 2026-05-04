@@ -14,36 +14,6 @@ import { RouterLink } from '@angular/router';
         <!-- Divider -->
         <div class="footer-divider"></div>
 
-        <!-- Newsletter + Email signup row -->
-        <div class="footer-newsletter-row">
-          <div class="footer-newsletter-text">
-            <h4 class="footer-newsletter-title">Pievienojies!</h4>
-            <p class="footer-newsletter-sub">Uzzini par jaunākajiem ceļojumiem un īpašiem piedāvājumiem!</p>
-          </div>
-          <div class="footer-email-signup">
-            <form (ngSubmit)="onEmailSignup()" class="email-signup-form">
-              <div class="email-signup-group">
-                <label for="footer-email" class="visually-hidden">E-pasts</label>
-                <input
-                  id="footer-email"
-                  type="email"
-                  [(ngModel)]="signupEmail"
-                  name="signupEmail"
-                  placeholder="E-pasts"
-                  autocomplete="email"
-                  required
-                  class="email-signup-input"
-                />
-                <button type="submit" class="email-signup-btn" aria-label="Pieteikties">
-                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="18" height="18">
-                    <path clip-rule="evenodd" d="m11.246 5.31759c.0322-.07821.0833-.14723.1486-.20093.0654-.0537.143-.09041.2259-.10686.083-.01645.1688-.01214.2497.01257.0808.0247.1544.06902.214.12902l4.104 4.104c.0478.04765.0857.10426.1115.16659.0259.06232.0392.12913.0392.19661 0 .06747-.0133.13429-.0392.19661-.0258.06233-.0637.11893-.1115.16659l-4.104 4.10401c-.0963.0963-.227.1504-.3632.1504s-.2669-.0541-.3632-.1504-.1504-.227-.1504-.3632.0541-.2669.1504-.3632l3.2288-3.2278h-11.0736c-.13606 0-.26654-.0541-.36275-.15027-.0962-.0962-.15025-.22669-.15025-.36274 0-.13606.05405-.26654.15025-.36275.09621-.0962.22669-.15025.36275-.15025h11.0736l-3.2288-3.2278c-.0721-.07178-.1212-.16335-.1411-.2631s-.0097-.20316.0293-.2971z" fill="currentColor" fill-rule="evenodd"/>
-                  </svg>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
         <!-- Contact info row -->
         <div class="footer-contact-row">
           <div class="footer-contact-item">
