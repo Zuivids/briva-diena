@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, Inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, Inject } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminStateService } from '../../shared/services/admin-state.service';
@@ -6,6 +6,7 @@ import { TripService } from '../../shared/services/trip.service';
 import { ReviewService } from '../../shared/services/review.service';
 import { InstagramService } from '../../shared/services/instagram.service';
 import { HeroImageService } from '../../shared/services/hero-image.service';
+import { SiteContentService } from '../../shared/services/site-content.service';
 import { Trip, TripDay } from '../../shared/models/trip.model';
 import { Review } from '../../shared/models/review.model';
 import { forkJoin, of } from 'rxjs';
@@ -21,8 +22,8 @@ import { catchError } from 'rxjs/operators';
       <!-- Hero Section -->
       <section class="hero-section">
         <img [src]="(adminState.heroImageSrc$ | async) || 'italy_mountain.png'" alt="Italy mountain" class="hero-image" />
-        <div class="hero-text">
-          <h1>Piedzīvojumi, kas pilni ar atklājumiem</h1>
+        <div class="hero-text" [ngClass]="heroAnimClass">
+          <h1>{{ currentHeroText }}</h1>
         </div>
       </section>
 
@@ -306,7 +307,19 @@ import { catchError } from 'rxjs/operators';
 
     .hero-section { position: relative; width: 100%; overflow: hidden; }
     .hero-image { width: 100%; height: auto; max-height: 40vh; display: block; object-fit: cover; }
-    .hero-text { position: absolute; top: 50%; left: 0; transform: translateY(-50%); padding: 0 2rem; }
+    .hero-text {
+      position: absolute; top: 50%; left: 0; padding: 0 2rem;
+      transform: translateY(-50%) translateX(0);
+      transition: transform 0.35s ease-out;
+    }
+    .hero-text.slide-out {
+      transform: translateY(-50%) translateX(110%);
+      transition: transform 0.25s ease-in;
+    }
+    .hero-text.slide-in-start {
+      transform: translateY(-50%) translateX(-110%);
+      transition: none;
+    }
     .hero-text h1 {
       color: #fff; font-size: clamp(1.75rem, 4vw, 3.5rem); font-weight: 700;
       text-shadow: 0 2px 12px rgba(0,0,0,0.45); margin: 0; line-height: 1.2;
@@ -540,7 +553,18 @@ import { catchError } from 'rxjs/operators';
     .modal-lightbox-close { position: absolute; top: 20px; right: 28px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; line-height: 1; }
   `]
 })
-export class LandingComponent implements OnInit, AfterViewInit {
+export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
+  heroTexts: string[] = [
+    'DODIES NEAIZMIRSTAMĀ CEĻOJUMĀ',
+    'CEĻOJUMS: ATMIŅAS, KAS PALIEK UZ MŪŽU',
+    'ATMIŅAS, KAS PALIEK UZ MŪŽU'
+  ];
+  heroTextIndex = 0;
+  heroAnimClass = '';
+  private heroInterval: ReturnType<typeof setInterval> | null = null;
+
+  get currentHeroText(): string { return this.heroTexts[this.heroTextIndex]; }
+
   topTrips: Trip[] = [];
   lastChanceTrips: Trip[] = [];
   reviews: Review[] = [];
@@ -567,6 +591,7 @@ export class LandingComponent implements OnInit, AfterViewInit {
     private reviewService: ReviewService,
     private instagramService: InstagramService,
     private heroImageService: HeroImageService,
+    private siteContentService: SiteContentService,
     @Inject(DOCUMENT) private document: Document
   ) {}
 
@@ -577,6 +602,10 @@ export class LandingComponent implements OnInit, AfterViewInit {
           this.adminState.heroImageSrc$.next('/images/' + res.path);
         }
       },
+      error: () => {}
+    });
+    this.siteContentService.get('about_text').subscribe({
+      next: (res) => { this.adminState.aboutText$.next(res.value); },
       error: () => {}
     });
     this.loadSection('TOP');
@@ -596,6 +625,22 @@ export class LandingComponent implements OnInit, AfterViewInit {
       },
       error: () => {}
     });
+    this.heroInterval = setInterval(() => this.advanceHeroText(), 5000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.heroInterval) clearInterval(this.heroInterval);
+  }
+
+  private advanceHeroText(): void {
+    this.heroAnimClass = 'slide-out';
+    setTimeout(() => {
+      this.heroTextIndex = (this.heroTextIndex + 1) % this.heroTexts.length;
+      this.heroAnimClass = 'slide-in-start';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => { this.heroAnimClass = ''; });
+      });
+    }, 250);
   }
 
   ngAfterViewInit(): void {

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminStateService } from '../../shared/services/admin-state.service';
 import { AboutImageService } from '../../shared/services/about-image.service';
+import { SiteContentService } from '../../shared/services/site-content.service';
 
 @Component({
   selector: 'app-about',
@@ -90,14 +91,25 @@ export class AboutComponent implements OnInit {
   sectionTexts: string[] = ['', '', ''];
   slotImages: (string | null)[] = [null, null, null];
 
-  constructor(private adminState: AdminStateService, private aboutImageService: AboutImageService) {
-    this.adminState.aboutPageContent$.subscribe(content => {
-      const parts = content.split('\n\n');
-      this.sectionTexts = [parts[0] ?? '', parts[1] ?? '', parts[2] ?? ''];
-    });
-  }
+  constructor(
+    private adminState: AdminStateService,
+    private aboutImageService: AboutImageService,
+    private siteContentService: SiteContentService
+  ) {}
 
   ngOnInit(): void {
+    this.siteContentService.get('about_page_content').subscribe({
+      next: (res) => {
+        const parts = res.value.split('\n\n');
+        this.sectionTexts = [parts[0] ?? '', parts[1] ?? '', parts[2] ?? ''];
+        this.adminState.aboutPageContent$.next(res.value);
+      },
+      error: () => {
+        const content = this.adminState.aboutPageContent$.value;
+        const parts = content.split('\n\n');
+        this.sectionTexts = [parts[0] ?? '', parts[1] ?? '', parts[2] ?? ''];
+      }
+    });
     this.aboutImageService.getImages().subscribe({
       next: (imgs) => {
         const slots: (string | null)[] = [null, null, null];

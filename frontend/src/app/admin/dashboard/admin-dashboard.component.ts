@@ -8,6 +8,7 @@ import { ReviewService } from '../../shared/services/review.service';
 import { InstagramService, InstagramPost } from '../../shared/services/instagram.service';
 import { AboutImageService } from '../../shared/services/about-image.service';
 import { HeroImageService } from '../../shared/services/hero-image.service';
+import { SiteContentService } from '../../shared/services/site-content.service';
 import { Trip } from '../../shared/models/trip.model';
 import { Review } from '../../shared/models/review.model';
 
@@ -672,6 +673,7 @@ export class AdminDashboardComponent implements OnInit {
     private instagramService: InstagramService,
     private aboutImageService: AboutImageService,
     private heroImageService: HeroImageService,
+    private siteContentService: SiteContentService,
     private router: Router
   ) {}
 
@@ -686,10 +688,26 @@ export class AdminDashboardComponent implements OnInit {
       },
       error: () => {}
     });
-    this.aboutText = this.adminState.aboutText$.value;
-    this.aboutPageContent = this.adminState.aboutPageContent$.value;
-    const parts = this.aboutPageContent.split('\n\n');
-    this.aboutSections = [parts[0] ?? '', parts[1] ?? '', parts[2] ?? ''];
+    this.siteContentService.get('about_text').subscribe({
+      next: (res) => {
+        this.aboutText = res.value;
+        this.adminState.aboutText$.next(res.value);
+      },
+      error: () => { this.aboutText = this.adminState.aboutText$.value; }
+    });
+    this.siteContentService.get('about_page_content').subscribe({
+      next: (res) => {
+        this.aboutPageContent = res.value;
+        const parts = res.value.split('\n\n');
+        this.aboutSections = [parts[0] ?? '', parts[1] ?? '', parts[2] ?? ''];
+        this.adminState.aboutPageContent$.next(res.value);
+      },
+      error: () => {
+        this.aboutPageContent = this.adminState.aboutPageContent$.value;
+        const parts = this.aboutPageContent.split('\n\n');
+        this.aboutSections = [parts[0] ?? '', parts[1] ?? '', parts[2] ?? ''];
+      }
+    });
     this.aboutPageImagePreview = this.adminState.aboutPageImage$.value;
     this.faqItems = this.adminState.faqItems$.value;
     this.loadAboutImages();
@@ -859,16 +877,27 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   saveAbout(): void {
-    this.adminState.aboutText$.next(this.aboutText);
-    this.aboutSaved = true;
-    setTimeout(() => (this.aboutSaved = false), 2000);
+    this.siteContentService.save('about_text', this.aboutText).subscribe({
+      next: (res) => {
+        this.adminState.aboutText$.next(res.value);
+        this.aboutSaved = true;
+        setTimeout(() => (this.aboutSaved = false), 2000);
+      },
+      error: () => {}
+    });
   }
 
   saveAboutPage(): void {
-    this.aboutPageContent = this.aboutSections.join('\n\n');
-    this.adminState.aboutPageContent$.next(this.aboutPageContent);
-    this.aboutPageSaved = true;
-    setTimeout(() => (this.aboutPageSaved = false), 2000);
+    const content = this.aboutSections.join('\n\n');
+    this.siteContentService.save('about_page_content', content).subscribe({
+      next: (res) => {
+        this.aboutPageContent = res.value;
+        this.adminState.aboutPageContent$.next(res.value);
+        this.aboutPageSaved = true;
+        setTimeout(() => (this.aboutPageSaved = false), 2000);
+      },
+      error: () => {}
+    });
   }
 
   onAboutPageImageUpload(event: Event): void {
