@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/about-images/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/hero-image").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/instagram-posts/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/site-content/**").permitAll()
                         // Customers submitting their own registration — public
                         .requestMatchers(HttpMethod.POST, "/api/registrations").permitAll()
                         // Static file serving
