@@ -282,7 +282,7 @@ import { catchError } from 'rxjs/operators';
 export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   heroTexts: string[] = [
     'DODIES NEAIZMIRSTAMĀ CEĻOJUMĀ',
-    'CEĻOJUMS: ATMIŅAS, KAS PALIEK UZ MŪŽU',
+    'CEĻOJUMS - ATMIŅAS, KAS PALIEK UZ MŪŽU',
     'ATMIŅAS, KAS PALIEK UZ MŪŽU'
   ];
   heroTextIndex = 0;
