@@ -15,11 +15,11 @@ import java.util.Date;
 public class JwtUtil {
 
     // Must be at least 32 characters (256 bits) for HS256
-    @Value("${app.jwt-secret}")
+    @Value("${app.jwt-secret:your-local-dev-secret-key-change-in-production-min32chars}")
     private String jwtSecret;
 
-    private static final long ACCESS_TOKEN_EXPIRY_MS  = 8L * 60 * 60 * 1000; // 8 hours
-    private static final long PRE_AUTH_TOKEN_EXPIRY_MS = 5L * 60 * 1000;      // 5 minutes
+    private static final long ACCESS_TOKEN_EXPIRY_MS = 8L * 60 * 60 * 1000; // 8 hours
+    private static final long PRE_AUTH_TOKEN_EXPIRY_MS = 5L * 60 * 1000; // 5 minutes
 
     private SecretKey getKey() {
         byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);

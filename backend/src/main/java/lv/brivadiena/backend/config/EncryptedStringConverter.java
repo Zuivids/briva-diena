@@ -14,25 +14,29 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 /**
- * JPA AttributeConverter that transparently encrypts/decrypts sensitive string columns
- * using AES-256-GCM (authenticated encryption — provides both confidentiality and integrity).
+ * JPA AttributeConverter that transparently encrypts/decrypts sensitive string
+ * columns
+ * using AES-256-GCM (authenticated encryption — provides both confidentiality
+ * and integrity).
  *
  * Storage format: Base64( IV(12 bytes) + ciphertext + GCM auth tag(16 bytes) )
  *
- * The Spring-managed instance receives the key via @Value and stores it in a static field.
- * Hibernate creates its own instance for entity mapping; both share the same static field.
+ * The Spring-managed instance receives the key via @Value and stores it in a
+ * static field.
+ * Hibernate creates its own instance for entity mapping; both share the same
+ * static field.
  */
 @Component
 @Converter
 public class EncryptedStringConverter implements AttributeConverter<String, String> {
 
-    private static final int GCM_IV_LENGTH       = 12;
+    private static final int GCM_IV_LENGTH = 12;
     private static final int GCM_TAG_LENGTH_BITS = 128;
 
     // Static so Hibernate-instantiated converters share the same key
     private static byte[] AES_KEY;
 
-    @Value("${app.encryption-key}")
+    @Value("${app.encryption-key:local-dev-encryption-key-change-in-prod}")
     public void setEncryptionKey(String rawKey) {
         try {
             // Derive a stable 32-byte (256-bit) AES key from the config string via SHA-256
@@ -64,7 +68,7 @@ public class EncryptedStringConverter implements AttributeConverter<String, Stri
 
             // Prepend IV so each row has a unique IV
             byte[] combined = new byte[iv.length + ciphertext.length];
-            System.arraycopy(iv,         0, combined, 0,          iv.length);
+            System.arraycopy(iv, 0, combined, 0, iv.length);
             System.arraycopy(ciphertext, 0, combined, iv.length, ciphertext.length);
 
             return Base64.getEncoder().encodeToString(combined);
@@ -90,9 +94,9 @@ public class EncryptedStringConverter implements AttributeConverter<String, Stri
                 return encrypted;
             }
 
-            byte[] iv         = new byte[GCM_IV_LENGTH];
+            byte[] iv = new byte[GCM_IV_LENGTH];
             byte[] ciphertext = new byte[combined.length - GCM_IV_LENGTH];
-            System.arraycopy(combined, 0,             iv,         0, iv.length);
+            System.arraycopy(combined, 0, iv, 0, iv.length);
             System.arraycopy(combined, GCM_IV_LENGTH, ciphertext, 0, ciphertext.length);
 
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");

@@ -48,8 +48,8 @@ interface TripImage { id: number; path: string; isCover: boolean; }
         <div class="container py-5">
           <div class="row g-5">
 
-            <!-- â”€â”€ Left column â”€â”€ -->
-            <div class="col-lg-8">
+            <!-- ── Left column ── -->
+            <div class="col-lg-8 order-2 order-lg-1">
 
               <!-- Ko mēs piedzīvosim / description -->
               <section class="detail-section" *ngIf="trip.description">
@@ -91,7 +91,6 @@ interface TripImage { id: number; path: string; isCover: boolean; }
 
               <!-- Price included / Extra charge -->
               <section class="detail-section" *ngIf="priceIncludedItems.length > 0 || extraChargeItems.length > 0">
-                <h3 class="detail-heading">Cenas informācija</h3>
                 <div *ngIf="priceIncludedItems.length > 0" class="price-items-group">
                   <div class="price-group-label included-label">Iekļauts cenā</div>
                   <div class="price-chips-row">
@@ -101,7 +100,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
                   </div>
                 </div>
                 <div *ngIf="extraChargeItems.length > 0" class="price-items-group extra-group">
-                  <div class="price-group-label extra-label">Papildmaksa</div>
+                  <div class="price-group-label extra-label">Papildus izmaksas</div>
                   <div class="price-chips-row">
                     <span *ngFor="let item of extraChargeItems" class="price-chip extra-chip">
                       <span class="chip-icon">✕</span>{{ item }}
@@ -126,7 +125,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
             </div>
 
             <!-- booking card  -->
-            <div class="col-lg-4">
+            <div class="col-lg-4 order-1 order-lg-2">
               <div class="booking-card">
                 <div class="booking-price">
                   <span class="price-label">Cena </span>
@@ -136,7 +135,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
 
                 <ul class="booking-info-list">
                   <li>
-                    <span><strong>Brīvas vietas:</strong>
+                    <span><strong>Brīvas vietas: </strong>
                       <span [class.text-danger]="trip.availableSpots <= 3">{{ trip.availableSpots }}</span>
                     </span>
                   </li>

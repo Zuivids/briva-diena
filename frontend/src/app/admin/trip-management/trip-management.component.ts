@@ -212,7 +212,7 @@ interface TripForm {
 
           <!-- ── 8. Price included / Extra charge ── -->
           <div class="form-section">
-            <h5 class="section-label">8. Iekļauts cenā un papildmaksa</h5>
+            <h5 class="section-label">8. Iekļauts cenā un Papildus izmaksas</h5>
             <div class="row g-4">
               <div class="col-sm-6">
                 <label class="field-label">Iekļauts cenā</label>
@@ -226,7 +226,7 @@ interface TripForm {
                 <button type="button" class="btn btn-outline-success btn-sm mt-2" (click)="addPriceIncluded()">+ Pievienot</button>
               </div>
               <div class="col-sm-6">
-                <label class="field-label">Papildmaksa</label>
+                <label class="field-label">Papildus izmaksas</label>
                 <div *ngFor="let item of extraChargeItems; let i = index" class="flight-entry-row">
                   <input type="text" [(ngModel)]="extraChargeItems[i]" [name]="'extraCharge' + i"
                          class="form-control field-input" placeholder="piem., Pārbaudīta bagāža" />

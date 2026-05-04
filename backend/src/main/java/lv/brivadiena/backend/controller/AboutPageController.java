@@ -23,7 +23,7 @@ public class AboutPageController {
     @Autowired
     private AboutPageImageRepository aboutPageImageRepository;
 
-    @Value("${app.images-path}")
+    @Value("${app.images-path:./images}")
     private String imagesPath;
 
     /**

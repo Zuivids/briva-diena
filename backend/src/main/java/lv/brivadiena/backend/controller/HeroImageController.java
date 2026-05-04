@@ -22,7 +22,7 @@ public class HeroImageController {
     @Autowired
     private HeroImageRepository heroImageRepository;
 
-    @Value("${app.images-path}")
+    @Value("${app.images-path:./images}")
     private String imagesPath;
 
     /**
