@@ -16,15 +16,15 @@ import { CommonModule } from '@angular/common';
       <div class="container policy-body">
         <div class="policy-content mx-auto">
 
-          <p>SIA MG Travel, reģistrācijas numurs XXXXXXXXX (turpmāk – Uzņēmums), apstrādā personas datus ievērojot Eiropas Parlamenta un Padomes Regulu (ES) 2016/679 (Vispārējā datu aizsardzības regula). Šīs privātuma politikas mērķis ir sniegt informāciju fiziskām personām- datu subjektiem- par personas datu apstrādes nolūkiem, apjomu, glabāšanas termiņiem un tiesībām.</p>
+          <p>"Brīva Diena" SIA, reģistrācijas numurs 40203699357 (turpmāk – Uzņēmums), apstrādā personas datus ievērojot Eiropas Parlamenta un Padomes Regulu (ES) 2016/679 (Vispārējā datu aizsardzības regula). Šīs privātuma politikas mērķis ir sniegt informāciju fiziskām personām (datu subjektiem) par personas datu apstrādes nolūkiem, apjomu, glabāšanas termiņiem un tiesībām.</p>
 
-          <p><strong>Uzņēmuma kontaktinformācija:</strong> juridiskā adrese: XXXXXXXXX, XXXXXXXXX, Tālrunis: XXXXXXXXX</p>
+          <p><strong>Uzņēmuma kontaktinformācija:</strong> juridiskā adrese: Turaidas iela 110 k-2 - 47, Jūrmala, LV-2015. Tālrunis: 29784777</p>
 
           <p>Uzņēmums nodrošina personas datu aizsardzību un ievieš tehniskus un organizatoriskus pasākumus datu drošībai.</p>
 
           <p>Informējam Jūs, ka Uzņēmums var izmainīt šo Privātuma politiku, tāpēc pārbaudiet to, lai nodrošinātu, ka esiet informēti un iepazinušies ar tās izmaiņām.</p>
 
-          <p class="policy-updated"><strong>ŠĪ PRIVĀTUMA POLITIKA PĒDĒJO REIZI ATJAUNOTA 03.12.2025</strong></p>
+          <p class="policy-updated"><strong>ŠĪ PRIVĀTUMA POLITIKA PĒDĒJO REIZI ATJAUNOTA 01.05.2026</strong></p>
 
           <h2>Personas datu apstrādes procesi</h2>
 
@@ -68,7 +68,7 @@ import { CommonModule } from '@angular/common';
             </div>
           </div>
 
-          <h3>Personas datu apstrāde saziņai un pakalpojumu pieprasījumu / rezervāciju veikšanai tīmekļa vietnē celoarmariku.lv</h3>
+          <h3>Personas datu apstrāde saziņai un pakalpojumu pieprasījumi tīmekļa vietnē brivadiena.lv</h3>
           <p><strong>Nepieciešamie dati:</strong></p>
 
           <div class="policy-table">
@@ -109,7 +109,7 @@ import { CommonModule } from '@angular/common';
           </div>
           <p>Klients jebkurā brīdī var atsaukt piekrišanu, izmantojot atteikšanās saiti katras vēstules apakšā vai sazinoties ar mums.</p>
 
-          <h3>Saziņai ar Uzņēmumu, izmantojot tīmekļa vietni celoarmariku.lv</h3>
+          <h3>Saziņai ar Uzņēmumu, izmantojot tīmekļa vietni brivadiena.lv</h3>
           <p><strong>Nepieciešamie dati:</strong></p>
 
           <div class="policy-table">
@@ -119,7 +119,7 @@ import { CommonModule } from '@angular/common';
             </div>
             <div class="policy-row">
               <div class="policy-cell header">Personas datu apstrādes mērķis</div>
-              <div class="policy-cell">Atbildes sniegšana uz pieprasījumu un saziņai ar klientu par pakalpojumiem, par kuriem klients ir interesējies caur Uzņēmuma vietni celoarmariku.lv.</div>
+              <div class="policy-cell">Atbildes sniegšana uz pieprasījumu un saziņai ar klientu par pakalpojumiem, par kuriem klients ir interesējies caur Uzņēmuma vietni brivadiena.lv.</div>
             </div>
             <div class="policy-row">
               <div class="policy-cell header">Datu apstrādes tiesiskais pamats</div>
@@ -148,7 +148,7 @@ import { CommonModule } from '@angular/common';
           <h2>No kādiem avotiem Uzņēmums iegūst Jūsu personas datus?</h2>
           <p>Uzņēmums apstrādā tikai tos personas datus, kurus klients sniedz, sazinoties ar mums, tostarp:</p>
           <ul>
-            <li>Aizpildot pieteikuma vai rezervācijas formas mūsu mājaslapā,</li>
+            <li>Aizpildot pieteikuma mājaslapā,</li>
             <li>Telefoniski vai e-pastā,</li>
             <li>Iesniedzot informāciju par sevi un ceļojuma dalībniekiem distances līguma noslēgšanai.</li>
           </ul>
@@ -163,8 +163,7 @@ import { CommonModule } from '@angular/common';
           <p>Uzņēmums personas datus var nodot šādiem saņēmējiem, ciktāl tas ir nepieciešams pakalpojuma nodrošināšanai:</p>
           <ul>
             <li>ceļojuma pakalpojuma sniedzēji (aviokompānijas, viesnīcas, transporta pakalpojumu u.c.);</li>
-            <li>maksājumu pakalpojumu sniedzēji (piem., SIA ESTO LV AS);</li>
-            <li>IT un mājaslapas uzturēšanas pakalpojumu sniedzēji;</li>
+            <li>mājaslapas uzturēšanas pakalpojumu sniedzēji;</li>
             <li>grāmatvedības un juridisko pakalpojumu sniedzēji;</li>
             <li>valsts iestādes, ja to pieprasa likums.</li>
           </ul>
@@ -175,15 +174,15 @@ import { CommonModule } from '@angular/common';
           <p>Uzņēmums glabā personas datus atbilstoši definētajiem personas datu apstrādes mērķiem un personas datu apstrādes tiesiskajiem pamatiem, bet ne ilgāk kā:</p>
           <ul>
             <li>grāmatvedības dokumenti - 5 gadi (saskaņā ar Latvijas normatīvajiem aktiem);</li>
-            <li>līgumu un rezervācijas dati - līdz pakalpojuma izpildei + līdz 2 gadiem;</li>
+            <li>līgumu un rezervācijas dati - līdz pakalpojuma izpildei un līdz 2 gadiem;</li>
             <li>mārketinga dati - līdz piekrišanas atsaukšanai;</li>
             <li>saziņas dati (pieprasījumi, ziņas u.c.) - līdz 1 gadam pēc dokumentācijas noslēgšanas.</li>
           </ul>
 
           <h2>Datu subjekta tiesības</h2>
-          <p>Lai saņemtu informāciju par personas datiem, kurus Uzņēmums par datu subjektu apstrādā, datu subjektam ir tiesības normatīvajos aktos noteiktajā kārtībā vērsties MG Travel un iegūt informāciju. Datu subjektam ir tiesības pieprasīt personas datu apstrādes ierobežošanu, iebilst pret personas datu apstrādi, lūgt personas datu labošanu, kā arī atsevišķos gadījumos to dzēšanu, atbilstoši Regulas noteikumiem.</p>
+          <p>Lai saņemtu informāciju par personas datiem, kurus Uzņēmums par datu subjektu apstrādā, datu subjektam ir tiesības normatīvajos aktos noteiktajā kārtībā vērsties "Brīva Diena" SIA un iegūt informāciju. Datu subjektam ir tiesības pieprasīt personas datu apstrādes ierobežošanu, iebilst pret personas datu apstrādi, lūgt personas datu labošanu, kā arī atsevišķos gadījumos to dzēšanu, atbilstoši Regulas noteikumiem.</p>
           <p>Uzņēmums veic saziņu ar datu subjektu: personīgi klātienē, pirms tam datu subjektu identificējot; pa pastu, nosūtot sūtījumus uz personas norādīto dzīvesvietas adresi kā ierakstītu pasta sūtījumu; sazinoties ar e-pasta starpniecību, atbildot uz to e-pastu, kuru datu subjekts ir norādījis iesniegumā, kas parakstīts ar drošu elektronisko parakstu; rakstot uz Uzņēmuma oficiālo elektronisko adresi jeb e-adresi.</p>
-          <p>Gadījumos, ja tiek konstatēti personas datu aizsardzības pārkāpumi vai pastāv aizdomas par iespējamu pārkāpumu, mēs Jūs aicinām vērsties pie mums - Uzņēmuma.</p>
+          <p>Gadījumos, ja tiek konstatēti personas datu aizsardzības pārkāpumi vai pastāv aizdomas par iespējamu pārkāpumu, mēs aicinām vērsties pie Uzņēmuma.</p>
           <p>Ja datu subjektam ir bažas par personas datu apstrādi, viņam ir tiesības vērsties Datu valsts inspekcijā (juridiskā adrese: Elijas iela 17, Rīga, LV-1050).</p>
 
           <h2>Profilēšana</h2>
@@ -199,8 +198,7 @@ import { CommonModule } from '@angular/common';
     }
 
     .policy-header {
-      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-      color: white;
+      color: #5C4033;
       padding: 60px 0 40px;
     }
 
