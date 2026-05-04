@@ -32,7 +32,7 @@ public class TripController {
     @Autowired
     private TripImageRepository tripImageRepository;
 
-    @Value("${app.images-path}")
+    @Value("${app.images-path:./images}")
     private String imagesPath;
 
     /**

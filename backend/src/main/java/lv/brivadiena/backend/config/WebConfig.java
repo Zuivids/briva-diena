@@ -11,13 +11,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${app.uploads-path}")
+    @Value("${app.uploads-path:./uploads}")
     private String uploadsPath;
 
-    @Value("${app.images-path}")
+    @Value("${app.images-path:./images}")
     private String imagesPath;
 
-    // CORS is configured in SecurityConfig (handles preflight correctly with JWT filter)
+    // CORS is configured in SecurityConfig (handles preflight correctly with JWT
+    // filter)
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
