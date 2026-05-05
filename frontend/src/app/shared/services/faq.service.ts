@@ -1,64 +1,27 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { FAQ } from '../models/faq.model';
+import { FaqItem } from '../models/faq.model';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class FAQService {
-  private apiUrl = '/api/faqs';
+@Injectable({ providedIn: 'root' })
+export class FaqService {
+  private readonly apiUrl = '/api/faq';
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Get all FAQs
-   */
-  getAllFAQs(): Observable<FAQ[]> {
-    return this.http.get<FAQ[]>(this.apiUrl);
+  getAll(): Observable<FaqItem[]> {
+    return this.http.get<FaqItem[]>(this.apiUrl);
   }
 
-  /**
-   * Get FAQs by category
-   */
-  getFAQsByCategory(category: string): Observable<FAQ[]> {
-    return this.http.get<FAQ[]>(this.apiUrl, {
-      params: new HttpParams().set('category', category)
-    });
+  create(question: string, answer: string): Observable<FaqItem> {
+    return this.http.post<FaqItem>(this.apiUrl, { question, answer });
   }
 
-  /**
-   * Get a specific FAQ by ID
-   */
-  getFAQ(faqId: string): Observable<FAQ> {
-    return this.http.get<FAQ>(`${this.apiUrl}/${faqId}`);
+  update(id: number, question: string, answer: string): Observable<FaqItem> {
+    return this.http.put<FaqItem>(`${this.apiUrl}/${id}`, { question, answer });
   }
 
-  /**
-   * Create a new FAQ (admin only)
-   */
-  createFAQ(faq: Omit<FAQ, 'id' | 'createdAt' | 'updatedAt'>): Observable<FAQ> {
-    return this.http.post<FAQ>(this.apiUrl, faq);
-  }
-
-  /**
-   * Update a FAQ (admin only)
-   */
-  updateFAQ(faqId: string, faq: Partial<FAQ>): Observable<FAQ> {
-    return this.http.put<FAQ>(`${this.apiUrl}/${faqId}`, faq);
-  }
-
-  /**
-   * Delete a FAQ (admin only)
-   */
-  deleteFAQ(faqId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${faqId}`);
-  }
-
-  /**
-   * Get all FAQ categories
-   */
-  getCategories(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/categories`);
+  remove(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

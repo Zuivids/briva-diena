@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AdminStateService } from '../../shared/services/admin-state.service';
+import { FaqService } from '../../shared/services/faq.service';
+import { FaqItem } from '../../shared/models/faq.model';
 
 @Component({
   selector: 'app-faq',
@@ -89,13 +90,16 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
     }
   `]
 })
-export class FAQComponent {
-  faqItems: { id: string; question: string; answer: string }[] = [];
+export class FAQComponent implements OnInit {
+  faqItems: FaqItem[] = [];
   openIndex: number | null = null;
 
-  constructor(private adminState: AdminStateService) {
-    this.adminState.faqItems$.subscribe(items => {
-      this.faqItems = items;
+  constructor(private faqService: FaqService) {}
+
+  ngOnInit(): void {
+    this.faqService.getAll().subscribe({
+      next: (items) => { this.faqItems = items; },
+      error: () => {}
     });
   }
 

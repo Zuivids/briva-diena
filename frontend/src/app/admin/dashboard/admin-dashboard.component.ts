@@ -9,6 +9,8 @@ import { InstagramService, InstagramPost } from '../../shared/services/instagram
 import { AboutImageService } from '../../shared/services/about-image.service';
 import { HeroImageService } from '../../shared/services/hero-image.service';
 import { SiteContentService } from '../../shared/services/site-content.service';
+import { FaqService } from '../../shared/services/faq.service';
+import { FaqItem } from '../../shared/models/faq.model';
 import { Trip } from '../../shared/models/trip.model';
 import { Review } from '../../shared/models/review.model';
 
@@ -631,11 +633,11 @@ export class AdminDashboardComponent implements OnInit {
   aboutPageImagePreview: string | null = null;
   aboutPageImages: string[] = [];
   readonly slotIndices = [0, 1, 2];
-  faqItems: { id: string; question: string; answer: string }[] = [];
+  faqItems: FaqItem[] = [];
   newFaqQuestion = '';
   newFaqAnswer = '';
   faqError = '';
-  editingFaqId: string | null = null;
+  editingFaqId: number | null = null;
   faqEditForm = { question: '', answer: '' };
   faqEditError = '';
   instagramPosts: InstagramPost[] = [];
@@ -674,6 +676,7 @@ export class AdminDashboardComponent implements OnInit {
     private aboutImageService: AboutImageService,
     private heroImageService: HeroImageService,
     private siteContentService: SiteContentService,
+    private faqService: FaqService,
     private router: Router
   ) {}
 
@@ -709,7 +712,7 @@ export class AdminDashboardComponent implements OnInit {
       }
     });
     this.aboutPageImagePreview = this.adminState.aboutPageImage$.value;
-    this.faqItems = this.adminState.faqItems$.value;
+    this.loadFaqItems();
     this.loadAboutImages();
     this.loadInstagramPosts();
     this.loadTrips();
@@ -956,30 +959,43 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+  loadFaqItems(): void {
+    this.faqService.getAll().subscribe({
+      next: (items) => {
+        this.faqItems = items;
+        this.adminState.faqItems$.next(items.map(f => ({ id: String(f.id), question: f.question, answer: f.answer })));
+      },
+      error: () => {}
+    });
+  }
+
   addFaqItem(): void {
     this.faqError = '';
     if (!this.newFaqQuestion.trim() || !this.newFaqAnswer.trim()) {
       this.faqError = 'Jautājums un atbilde ir obligāti.';
       return;
     }
-    const updated = [
-      ...this.adminState.faqItems$.value,
-      { id: Date.now().toString(), question: this.newFaqQuestion.trim(), answer: this.newFaqAnswer.trim() }
-    ];
-    this.adminState.faqItems$.next(updated);
-    this.faqItems = updated;
-    this.newFaqQuestion = '';
-    this.newFaqAnswer = '';
+    this.faqService.create(this.newFaqQuestion.trim(), this.newFaqAnswer.trim()).subscribe({
+      next: () => {
+        this.newFaqQuestion = '';
+        this.newFaqAnswer = '';
+        this.loadFaqItems();
+      },
+      error: () => { this.faqError = 'Neizdevās pievienot jautājumu.'; }
+    });
   }
 
-  removeFaqItem(id: string): void {
-    const updated = this.adminState.faqItems$.value.filter(f => f.id !== id);
-    this.adminState.faqItems$.next(updated);
-    this.faqItems = updated;
-    if (this.editingFaqId === id) this.editingFaqId = null;
+  removeFaqItem(id: number): void {
+    this.faqService.remove(id).subscribe({
+      next: () => {
+        if (this.editingFaqId === id) this.editingFaqId = null;
+        this.loadFaqItems();
+      },
+      error: () => {}
+    });
   }
 
-  toggleFaqEdit(item: { id: string; question: string; answer: string }): void {
+  toggleFaqEdit(item: FaqItem): void {
     if (this.editingFaqId === item.id) {
       this.editingFaqId = null;
       return;
@@ -995,14 +1011,13 @@ export class AdminDashboardComponent implements OnInit {
       this.faqEditError = 'Jautājums un atbilde ir obligāti.';
       return;
     }
-    const updated = this.adminState.faqItems$.value.map(f =>
-      f.id === this.editingFaqId
-        ? { ...f, question: this.faqEditForm.question.trim(), answer: this.faqEditForm.answer.trim() }
-        : f
-    );
-    this.adminState.faqItems$.next(updated);
-    this.faqItems = updated;
-    this.editingFaqId = null;
+    this.faqService.update(this.editingFaqId!, this.faqEditForm.question.trim(), this.faqEditForm.answer.trim()).subscribe({
+      next: () => {
+        this.editingFaqId = null;
+        this.loadFaqItems();
+      },
+      error: () => { this.faqEditError = 'Neizdevās saglabāt izmaiņas.'; }
+    });
   }
 
   addReview(): void {
