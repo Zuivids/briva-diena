@@ -21,7 +21,7 @@ import { catchError } from 'rxjs/operators';
 
       <!-- Hero Section -->
       <section class="hero-section">
-        <img *ngIf="heroImageLoaded" [src]="(adminState.heroImageSrc$ | async) || 'italy_mountain.png'" alt="Hero image" class="hero-image" />
+        <img *ngIf="heroImageLoaded" [src]="(adminState.heroImageSrc$ | async) || 'landing_page_image.png'" alt="Hero image" class="hero-image" />
         <div class="hero-text" [ngClass]="heroAnimClass">
           <h1>{{ currentHeroText }}</h1>
         </div>

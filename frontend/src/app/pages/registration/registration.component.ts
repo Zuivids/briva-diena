@@ -415,7 +415,7 @@ export class RegistrationComponent implements OnInit {
     }
     this.tripService.getAllTrips().subscribe({
       next: (trips) => {
-        this.trips = trips;
+        this.trips = trips.filter(t => !t.hidden && t.availableSpots > 0);
         if (this.noPresetTrip && trips.length > 0) {
           this.selectedTripId = String(trips[0].id);
           this.tripService.getTrip(String(trips[0].id)).subscribe({
