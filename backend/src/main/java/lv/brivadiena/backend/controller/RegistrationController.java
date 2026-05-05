@@ -56,7 +56,11 @@ public class RegistrationController {
         m.put("status", r.getStatus());
         m.put("createdAt", r.getCreatedAt());
         if (r.getTrip() != null) {
-            m.put("trip", Map.of("id", r.getTrip().getId(), "name", r.getTrip().getName()));
+            m.put("trip", Map.of(
+                    "id", r.getTrip().getId(),
+                    "name", r.getTrip().getName(),
+                    "startDate", r.getTrip().getStartDate() != null ? r.getTrip().getStartDate().toString() : "",
+                    "endDate", r.getTrip().getEndDate() != null ? r.getTrip().getEndDate().toString() : ""));
         }
         return m;
     }
@@ -84,14 +88,18 @@ public class RegistrationController {
             }
 
             String firstName = getString(body, "firstName");
-            String lastName  = getString(body, "lastName");
-            String phone     = getString(body, "phone");
-            String email     = getString(body, "email");
+            String lastName = getString(body, "lastName");
+            String phone = getString(body, "phone");
+            String email = getString(body, "email");
 
-            if (firstName == null || firstName.isBlank()) return ResponseEntity.badRequest().body("Missing firstName");
-            if (lastName  == null || lastName.isBlank())  return ResponseEntity.badRequest().body("Missing lastName");
-            if (phone     == null || phone.isBlank())     return ResponseEntity.badRequest().body("Missing phone");
-            if (email     == null || email.isBlank())     return ResponseEntity.badRequest().body("Missing email");
+            if (firstName == null || firstName.isBlank())
+                return ResponseEntity.badRequest().body("Missing firstName");
+            if (lastName == null || lastName.isBlank())
+                return ResponseEntity.badRequest().body("Missing lastName");
+            if (phone == null || phone.isBlank())
+                return ResponseEntity.badRequest().body("Missing phone");
+            if (email == null || email.isBlank())
+                return ResponseEntity.badRequest().body("Missing email");
 
             if (!email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
                 return ResponseEntity.badRequest().body("Invalid email address");

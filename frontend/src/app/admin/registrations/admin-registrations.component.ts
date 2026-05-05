@@ -14,7 +14,7 @@ interface RegistrationRow {
   passportExpirationDate?: string;
   status: string;
   createdAt: string;
-  trip?: { id: number; name: string };
+  trip?: { id: number; name: string; startDate?: string; endDate?: string };
   updating?: boolean;
 }
 
@@ -54,6 +54,7 @@ interface RegistrationRow {
                   <th>Pase / ID</th>
                   <th>Pases der. termiņš</th>
                   <th>Ceļojums</th>
+                  <th>Ceļojuma datums</th>
                   <th>Statuss</th>
                   <th>Reģistrācijas datums</th>
                 </tr>
@@ -62,10 +63,11 @@ interface RegistrationRow {
                   <th><input type="text" [(ngModel)]="filterName" (ngModelChange)="onFilterChange()" class="filter-input" placeholder="Meklēt..." /></th>
                   <th><input type="text" [(ngModel)]="filterPhone" (ngModelChange)="onFilterChange()" class="filter-input" placeholder="Meklēt..." /></th>
                   <th><input type="text" [(ngModel)]="filterEmail" (ngModelChange)="onFilterChange()" class="filter-input" placeholder="Meklēt..." /></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
+                  <th><input type="text" [(ngModel)]="filterPersonalId" (ngModelChange)="onFilterChange()" class="filter-input" placeholder="Meklēt..." /></th>
+                  <th><input type="text" [(ngModel)]="filterPassport" (ngModelChange)="onFilterChange()" class="filter-input" placeholder="Meklēt..." /></th>
+                  <th><input type="text" [(ngModel)]="filterPassportExpiry" (ngModelChange)="onFilterChange()" class="filter-input" placeholder="dd.mm.gggg" /></th>
                   <th><input type="text" [(ngModel)]="filterTrip" (ngModelChange)="onFilterChange()" class="filter-input" placeholder="Meklēt..." /></th>
+                  <th><input type="text" [(ngModel)]="filterTripDate" (ngModelChange)="onFilterChange()" class="filter-input" placeholder="dd.mm.gggg" /></th>
                   <th>
                     <select [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()" class="filter-input filter-select">
                       <option value="">Visi</option>
@@ -74,7 +76,7 @@ interface RegistrationRow {
                       <option value="CANCELLED">Atcelts</option>
                     </select>
                   </th>
-                  <th></th>
+                  <th><input type="text" [(ngModel)]="filterCreatedAt" (ngModelChange)="onFilterChange()" class="filter-input" placeholder="dd.mm.gggg" /></th>
                 </tr>
               </thead>
               <tbody>
@@ -88,7 +90,11 @@ interface RegistrationRow {
                   <td>{{ r.personalIdNumber || 'â€”' }}</td>
                   <td>{{ r.passportNumber || 'â€”' }}</td>
                   <td>{{ r.passportExpirationDate ? (r.passportExpirationDate | date:'dd.MM.yyyy') : 'â€”' }}</td>
-                  <td>{{ r.trip?.name || 'â€”' }}</td>
+                  <td>{{ r.trip?.name || '—' }}</td>
+                  <td class="text-muted small">
+                    <span *ngIf="r.trip?.startDate">{{ r.trip!.startDate | date:'dd.MM.yyyy' }} – {{ r.trip!.endDate | date:'dd.MM.yyyy' }}</span>
+                    <span *ngIf="!r.trip?.startDate">—</span>
+                  </td>
                   <td>
                     <div class="status-cell">
                       <select [(ngModel)]="r.status"
@@ -343,24 +349,49 @@ export class AdminRegistrationsComponent implements OnInit {
   filterName = '';
   filterPhone = '';
   filterEmail = '';
+  filterPersonalId = '';
+  filterPassport = '';
+  filterPassportExpiry = '';
   filterTrip = '';
+  filterTripDate = '';
   filterStatus = '';
+  filterCreatedAt = '';
 
   // Pagination
   pageSize = 25;
   currentPage = 1;
 
+  private fmt(date: string | null | undefined): string {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+  }
+
   get filtered(): RegistrationRow[] {
     const name = this.filterName.toLowerCase();
     const phone = this.filterPhone.toLowerCase();
     const email = this.filterEmail.toLowerCase();
+    const personalId = this.filterPersonalId.toLowerCase();
+    const passport = this.filterPassport.toLowerCase();
+    const passportExpiry = this.filterPassportExpiry.toLowerCase();
     const trip = this.filterTrip.toLowerCase();
+    const tripDate = this.filterTripDate.toLowerCase();
+    const createdAt = this.filterCreatedAt.toLowerCase();
     return this.registrations.filter(r => {
       if (name && !`${r.firstName} ${r.lastName}`.toLowerCase().includes(name)) return false;
       if (phone && !r.phone.toLowerCase().includes(phone)) return false;
       if (email && !r.email.toLowerCase().includes(email)) return false;
+      if (personalId && !(r.personalIdNumber ?? '').toLowerCase().includes(personalId)) return false;
+      if (passport && !(r.passportNumber ?? '').toLowerCase().includes(passport)) return false;
+      if (passportExpiry && !this.fmt(r.passportExpirationDate).includes(passportExpiry)) return false;
       if (trip && !(r.trip?.name ?? '').toLowerCase().includes(trip)) return false;
+      if (tripDate) {
+        const range = `${this.fmt(r.trip?.startDate)} – ${this.fmt(r.trip?.endDate)}`;
+        if (!range.toLowerCase().includes(tripDate)) return false;
+      }
       if (this.filterStatus && r.status !== this.filterStatus) return false;
+      if (createdAt && !this.fmt(r.createdAt).includes(createdAt)) return false;
       return true;
     });
   }
