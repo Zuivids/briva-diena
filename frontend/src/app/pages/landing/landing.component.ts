@@ -7,10 +7,11 @@ import { ReviewService } from '../../shared/services/review.service';
 import { InstagramService } from '../../shared/services/instagram.service';
 import { HeroImageService } from '../../shared/services/hero-image.service';
 import { SiteContentService } from '../../shared/services/site-content.service';
+import { SplashService } from '../../shared/services/splash.service';
 import { Trip } from '../../shared/models/trip.model';
 import { Review } from '../../shared/models/review.model';
-import { of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, of, forkJoin } from 'rxjs';
+import { catchError, switchMap, tap, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-landing',
@@ -289,6 +290,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     private instagramService: InstagramService,
     private heroImageService: HeroImageService,
     private siteContentService: SiteContentService,
+    private splashService: SplashService,
     @Inject(DOCUMENT) private document: Document
   ) {}
 
@@ -306,8 +308,8 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (res) => { this.adminState.aboutText$.next(res.value); },
       error: () => {}
     });
-    this.loadSection('TOP');
-    this.loadSection('LAST_CHANCE');
+    forkJoin([this.loadSection('TOP'), this.loadSection('LAST_CHANCE')])
+      .subscribe(() => this.splashService.markReady());
     this.reviewService.getLatestReviews(3).subscribe({
       next: (data) => { this.reviews = data; this.reviewsLoading = false; },
       error: () => { this.reviewsLoading = false; }
@@ -345,9 +347,9 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private loadSection(section: 'TOP' | 'LAST_CHANCE'): void {
-    this.tripService.getLandingTrips(section).subscribe({
-      next: (trips) => {
+  private loadSection(section: 'TOP' | 'LAST_CHANCE'): Observable<void> {
+    return this.tripService.getLandingTrips(section).pipe(
+      switchMap(trips => {
         if (section === 'TOP') {
           this.topTrips = trips;
           this.topLoading = false;
@@ -355,21 +357,26 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
           this.lastChanceTrips = trips;
           this.lastChanceLoading = false;
         }
-        if (trips.length === 0) return;
-        trips.forEach(t => {
-          this.tripService.getCoverImage(t.id).pipe(catchError(() => of(null))).subscribe(r => {
-            if (r) {
-              if (section === 'TOP') this.coverMapTop = { ...this.coverMapTop, [t.id]: r.path };
-              else this.coverMapLastChance = { ...this.coverMapLastChance, [t.id]: r.path };
-            }
-          });
-        });
-      },
-      error: () => {
+        if (trips.length === 0) return of(undefined as void);
+        const imageLoads = trips.map(t =>
+          this.tripService.getCoverImage(t.id).pipe(
+            catchError(() => of(null)),
+            tap(r => {
+              if (r) {
+                if (section === 'TOP') this.coverMapTop = { ...this.coverMapTop, [t.id]: r.path };
+                else this.coverMapLastChance = { ...this.coverMapLastChance, [t.id]: r.path };
+              }
+            })
+          )
+        );
+        return forkJoin(imageLoads).pipe(map(() => undefined as void));
+      }),
+      catchError(() => {
         if (section === 'TOP') this.topLoading = false;
         else this.lastChanceLoading = false;
-      }
-    });
+        return of(undefined as void);
+      })
+    );
   }
 
   getStars(rating: number): number[] {

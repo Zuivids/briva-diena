@@ -198,7 +198,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
 
     .trip-hero-overlay {
       height: 100%;
-      // background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.65) 100%);
+      /* background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.65) 100%); */
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
