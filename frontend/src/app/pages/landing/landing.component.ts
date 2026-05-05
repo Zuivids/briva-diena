@@ -21,7 +21,7 @@ import { catchError } from 'rxjs/operators';
 
       <!-- Hero Section -->
       <section class="hero-section">
-        <img *ngIf="heroImageLoaded" [src]="(adminState.heroImageSrc$ | async) || 'landing_page_image.png'" alt="Hero image" class="hero-image" />
+        <img *ngIf="heroImageLoaded" [src]="(adminState.heroImageSrc$ | async) || 'landing_page_image.png'" alt="Hero image" class="hero-image" loading="lazy" />
         <div class="hero-text">
           <h1>Mazas grupas – lieli iespaidi</h1>
         </div>
@@ -36,7 +36,7 @@ import { catchError } from 'rxjs/operators';
             <div *ngFor="let trip of topTrips" class="col-md-4">
               <a [routerLink]="['/trip', trip.id]" class="trip-card-link">
               <div class="trip-card">
-                <div class="trip-card-img" [style.backgroundImage]="coverMapTop[trip.id] ? 'url(/images/' + coverMapTop[trip.id] + ')' : 'none'" [class.no-cover]="!coverMapTop[trip.id]">
+                <div class="trip-card-img" [style.backgroundImage]="coverMapTop[trip.id] ? 'url(/images/' + coverMapTop[trip.id] + ')' : 'none'" [class.no-cover]="!coverMapTop[trip.id]" [class.shimmer]="!coverMapTop[trip.id]">
                   <div *ngIf="trip.availableSpots === 0" class="soldout-overlay">Izpārdots</div>
                 </div>
                 <div class="trip-card-body">
@@ -82,7 +82,7 @@ import { catchError } from 'rxjs/operators';
             <div *ngFor="let trip of lastChanceTrips" class="col-md-4">
               <a [routerLink]="['/trip', trip.id]" class="trip-card-link">
               <div class="trip-card">
-                <div class="trip-card-img" [style.backgroundImage]="coverMapLastChance[trip.id] ? 'url(/images/' + coverMapLastChance[trip.id] + ')' : 'none'" [class.no-cover]="!coverMapLastChance[trip.id]">
+                <div class="trip-card-img" [style.backgroundImage]="coverMapLastChance[trip.id] ? 'url(/images/' + coverMapLastChance[trip.id] + ')' : 'none'" [class.no-cover]="!coverMapLastChance[trip.id]" [class.shimmer]="!coverMapLastChance[trip.id]">
                   <div *ngIf="trip.availableSpots === 0" class="soldout-overlay">Izpārdots</div>
                 </div>
                 <div class="trip-card-body">
@@ -215,6 +215,17 @@ import { catchError } from 'rxjs/operators';
     }
     .trip-card-img.no-cover {
       background-image: linear-gradient(135deg, #c8d6f0 0%, #e8eef8 100%);
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: -600px 0; }
+      100% { background-position:  600px 0; }
+    }
+
+    .shimmer {
+      background: linear-gradient(90deg, #e8eef8 25%, #d0dbf0 50%, #e8eef8 75%);
+      background-size: 600px 100%;
+      animation: shimmer 1.4s infinite linear;
     }
     .soldout-overlay {
       position: absolute;
