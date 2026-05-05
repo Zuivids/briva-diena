@@ -231,7 +231,7 @@ import { catchError, switchMap, map } from 'rxjs/operators';
       text-transform: uppercase;
     }
     .trip-card-body { padding: 20px; }
-    .trip-title { font-size: 1.6rem; font-weight: 600; margin-bottom: 4px; }
+    .trip-title { font-weight: 600; margin-bottom: 4px; }
     .trip-dates { color: #666; }
     .trip-spots { color: #666; margin-bottom: 8px !important; }
     .trip-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }

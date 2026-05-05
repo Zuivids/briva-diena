@@ -84,7 +84,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
                     <div *ngIf="trip.availableSpots === 0" class="soldout-overlay">Izpārdots</div>
                   </div>
                   <div class="trip-card-body">
-                    <h5 class="trip-title">{{ trip.name }}</h5>
+                    <h2 class="trip-title">{{ trip.name }}</h2>
                     <p class="trip-dates small mb-2">{{ trip.startDate | date:'dd.MM.yyyy' }} – {{ trip.endDate | date:'dd.MM.yyyy' }}</p>
                     <p class="trip-spots small mb-2">Brīvās vietas: <strong>{{ trip.availableSpots }}</strong></p>
                     <div class="trip-footer">
@@ -320,7 +320,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
     }
 
     .trip-title {
-      font-size: 2rem;
+      font-size: 1rem;
       font-weight: 600;
       margin-bottom: 4px;
     }
