@@ -22,8 +22,8 @@ import { catchError } from 'rxjs/operators';
       <!-- Hero Section -->
       <section class="hero-section">
         <img *ngIf="heroImageLoaded" [src]="(adminState.heroImageSrc$ | async) || 'landing_page_image.png'" alt="Hero image" class="hero-image" />
-        <div class="hero-text" [ngClass]="heroAnimClass">
-          <h1>{{ currentHeroText }}</h1>
+        <div class="hero-text">
+          <h2>Mazas grupas – lieli iespaidi</h2>
         </div>
       </section>
 
@@ -40,11 +40,11 @@ import { catchError } from 'rxjs/operators';
                   <div *ngIf="trip.availableSpots === 0" class="soldout-overlay">Izpārdots</div>
                 </div>
                 <div class="trip-card-body">
-                  <h5 class="trip-title">{{ trip.name }}</h5>
-                  <p class="trip-dates small mb-2">
+                  <h2 class="trip-title">{{ trip.name }}</h2>
+                  <p class="trip-dates mb-2">
                     {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }} 
                   </p>
-                  <p class="trip-spots small mb-2">Brīvās vietas: <strong>{{ trip.availableSpots }}</strong></p>
+                  <p class="trip-spots mb-2">Brīvās vietas: <strong>{{ trip.availableSpots }}</strong></p>
                   <div class="trip-footer">
                     <span class="trip-price">&#8364;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
                     <div class="trip-actions">
@@ -86,7 +86,7 @@ import { catchError } from 'rxjs/operators';
                   <div *ngIf="trip.availableSpots === 0" class="soldout-overlay">Izpārdots</div>
                 </div>
                 <div class="trip-card-body">
-                  <h5 class="trip-title">{{ trip.name }}</h5>
+                  <h2 class="trip-title">{{ trip.name }}</h2>
                   <p class="trip-dates small mb-2">
                     {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }}
                   </p>
@@ -168,16 +168,7 @@ import { catchError } from 'rxjs/operators';
     .hero-image { width: 100%; height: auto; max-height: 40vh; display: block; object-fit: cover; }
     .hero-text {
       position: absolute; top: 50%; left: 0; padding: 0 2rem;
-      transform: translateY(-50%) translateX(0);
-      transition: transform 0.35s ease-out;
-    }
-    .hero-text.slide-out {
-      transform: translateY(-50%) translateX(110%);
-      transition: transform 0.25s ease-in;
-    }
-    .hero-text.slide-in-start {
-      transform: translateY(-50%) translateX(-110%);
-      transition: none;
+      transform: translateY(-50%);
     }
     .hero-text h1 {
       color: #fff; font-size: clamp(1.75rem, 4vw, 3.5rem); font-weight: 700;
@@ -239,7 +230,7 @@ import { catchError } from 'rxjs/operators';
       text-transform: uppercase;
     }
     .trip-card-body { padding: 20px; }
-    .trip-title { font-size: 2rem; font-weight: 600; margin-bottom: 4px; }
+    .trip-title { font-size: 1.6rem; font-weight: 600; margin-bottom: 4px; }
     .trip-dates { color: #666; }
     .trip-spots { color: #666; margin-bottom: 8px !important; }
     .trip-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
@@ -280,17 +271,6 @@ import { catchError } from 'rxjs/operators';
   `]
 })
 export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
-  heroTexts: string[] = [
-    'DODIES NEAIZMIRSTAMĀ CEĻOJUMĀ',
-    'CEĻOJUMS - ATMIŅAS, KAS PALIEK UZ MŪŽU',
-    'ATMIŅAS, KAS PALIEK UZ MŪŽU'
-  ];
-  heroTextIndex = 0;
-  heroAnimClass = '';
-  private heroInterval: ReturnType<typeof setInterval> | null = null;
-
-  get currentHeroText(): string { return this.heroTexts[this.heroTextIndex]; }
-
   heroImageLoaded = false;
   topTrips: Trip[] = [];
   lastChanceTrips: Trip[] = [];
@@ -343,23 +323,9 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: () => {}
     });
-    this.heroInterval = setInterval(() => this.advanceHeroText(), 5000);
   }
 
-  ngOnDestroy(): void {
-    if (this.heroInterval) clearInterval(this.heroInterval);
-  }
-
-  private advanceHeroText(): void {
-    this.heroAnimClass = 'slide-out';
-    setTimeout(() => {
-      this.heroTextIndex = (this.heroTextIndex + 1) % this.heroTexts.length;
-      this.heroAnimClass = 'slide-in-start';
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => { this.heroAnimClass = ''; });
-      });
-    }, 250);
-  }
+  ngOnDestroy(): void {}
 
   ngAfterViewInit(): void {
     this.processInstagramEmbeds();

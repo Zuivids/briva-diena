@@ -24,3 +24,7 @@ body {
   border-color: #e87722 !important;
   color: #fff !important;
 }
+
+h2 {
+  font-size: 1.4rem;
+}
