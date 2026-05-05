@@ -1,8 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
-import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
-import { combineLatest, timer } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
+import { DOCUMENT, AsyncPipe } from '@angular/common';
+import { Router, NavigationStart, RouterOutlet } from '@angular/router';
+import { filter, skip, take } from 'rxjs/operators';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { SplashService } from './shared/services/splash.service';
@@ -10,8 +9,12 @@ import { SplashService } from './shared/services/splash.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, FooterComponent],
+  imports: [RouterOutlet, NavbarComponent, FooterComponent, AsyncPipe],
   template: `
+    <div class="ng-splash" [class.visible]="splashService.visible$ | async">
+      <div class="splash-logo">Brīva Diena</div>
+      <div class="splash-spinner"></div>
+    </div>
     <app-navbar></app-navbar>
     <router-outlet></router-outlet>
     <app-footer></app-footer>
@@ -24,34 +27,48 @@ export class AppComponent implements OnInit {
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private router: Router,
-    private splashService: SplashService
+    public splashService: SplashService
   ) {}
 
+  private isSplashRoute(url: string): boolean {
+    return url === '/' || url === '/trips' || url.startsWith('/trips?') || url.startsWith('/trips/');
+  }
+
   ngOnInit(): void {
-    // Hide splash when both min delay has passed AND content is ready
-    combineLatest([timer(500), this.splashService.ready$]).pipe(take(1))
-      .subscribe(() => this.hideSplash());
-
-    // Hard fallback — always hide after 3s regardless
-    timer(3000).pipe(take(1)).subscribe(() => this.hideSplash());
-
-    // For non-landing routes, signal ready as soon as navigation completes
+    // Initial navigation: sync with index.html splash
     this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd)
+      filter(e => e instanceof NavigationStart),
+      take(1)
     ).subscribe((e: any) => {
-      const url: string = e.urlAfterRedirects || e.url;
-      if (url !== '/') {
-        this.splashService.markReady();
+      if (this.isSplashRoute(e.url)) {
+        this.splashService.show();
+        // Small delay so Angular splash is rendered before removing index.html splash
+        setTimeout(() => this.removeStaticSplash(), 50);
+      } else {
+        this.removeStaticSplash();
+      }
+    });
+
+    // Subsequent navigations
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationStart),
+      skip(1)
+    ).subscribe((e: any) => {
+      if (this.isSplashRoute(e.url)) {
+        this.splashService.show();
+      } else {
+        this.splashService.visible$.next(false);
       }
     });
   }
 
-  private hideSplash(): void {
+  private removeStaticSplash(): void {
     const splash = this.document.getElementById('app-splash');
-    if (splash && !splash.classList.contains('fade-out')) {
+    if (splash) {
       splash.classList.add('fade-out');
       setTimeout(() => splash.remove(), 400);
     }
   }
 }
+
 

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TripService } from '../../shared/services/trip.service';
+import { SplashService } from '../../shared/services/splash.service';
 import { Trip } from '../../shared/models/trip.model';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -396,7 +397,7 @@ export class TripsComponent implements OnInit {
   minPrice: number | null = null;
   maxPrice: number | null = null;
 
-  constructor(private tripService: TripService) {}
+  constructor(private tripService: TripService, private splashService: SplashService) {}
 
   ngOnInit(): void {
     this.tripService.getAllTrips().subscribe({
@@ -406,7 +407,7 @@ export class TripsComponent implements OnInit {
         this.filteredTrips = visible;
         this.loading = false;
         this.buildFilterOptions();
-        if (data.length === 0) return;
+        if (data.length === 0) { this.splashService.markReady(); return; }
         const coverRequests = data.map(t =>
           this.tripService.getCoverImage(t.id).pipe(catchError(() => of(null)))
         );
@@ -414,9 +415,10 @@ export class TripsComponent implements OnInit {
           results.forEach((r, i) => {
             if (r) this.coverMap[data[i].id] = r.path;
           });
+          this.splashService.markReady();
         });
       },
-      error: () => { this.loading = false; }
+      error: () => { this.loading = false; this.splashService.markReady(); }
     });
   }
 
