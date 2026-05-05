@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
@@ -14,7 +15,19 @@ import { FooterComponent } from './shared/components/footer/footer.component';
   `,
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'frontend';
+
+  constructor(@Inject(DOCUMENT) private document: Document) {}
+
+  ngOnInit(): void {
+    setTimeout(() => {
+      const splash = this.document.getElementById('app-splash');
+      if (splash) {
+        splash.classList.add('fade-out');
+        setTimeout(() => splash.remove(), 400);
+      }
+    }, 500);
+  }
 }
 
