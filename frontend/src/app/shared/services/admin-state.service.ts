@@ -29,7 +29,7 @@ export class AdminStateService {
   private _isLoggedIn = new BehaviorSubject<boolean>(false);
   isLoggedIn$ = this._isLoggedIn.asObservable();
 
-  heroImageSrc$ = new BehaviorSubject<string>('italy_mountain.png');
+  heroImageSrc$ = new BehaviorSubject<string | null>(null);
   aboutText$ = new BehaviorSubject<string>(
     'Brīva diena ir ceļojumu aģentūra, kas piedāvā neatvairāmas ceļojuma pieredzes par pieņemamām cenām.'
   );

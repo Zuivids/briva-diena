@@ -9,7 +9,7 @@ import { HeroImageService } from '../../shared/services/hero-image.service';
 import { SiteContentService } from '../../shared/services/site-content.service';
 import { Trip } from '../../shared/models/trip.model';
 import { Review } from '../../shared/models/review.model';
-import { forkJoin, of } from 'rxjs';
+import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 @Component({
@@ -21,7 +21,7 @@ import { catchError } from 'rxjs/operators';
 
       <!-- Hero Section -->
       <section class="hero-section">
-        <img [src]="(adminState.heroImageSrc$ | async) || 'italy_mountain.png'" alt="Italy mountain" class="hero-image" />
+        <img *ngIf="heroImageLoaded" [src]="(adminState.heroImageSrc$ | async) || 'italy_mountain.png'" alt="Hero image" class="hero-image" />
         <div class="hero-text" [ngClass]="heroAnimClass">
           <h1>{{ currentHeroText }}</h1>
         </div>
@@ -291,6 +291,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
 
   get currentHeroText(): string { return this.heroTexts[this.heroTextIndex]; }
 
+  heroImageLoaded = false;
   topTrips: Trip[] = [];
   lastChanceTrips: Trip[] = [];
   reviews: Review[] = [];
@@ -317,8 +318,9 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
         if (res.path) {
           this.adminState.heroImageSrc$.next('/images/' + res.path);
         }
+        this.heroImageLoaded = true;
       },
-      error: () => {}
+      error: () => { this.heroImageLoaded = true; }
     });
     this.siteContentService.get('about_text').subscribe({
       next: (res) => { this.adminState.aboutText$.next(res.value); },
@@ -388,14 +390,11 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
           this.lastChanceLoading = false;
         }
         if (trips.length === 0) return;
-        const coverRequests = trips.map(t =>
-          this.tripService.getCoverImage(t.id).pipe(catchError(() => of(null)))
-        );
-        forkJoin(coverRequests).subscribe(results => {
-          results.forEach((r, i) => {
+        trips.forEach(t => {
+          this.tripService.getCoverImage(t.id).pipe(catchError(() => of(null))).subscribe(r => {
             if (r) {
-              if (section === 'TOP') this.coverMapTop[trips[i].id] = r.path;
-              else this.coverMapLastChance[trips[i].id] = r.path;
+              if (section === 'TOP') this.coverMapTop = { ...this.coverMapTop, [t.id]: r.path };
+              else this.coverMapLastChance = { ...this.coverMapLastChance, [t.id]: r.path };
             }
           });
         });
