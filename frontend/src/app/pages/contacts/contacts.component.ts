@@ -13,14 +13,14 @@ import { FormsModule } from '@angular/forms';
         <h2 class="page-title mb-4">KONTAKTI</h2>
 
         <div class="contacts-info text-center mb-5">
-          <p>Info tālrunis: <a href="tel:+37126382259"><strong>+371 26 382 259</strong></a></p>
+          <p>Info tālrunis: <a href="tel:+37126382259"><strong>+371 29784777</strong></a></p>
           <p>E-pasts: <a href="mailto:info&#64;brivadiena.lv"><strong>info&#64;brivadiena.lv</strong></a></p>
           <h3 class="mt-4">Rekvizīti</h3>
           <p>
             <strong>SIA "Brīva diena"</strong><br>
-            PVN nr.: LV123456789<br>
-            Tūrisma operatora licence Nr.T-12345678<br>
-            Juridiskā adrese: Rīga, Latvija
+            PVN nr.: 40203699357<br>
+            PTAC datubāzes reģistrācijas Nr.: T-2026-8<br>
+            Juridiskā adrese: Turaidas iela 110 k-2 - 47, Jūrmala, LV-2015
           </p>
           <p class="mt-3">Vai arī sazinies izmantojot formu zemāk:</p>
         </div>
