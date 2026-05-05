@@ -38,7 +38,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
                 <span class="meta-chip">{{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }}</span>
                 <span class="meta-chip">{{ durationDays }} dienas</span>
                 <span class="meta-chip spots" [class.few-spots]="trip.availableSpots <= 3">
-                  {{ trip.availableSpots > 0 ? trip.availableSpots + ' brīvas vietas' : 'Pilns' }}
+                  {{ trip.availableSpots > 0 ? 'Brīvas vietas: ' + trip.availableSpots : 'Nav brīvu vietu' }}
                 </span>
               </div>
             </div>
@@ -75,20 +75,6 @@ interface TripImage { id: number; path: string; isCover: boolean; }
                 </div>
               </section>
 
-              <!-- Flight schedule -->
-              <section class="detail-section" *ngIf="flightSchedules.length > 0">
-                <h3 class="detail-heading">Lidojumu datumi un laiki</h3>
-                <div class="flight-schedule-list">
-                  <p *ngFor="let entry of flightSchedules" class="flight-entry">{{ entry }}</p>
-                </div>
-              </section>
-
-              <!-- Payment info -->
-              <section class="detail-section" *ngIf="trip.paymentInfo">
-                <h3 class="detail-heading">Apmaksas kārtība</h3>
-                <p class="detail-text">{{ trip.paymentInfo }}</p>
-              </section>
-
               <!-- Price included / Extra charge -->
               <section class="detail-section" *ngIf="priceIncludedItems.length > 0 || extraChargeItems.length > 0">
                 <div *ngIf="priceIncludedItems.length > 0" class="price-items-group">
@@ -107,6 +93,20 @@ interface TripImage { id: number; path: string; isCover: boolean; }
                     </span>
                   </div>
                 </div>
+              </section>
+
+              <!-- Flight schedule -->
+              <section class="detail-section" *ngIf="flightSchedules.length > 0">
+                <h3 class="detail-heading">Lidojumu datumi un laiki</h3>
+                <div class="flight-schedule-list">
+                  <p *ngFor="let entry of flightSchedules" class="flight-entry">{{ entry }}</p>
+                </div>
+              </section>
+
+              <!-- Payment info -->
+              <section class="detail-section" *ngIf="trip.paymentInfo">
+                <h3 class="detail-heading">Apmaksas kārtība</h3>
+                <p class="detail-text">{{ trip.paymentInfo }}</p>
               </section>
 
               <!-- Image gallery (non-cover images) -->
@@ -155,7 +155,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
                     <span><strong>Cenā iekļautā bagāža:</strong> {{ trip.includedBaggageSize }}</span>
                   </li>
                   <li *ngIf="trip.groupSize">
-                    <span><strong>Grupas izmērs:</strong> {{ trip.groupSize }} cilvēki</span>
+                    <span><strong>Dalībnieku skaits:</strong> {{ trip.groupSize }}</span>
                   </li>
                   <li *ngIf="trip.accommodation">
                     <span><strong>Naktsmītnes:</strong> {{ trip.accommodation }}</span>
@@ -198,7 +198,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
 
     .trip-hero-overlay {
       height: 100%;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.65) 100%);
+      // background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.65) 100%);
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
