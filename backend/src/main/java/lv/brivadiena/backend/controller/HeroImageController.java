@@ -46,13 +46,13 @@ public class HeroImageController {
             String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
             Path dest = Paths.get(imagesPath).resolve(filename);
             Files.createDirectories(dest.getParent());
-            file.transferTo(dest.toFile());
+            file.transferTo(dest.toAbsolutePath().toFile());
 
             // Delete old image file and DB record
             List<HeroImage> existing = heroImageRepository.findAll();
             for (HeroImage old : existing) {
                 try {
-                    Files.deleteIfExists(Paths.get(imagesPath).resolve(old.getPath()));
+                    Files.deleteIfExists(Paths.get(imagesPath).resolve(old.getPath()).toAbsolutePath());
                 } catch (Exception ignored) {
                 }
             }
