@@ -32,8 +32,8 @@ export class AppComponent implements OnInit {
     combineLatest([timer(500), this.splashService.ready$]).pipe(take(1))
       .subscribe(() => this.hideSplash());
 
-    // Hard fallback — always hide after 5s regardless
-    timer(5000).pipe(take(1)).subscribe(() => this.hideSplash());
+    // Hard fallback — always hide after 3s regardless
+    timer(3000).pipe(take(1)).subscribe(() => this.hideSplash());
 
     // For non-landing routes, signal ready as soon as navigation completes
     this.router.events.pipe(

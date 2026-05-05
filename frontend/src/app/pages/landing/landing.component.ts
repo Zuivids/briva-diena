@@ -11,7 +11,7 @@ import { SplashService } from '../../shared/services/splash.service';
 import { Trip } from '../../shared/models/trip.model';
 import { Review } from '../../shared/models/review.model';
 import { Observable, of, forkJoin } from 'rxjs';
-import { catchError, switchMap, tap, map } from 'rxjs/operators';
+import { catchError, switchMap, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-landing',
@@ -347,6 +347,15 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  private preloadImage(src: string): Observable<void> {
+    return new Observable(observer => {
+      const img = new Image();
+      img.onload = () => { observer.next(); observer.complete(); };
+      img.onerror = () => { observer.next(); observer.complete(); };
+      img.src = src;
+    });
+  }
+
   private loadSection(section: 'TOP' | 'LAST_CHANCE'): Observable<void> {
     return this.tripService.getLandingTrips(section).pipe(
       switchMap(trips => {
@@ -361,11 +370,13 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
         const imageLoads = trips.map(t =>
           this.tripService.getCoverImage(t.id).pipe(
             catchError(() => of(null)),
-            tap(r => {
+            switchMap(r => {
               if (r) {
                 if (section === 'TOP') this.coverMapTop = { ...this.coverMapTop, [t.id]: r.path };
                 else this.coverMapLastChance = { ...this.coverMapLastChance, [t.id]: r.path };
+                return this.preloadImage('/images/' + r.path);
               }
+              return of(undefined as void);
             })
           )
         );
