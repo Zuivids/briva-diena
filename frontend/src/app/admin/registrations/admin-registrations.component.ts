@@ -28,7 +28,7 @@ interface RegistrationRow {
 
         <div class="page-header mb-4">
           <h2 class="page-title">Pieteikumi</h2>
-          <span class="badge-count">{{ registrations.length }} kopā</span>
+          <span class="badge-count">{{ filtered.length }} no {{ registrations.length }}</span>
         </div>
 
         <div *ngIf="loading" class="text-center py-5">
@@ -57,9 +57,28 @@ interface RegistrationRow {
                   <th>Statuss</th>
                   <th>Reģistrācijas datums</th>
                 </tr>
+                <tr class="filter-row">
+                  <th></th>
+                  <th><input type="text" [(ngModel)]="filterName" (ngModelChange)="onFilterChange()" class="filter-input" placeholder="Meklēt..." /></th>
+                  <th><input type="text" [(ngModel)]="filterPhone" (ngModelChange)="onFilterChange()" class="filter-input" placeholder="Meklēt..." /></th>
+                  <th><input type="text" [(ngModel)]="filterEmail" (ngModelChange)="onFilterChange()" class="filter-input" placeholder="Meklēt..." /></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th><input type="text" [(ngModel)]="filterTrip" (ngModelChange)="onFilterChange()" class="filter-input" placeholder="Meklēt..." /></th>
+                  <th>
+                    <select [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()" class="filter-input filter-select">
+                      <option value="">Visi</option>
+                      <option value="PENDING">Gaida</option>
+                      <option value="CONFIRMED">Apstiprināts</option>
+                      <option value="CANCELLED">Atcelts</option>
+                    </select>
+                  </th>
+                  <th></th>
+                </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let r of registrations">
+                <tr *ngFor="let r of paged">
                   <td class="text-muted small">{{ r.id }}</td>
                   <td class="fw-semibold">{{ r.firstName }} {{ r.lastName }}</td>
                   <td>{{ r.phone }}</td>
@@ -88,6 +107,28 @@ interface RegistrationRow {
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination-bar">
+            <div class="page-size-wrap">
+              <span>Rādīt:</span>
+              <select [(ngModel)]="pageSize" (ngModelChange)="onFilterChange()" class="page-size-select">
+                <option [ngValue]="10">10</option>
+                <option [ngValue]="25">25</option>
+                <option [ngValue]="50">50</option>
+                <option [ngValue]="100">100</option>
+              </select>
+              <span>ierakstus</span>
+            </div>
+            <div class="page-info">
+              {{ filtered.length === 0 ? 0 : (currentPage - 1) * pageSize + 1 }}–{{ currentPage * pageSize > filtered.length ? filtered.length : currentPage * pageSize }} no {{ filtered.length }}
+            </div>
+            <div class="page-nav">
+              <button class="page-btn" [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1">&#8249;</button>
+              <span class="page-num">{{ currentPage }} / {{ pageCount }}</span>
+              <button class="page-btn" [disabled]="currentPage >= pageCount" (click)="currentPage = currentPage + 1">&#8250;</button>
+            </div>
           </div>
         </div>
 
@@ -201,12 +242,141 @@ interface RegistrationRow {
       text-align: center;
       padding: 60px 0;
     }
+
+    .filter-row th {
+      background: #e8eef8;
+      padding: 6px 8px;
+    }
+
+    .filter-input {
+      width: 100%;
+      border: 1px solid #c8d4ec;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.78rem;
+      background: #fff;
+      color: #1a1a2e;
+      outline: none;
+    }
+
+    .filter-input:focus {
+      border-color: #1746a0;
+      box-shadow: 0 0 0 2px rgba(23,70,160,0.12);
+    }
+
+    .filter-select {
+      appearance: auto;
+    }
+
+    .pagination-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #f8faff;
+      border-top: 1px solid #e8eef8;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .page-size-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    .page-size-select {
+      border: 1px solid #c8d4ec;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 0.82rem;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .page-info {
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    .page-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .page-btn {
+      background: #fff;
+      border: 1px solid #c8d4ec;
+      border-radius: 6px;
+      width: 30px;
+      height: 30px;
+      font-size: 1.1rem;
+      line-height: 1;
+      cursor: pointer;
+      color: #1746a0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+
+    .page-btn:hover:not(:disabled) { background: #e8eef8; }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .page-num {
+      font-size: 0.85rem;
+      color: #333;
+      min-width: 54px;
+      text-align: center;
+    }
   `]
 })
 export class AdminRegistrationsComponent implements OnInit {
   registrations: RegistrationRow[] = [];
   loading = true;
   error = '';
+
+  // Filters
+  filterName = '';
+  filterPhone = '';
+  filterEmail = '';
+  filterTrip = '';
+  filterStatus = '';
+
+  // Pagination
+  pageSize = 25;
+  currentPage = 1;
+
+  get filtered(): RegistrationRow[] {
+    const name = this.filterName.toLowerCase();
+    const phone = this.filterPhone.toLowerCase();
+    const email = this.filterEmail.toLowerCase();
+    const trip = this.filterTrip.toLowerCase();
+    return this.registrations.filter(r => {
+      if (name && !`${r.firstName} ${r.lastName}`.toLowerCase().includes(name)) return false;
+      if (phone && !r.phone.toLowerCase().includes(phone)) return false;
+      if (email && !r.email.toLowerCase().includes(email)) return false;
+      if (trip && !(r.trip?.name ?? '').toLowerCase().includes(trip)) return false;
+      if (this.filterStatus && r.status !== this.filterStatus) return false;
+      return true;
+    });
+  }
+
+  get pageCount(): number {
+    return Math.max(1, Math.ceil(this.filtered.length / this.pageSize));
+  }
+
+  get paged(): RegistrationRow[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filtered.slice(start, start + this.pageSize);
+  }
+
+  onFilterChange(): void {
+    this.currentPage = 1;
+  }
 
   private readonly apiUrl = '/api/registrations';
 

@@ -23,7 +23,7 @@ import { catchError } from 'rxjs/operators';
       <section class="hero-section">
         <img *ngIf="heroImageLoaded" [src]="(adminState.heroImageSrc$ | async) || 'landing_page_image.png'" alt="Hero image" class="hero-image" />
         <div class="hero-text">
-          <h2>Mazas grupas – lieli iespaidi</h2>
+          <h1>Mazas grupas – lieli iespaidi</h1>
         </div>
       </section>
 
@@ -171,7 +171,7 @@ import { catchError } from 'rxjs/operators';
       transform: translateY(-50%);
     }
     .hero-text h1 {
-      color: #fff; font-size: clamp(1.75rem, 4vw, 3.5rem); font-weight: 700;
+      color: #fff; font-size: clamp(1.4rem, 4vw, 2.5rem); font-weight: 700;
       text-shadow: 0 2px 12px rgba(0,0,0,0.45); margin: 0; line-height: 1.2;
     }
 
