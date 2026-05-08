@@ -126,7 +126,7 @@ import { Trip } from '../../shared/models/trip.model';
                 <label class="consent-label">
                   <input formControlName="travelAgreement" type="checkbox" class="consent-checkbox" />
                   <span>
-                    Piekrītu <button type="button" class="policy-link-btn" (click)="downloadAgreement()" [disabled]="!canDownloadAgreement" [title]="!canDownloadAgreement ? 'Lūdzu aizpildiet vārdu un uzvārdu' : ''" >ceļošanas līgumam</button>. Ceļotājs apliecina, ka ir iepazinies ar līguma noteikumiem
+                    Piekrītu <button type="button" class="policy-link-btn" (click)="downloadAgreement()" [disabled]="!canDownloadAgreement" [title]="!canDownloadAgreement ? 'Lūdzu aizpildiet visus obligātos laukus un izvēlieties ceļojumu' : ''" >ceļošanas līgumam</button>. Ceļotājs apliecina, ka ir iepazinies ar līguma noteikumiem
                     un tiem piekrīt pilnā apmērā, veicot avansa maksājumu. Avansa maksājuma veikšana tiek
                     uzskatīta par Ceļotāja nepārprotamu piekrišanu šī līguma noteikumiem un ir juridiski
                     saistoša. Līgums uzskatāms par noslēgtu brīdī, kad Tūrisma operators ir saņēmis avansa
@@ -466,7 +466,14 @@ export class RegistrationComponent implements OnInit {
 
   get canDownloadAgreement(): boolean {
     const v = this.form.value;
-    return !!(v.firstName?.trim() && v.lastName?.trim());
+    return !!(
+      v.firstName?.trim() &&
+      v.lastName?.trim() &&
+      v.phone?.trim() &&
+      v.email?.trim() &&
+      v.personalIdNumber?.trim() &&
+      this.trip
+    );
   }
 
   downloadAgreement(): void {
