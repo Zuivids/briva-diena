@@ -43,6 +43,14 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/policies/privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent)
   },
   {
+    path: 'policies/pirmsliguma-informacija',
+    loadComponent: () => import('./pages/policies/pirmsliguma-informacija/pirmsliguma-informacija.component').then(m => m.PirmsligumainformacijaComponent)
+  },
+  {
+    path: 'policies/standarta-informacijas-veidlapa',
+    loadComponent: () => import('./pages/policies/standarta-informacijas-veidlapa/standarta-informacijas-veidlapa.component').then(m => m.StandartatInformacijasVeidlapaComponent)
+  },
+  {
     path: 'admin/login',
     loadComponent: () => import('./admin/login/admin-login.component').then(m => m.AdminLoginComponent)
   },

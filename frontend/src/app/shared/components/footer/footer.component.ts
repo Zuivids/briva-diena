@@ -50,6 +50,8 @@ import { RouterLink } from '@angular/router';
           <div class="footer-bottom-left">
             <span class="footer-copyright">&#169; 2026 <a routerLink="/">Brīva diena</a></span>
             <a routerLink="/policies/privacy-policy" class="footer-policy-link">Privātuma politika</a>
+            <a routerLink="/policies/pirmsliguma-informacija" class="footer-policy-link">Pirmslīguma informācija</a>
+            <a routerLink="/policies/standarta-informacijas-veidlapa" class="footer-policy-link">Standarta informācijas veidlapa</a>
             <span class="footer-designedBy">Izstrādāja
               <a href="https://www.linkedin.com/in/m%C4%81rti%C5%86%C5%A1-%C5%BEaimis-0a9b21394" target="_blank" rel="noopener noreferrer" class="footer-designedBy-link">
                 <svg class="footer-linkedin-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="13" height="13" aria-hidden="true">

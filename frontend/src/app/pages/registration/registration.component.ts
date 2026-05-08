@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } 
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { TripService } from '../../shared/services/trip.service';
 import { RegistrationService } from '../../shared/services/registration.service';
+import { PdfService } from '../../shared/services/pdf.service';
 import { Trip } from '../../shared/models/trip.model';
 
 @Component({
@@ -125,7 +126,7 @@ import { Trip } from '../../shared/models/trip.model';
                 <label class="consent-label">
                   <input formControlName="travelAgreement" type="checkbox" class="consent-checkbox" />
                   <span>
-                    Piekrītu ceļošanas līgumam. Ceļotājs apliecina, ka ir iepazinies ar līguma noteikumiem
+                    Piekrītu <button type="button" class="policy-link-btn" (click)="downloadAgreement()" [disabled]="!canDownloadAgreement" [title]="!canDownloadAgreement ? 'Lūdzu aizpildiet vārdu un uzvārdu' : ''" >ceļošanas līgumam</button>. Ceļotājs apliecina, ka ir iepazinies ar līguma noteikumiem
                     un tiem piekrīt pilnā apmērā, veicot avansa maksājumu. Avansa maksājuma veikšana tiek
                     uzskatīta par Ceļotāja nepārprotamu piekrišanu šī līguma noteikumiem un ir juridiski
                     saistoša. Līgums uzskatāms par noslēgtu brīdī, kad Tūrisma operators ir saņēmis avansa
@@ -299,6 +300,29 @@ import { Trip } from '../../shared/models/trip.model';
       padding-left: 27px;
     }
 
+    .policy-link-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      color: #e87722;
+      text-decoration: underline;
+      font-weight: 600;
+      font-size: inherit;
+      cursor: pointer;
+      font-family: inherit;
+      line-height: inherit;
+    }
+
+    .policy-link-btn:hover:not(:disabled) {
+      color: #c45e0a;
+    }
+
+    .policy-link-btn:disabled {
+      color: #b0b0b0;
+      text-decoration: underline;
+      cursor: not-allowed;
+    }
+
     /* Submit */
     .btn-submit {
       background: #e87722;
@@ -388,7 +412,8 @@ export class RegistrationComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private tripService: TripService,
-    private registrationService: RegistrationService
+    private registrationService: RegistrationService,
+    private pdfService: PdfService
   ) {
     this.form = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2)]],
@@ -438,6 +463,25 @@ export class RegistrationComponent implements OnInit {
   }
 
   get f() { return this.form.controls; }
+
+  get canDownloadAgreement(): boolean {
+    const v = this.form.value;
+    return !!(v.firstName?.trim() && v.lastName?.trim());
+  }
+
+  downloadAgreement(): void {
+    const v = this.form.value;
+    this.pdfService.downloadAgreement({
+      firstName: v.firstName ?? '',
+      lastName: v.lastName ?? '',
+      personalId: v.personalIdNumber ?? '',
+      email: v.email ?? '',
+      phone: v.phone ?? '',
+      tripName: this.trip?.name,
+      tripStartDate: this.trip?.startDate ? new Date(this.trip.startDate).toLocaleDateString('lv-LV') : undefined,
+      tripEndDate: this.trip?.endDate ? new Date(this.trip.endDate).toLocaleDateString('lv-LV') : undefined,
+    });
+  }
 
   submit(): void {
     this.submitted = true;
