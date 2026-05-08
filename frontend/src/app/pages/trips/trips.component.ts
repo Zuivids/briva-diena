@@ -75,7 +75,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
           <!-- TRIPS GRID -->
           <div class="trips-area">
             <div *ngIf="filteredTrips.length > 0" class="row g-4">
-              <div *ngFor="let trip of filteredTrips" class="col-sm-6 col-xl-4">
+              <div *ngFor="let trip of pagedTrips" class="col-sm-6 col-xl-4">
                 <a [routerLink]="['/trip', trip.id]" class="trip-card-link">
                 <div class="trip-card">
                   <div class="trip-card-img"
@@ -104,6 +104,15 @@ interface MonthOption { key: string; year: number; month: number; label: string;
               <p class="text-muted">
                 {{ trips.length === 0 ? 'Šobrīd nav pieejamu ceļojumu. Lūdzu, pārbaudiet vēlāk.' : 'Nav ceļojumu, kas atbilst filtriem.' }}
               </p>
+            </div>
+
+            <!-- PAGINATOR -->
+            <div *ngIf="totalPages > 1" class="paginator">
+              <button class="pag-btn" [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">&#8249;</button>
+              <ng-container *ngFor="let p of pageNumbers">
+                <button class="pag-btn" [class.pag-active]="p === currentPage" (click)="goToPage(p)">{{ p + 1 }}</button>
+              </ng-container>
+              <button class="pag-btn" [disabled]="currentPage === totalPages - 1" (click)="goToPage(currentPage + 1)">&#8250;</button>
             </div>
           </div>
 
@@ -372,6 +381,47 @@ interface MonthOption { key: string; year: number; month: number; label: string;
       padding: 60px 0;
     }
 
+    /* ---- PAGINATOR ---- */
+    .paginator {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      margin-top: 36px;
+      flex-wrap: wrap;
+    }
+
+    .pag-btn {
+      min-width: 38px;
+      height: 38px;
+      padding: 0 10px;
+      border: 1.5px solid #e87722;
+      border-radius: 6px;
+      background: #fff;
+      color: #e87722;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      line-height: 1;
+    }
+
+    .pag-btn:hover:not([disabled]) {
+      background: #e87722;
+      color: #fff;
+    }
+
+    .pag-btn.pag-active {
+      background: #e87722;
+      color: #fff;
+      border-color: #e87722;
+    }
+
+    .pag-btn[disabled] {
+      opacity: 0.35;
+      cursor: default;
+    }
+
     @media (max-width: 768px) {
       .page-layout {
         flex-direction: column;
@@ -389,6 +439,27 @@ export class TripsComponent implements OnInit {
   coverMap: Record<string, string> = {};
   loading = true;
 
+  readonly pageSize = 9;
+  currentPage = 0;
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredTrips.length / this.pageSize);
+  }
+
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i);
+  }
+
+  get pagedTrips(): Trip[] {
+    const start = this.currentPage * this.pageSize;
+    return this.filteredTrips.slice(start, start + this.pageSize);
+  }
+
+  goToPage(page: number): void {
+    this.currentPage = page;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   availableMonths: MonthOption[] = [];
   availableDurations: number[] = [];
 
@@ -402,9 +473,10 @@ export class TripsComponent implements OnInit {
   ngOnInit(): void {
     this.tripService.getAllTrips().subscribe({
       next: (data) => {
-        const visible = data.filter(t => !t.hidden);
+        const visible = data.filter(t => !t.hidden)
+          .sort((a, b) => b.startDate.localeCompare(a.startDate));
         this.trips = visible;
-        this.filteredTrips = visible;
+        this.filteredTrips = [...visible];
         this.loading = false;
         this.buildFilterOptions();
         if (data.length === 0) { this.splashService.markReady(); return; }
@@ -460,6 +532,7 @@ export class TripsComponent implements OnInit {
     const selectedMonths = Object.entries(this.monthSel).filter(([, v]) => v).map(([k]) => k);
     const selectedDurations = Object.entries(this.durationSel).filter(([, v]) => v).map(([k]) => Number(k));
 
+    this.currentPage = 0;
     this.filteredTrips = this.trips.filter(trip => {
       if (selectedMonths.length > 0) {
         const d = new Date(trip.startDate);
@@ -471,7 +544,7 @@ export class TripsComponent implements OnInit {
       if (this.minPrice !== null && euros < this.minPrice) return false;
       if (this.maxPrice !== null && euros > this.maxPrice) return false;
       return true;
-    });
+    }).sort((a, b) => b.startDate.localeCompare(a.startDate));
   }
 
   resetFilters(): void {
@@ -479,6 +552,7 @@ export class TripsComponent implements OnInit {
     this.durationSel = {};
     this.minPrice = null;
     this.maxPrice = null;
+    this.currentPage = 0;
     this.filteredTrips = [...this.trips];
   }
 }
