@@ -50,16 +50,37 @@ interface TripForm {
             <button class="btn btn-primary btn-sm" (click)="openCreateForm()">+ Pievienot ceļojumu</button>
           </div>
 
+          <!-- ── Filters ── -->
+          <div class="admin-filters" *ngIf="!loadingTrips && trips.length > 0">
+            <div class="af-field">
+              <label class="af-label">Nosaukums</label>
+              <input type="text" class="form-control form-control-sm" placeholder="Meklēt..." [(ngModel)]="filterName" />
+            </div>
+            <div class="af-field">
+              <label class="af-label">Sākuma datums</label>
+              <input type="date" class="form-control form-control-sm" [(ngModel)]="filterStartDate" />
+            </div>
+            <div class="af-field">
+              <label class="af-label">Beigu datums</label>
+              <input type="date" class="form-control form-control-sm" [(ngModel)]="filterEndDate" />
+            </div>
+            <div class="af-field">
+              <label class="af-label">Ilgums (dienas)</label>
+              <input type="number" class="form-control form-control-sm" placeholder="piem., 7" min="1" [(ngModel)]="filterDuration" />
+            </div>
+            <button class="btn btn-sm btn-outline-secondary" (click)="clearAdminFilters()" *ngIf="hasAdminFilters">Notīrīt</button>
+          </div>
+
           <div *ngIf="loadingTrips" class="text-center py-4">
             <div class="spinner-border spinner-border-sm text-primary"></div>
           </div>
 
-          <div *ngIf="!loadingTrips && trips.length === 0" class="text-muted py-3 text-center">
-            Nav pievienotu ceļojumu.
+          <div *ngIf="!loadingTrips && filteredTrips.length === 0" class="text-muted py-3 text-center">
+            {{ trips.length === 0 ? 'Nav pievienotu ceļojumu.' : 'Nav ceļojumu, kas atbilst filtriem.' }}
           </div>
 
-          <div class="trips-list" *ngIf="!loadingTrips && trips.length > 0">
-            <div *ngFor="let trip of trips" class="trip-list-item">
+          <div class="trips-list" *ngIf="!loadingTrips && filteredTrips.length > 0">
+            <div *ngFor="let trip of filteredTrips" class="trip-list-item">
               <div class="trip-list-info">
                 <strong class="trip-list-name">{{ trip.name }}</strong>
                 <div class="trip-list-meta">
@@ -600,9 +621,38 @@ interface TripForm {
       font-size: 0.95rem;
     }
 
+    /* ---- ADMIN FILTERS ---- */
+    .admin-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+      padding: 14px 0 18px;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 16px;
+    }
+
+    .af-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 160px;
+    }
+
+    .af-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #999;
+      margin: 0;
+    }
+
     @media (max-width: 600px) {
       .admin-section { padding: 18px 14px; }
       .cover-preview, .cover-placeholder { width: 100%; }
+      .admin-filters { flex-direction: column; }
+      .af-field { min-width: 100%; }
     }
   `]
 })
@@ -611,6 +661,35 @@ export class TripManagementComponent implements OnInit {
 
   trips: Trip[] = [];
   loadingTrips = false;
+
+  filterName = '';
+  filterStartDate = '';
+  filterEndDate = '';
+  filterDuration: number | null = null;
+
+  get hasAdminFilters(): boolean {
+    return !!(this.filterName || this.filterStartDate || this.filterEndDate || this.filterDuration);
+  }
+
+  get filteredTrips(): Trip[] {
+    return this.trips.filter(t => {
+      if (this.filterName && !t.name.toLowerCase().includes(this.filterName.toLowerCase())) return false;
+      if (this.filterStartDate && t.startDate < this.filterStartDate) return false;
+      if (this.filterEndDate && t.endDate > this.filterEndDate) return false;
+      if (this.filterDuration) {
+        const dur = Math.round((new Date(t.endDate).getTime() - new Date(t.startDate).getTime()) / 86400000) + 1;
+        if (dur !== this.filterDuration) return false;
+      }
+      return true;
+    });
+  }
+
+  clearAdminFilters(): void {
+    this.filterName = '';
+    this.filterStartDate = '';
+    this.filterEndDate = '';
+    this.filterDuration = null;
+  }
   showForm = false;
   editingTripId: string | null = null;
 
