@@ -18,7 +18,7 @@ import { FormsModule } from '@angular/forms';
           <h3 class="mt-4">Rekvizīti</h3>
           <p>
             <strong>SIA "Brīva diena"</strong><br>
-            PVN nr.: 40203699357<br>
+            Reģ. nr.: 40203699357<br>
             PTAC datubāzes reģistrācijas Nr.: T-2026-8<br>
             Juridiskā adrese: Turaidas iela 110 k-2 - 47, Jūrmala, LV-2015
           </p>
