@@ -3,13 +3,11 @@ import { CommonModule, DOCUMENT } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminStateService } from '../../shared/services/admin-state.service';
 import { TripService } from '../../shared/services/trip.service';
-import { ReviewService } from '../../shared/services/review.service';
 import { InstagramService } from '../../shared/services/instagram.service';
 import { HeroImageService } from '../../shared/services/hero-image.service';
 import { SiteContentService } from '../../shared/services/site-content.service';
 import { SplashService } from '../../shared/services/splash.service';
 import { Trip } from '../../shared/models/trip.model';
-import { Review } from '../../shared/models/review.model';
 import { Observable, of, forkJoin } from 'rxjs';
 import { catchError, switchMap, map } from 'rxjs/operators';
 
@@ -137,24 +135,8 @@ import { catchError, switchMap, map } from 'rxjs/operators';
       <!-- Reviews Section -->
       <section class="reviews-section py-5">
         <div class="container">
-          <h2 class="section-title">ATSAUKSMES</h2>
-
-          <div *ngIf="reviews.length > 0" class="row g-4 mb-4">
-            <div *ngFor="let review of reviews" class="col-md-4">
-              <div class="review-card">
-                <div class="review-stars mb-2">
-                  <span *ngFor="let s of getStars(review.rating)" class="star">&#9733;</span>
-                </div>
-                <p class="review-text">"{{ review.reviewText }}"</p>
-                <p class="review-name">&#8212; {{ review.customerName }}</p>
-              </div>
-            </div>
-          </div>
-          <p *ngIf="reviews.length === 0 && !reviewsLoading" class="text-muted">Šobrīd nav atsauksmju.</p>
-
-          <div class="text-center mt-2">
-            <a routerLink="/reviews" class="btn btn-outline-primary">Apskatīt vairāk atsauksmju</a>
-          </div>
+          <h2 class="section-title mb-5">ATSAUKSMES</h2>
+          <div class="elfsight-app-6601583c-d804-470b-9bd7-9fc8d21ba0c3" data-elfsight-app-lazy></div>
         </div>
       </section>
 
@@ -245,14 +227,6 @@ import { catchError, switchMap, map } from 'rxjs/operators';
 
     .about-text { font-size: 1.05rem; line-height: 1.7; color: #444; white-space: pre-wrap; }
 
-    .review-card {
-      background: #fff; border: 1px solid #e8ebf4;
-      padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); height: 100%;
-    }
-    .star { color: #f5a623; font-size: 1rem; }
-    .review-text { font-size: 0.9rem; color: #555; font-style: italic; line-height: 1.6; }
-    .review-name { font-size: 0.875rem; font-weight: 600; color: #333; margin-bottom: 0; }
-
     .instagram-scroll {
       display: flex;
       gap: 20px;
@@ -275,18 +249,15 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   heroImageLoaded = false;
   topTrips: Trip[] = [];
   lastChanceTrips: Trip[] = [];
-  reviews: Review[] = [];
   coverMapTop: Record<string, string> = {};
   coverMapLastChance: Record<string, string> = {};
   topLoading = true;
   lastChanceLoading = true;
-  reviewsLoading = true;
   instagramUrls: string[] = [];
 
   constructor(
     public adminState: AdminStateService,
     private tripService: TripService,
-    private reviewService: ReviewService,
     private instagramService: InstagramService,
     private heroImageService: HeroImageService,
     private siteContentService: SiteContentService,
@@ -310,10 +281,6 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     forkJoin([this.loadSection('TOP'), this.loadSection('LAST_CHANCE')])
       .subscribe(() => this.splashService.markReady());
-    this.reviewService.getLatestReviews(3).subscribe({
-      next: (data) => { this.reviews = data; this.reviewsLoading = false; },
-      error: () => { this.reviewsLoading = false; }
-    });
     this.adminState.instagramPostUrls$.subscribe(urls => {
       this.instagramUrls = urls;
       setTimeout(() => this.processInstagramEmbeds(), 200);
@@ -390,8 +357,5 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  getStars(rating: number): number[] {
-    return Array(rating).fill(0);
-  }
 }
 
