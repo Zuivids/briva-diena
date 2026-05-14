@@ -60,6 +60,8 @@ import { SiteContentService } from '../../shared/services/site-content.service';
     .about-row-image {
       flex-shrink: 0;
       width: 340px;
+      overflow: hidden;
+      border-radius: 2px;
     }
 
     .about-para {
@@ -67,12 +69,25 @@ import { SiteContentService } from '../../shared/services/site-content.service';
       line-height: 1.8;
       color: #444;
       margin-bottom: 0;
+      white-space: pre-wrap;
     }
 
     .about-image {
       width: 100%;
       object-fit: cover;
       box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      display: block;
+      transform: scale(1);
+      filter: brightness(1);
+      transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  filter 0.7s ease,
+                  box-shadow 0.7s ease;
+    }
+
+    .about-row-image:hover .about-image {
+      transform: scale(1.06);
+      filter: brightness(1.06);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.22);
     }
 
     @media (max-width: 768px) {

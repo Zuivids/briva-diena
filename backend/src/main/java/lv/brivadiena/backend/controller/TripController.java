@@ -215,7 +215,7 @@ public class TripController {
             return ResponseEntity.notFound().build();
         try {
             String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
-            Path dest = Paths.get(imagesPath).resolve(filename);
+            Path dest = Paths.get(imagesPath).toAbsolutePath().resolve(filename);
             Files.createDirectories(dest.getParent());
             file.transferTo(dest.toFile());
             TripImage img = new TripImage(opt.get(), filename, false, 0);
@@ -277,7 +277,7 @@ public class TripController {
         if (opt.isEmpty())
             return ResponseEntity.notFound().build();
         try {
-            Files.deleteIfExists(Paths.get(imagesPath).resolve(opt.get().getPath()));
+            Files.deleteIfExists(Paths.get(imagesPath).toAbsolutePath().resolve(opt.get().getPath()));
         } catch (Exception ignored) {
         }
         tripImageRepository.deleteById(imageId);

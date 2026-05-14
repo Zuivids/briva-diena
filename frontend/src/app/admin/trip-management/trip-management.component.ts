@@ -237,7 +237,7 @@ interface TripForm {
             <div class="row g-4">
               <div class="col-sm-6">
                 <label class="field-label">Iekļauts cenā</label>
-                <div *ngFor="let item of priceIncludedItems; let i = index" class="flight-entry-row">
+                <div *ngFor="let item of priceIncludedItems; let i = index; trackBy: trackByIndex" class="flight-entry-row">
                   <input type="text" [(ngModel)]="priceIncludedItems[i]" [name]="'priceIncluded' + i"
                          class="form-control field-input" placeholder="piem., Avioreisi" />
                   <button *ngIf="priceIncludedItems.length > 1" type="button"
@@ -248,7 +248,7 @@ interface TripForm {
               </div>
               <div class="col-sm-6">
                 <label class="field-label">Papildus izmaksas</label>
-                <div *ngFor="let item of extraChargeItems; let i = index" class="flight-entry-row">
+                <div *ngFor="let item of extraChargeItems; let i = index; trackBy: trackByIndex" class="flight-entry-row">
                   <input type="text" [(ngModel)]="extraChargeItems[i]" [name]="'extraCharge' + i"
                          class="form-control field-input" placeholder="piem., Pārbaudīta bagāža" />
                   <button *ngIf="extraChargeItems.length > 1" type="button"
@@ -344,8 +344,12 @@ interface TripForm {
           <div class="form-section">
             <h5 class="section-label">13. Papildu foto galerija</h5>
             <div class="additional-photos-grid">
+              <div *ngFor="let img of existingAdditionalImages; let i = index" class="add-photo-thumb">
+                <img [src]="'/images/' + img.path" alt="Photo {{i+1}}" />
+                <button type="button" class="remove-photo-btn" (click)="removeExistingAdditionalImage(i)">✕</button>
+              </div>
               <div *ngFor="let preview of additionalPhotoPreviews; let i = index" class="add-photo-thumb">
-                <img [src]="preview" alt="Photo {{i+1}}" />
+                <img [src]="preview" alt="New photo {{i+1}}" />
                 <button type="button" class="remove-photo-btn" (click)="removeAdditionalPhoto(i)">✕</button>
               </div>
               <label class="add-photo-add-btn upload-label">
@@ -703,6 +707,7 @@ export class TripManagementComponent implements OnInit {
   coverPhotoPreview: string | null = null;
   additionalPhotoFiles: File[] = [];
   additionalPhotoPreviews: string[] = [];
+  existingAdditionalImages: { id: number; path: string }[] = [];
 
   saving = false;
   saveError = '';
@@ -762,6 +767,7 @@ export class TripManagementComponent implements OnInit {
     this.coverPhotoPreview = null;
     this.additionalPhotoFiles = [];
     this.additionalPhotoPreviews = [];
+    this.existingAdditionalImages = [];
     this.saveError = '';
     this.saveSuccess = '';
     this.showForm = true;
@@ -822,14 +828,21 @@ export class TripManagementComponent implements OnInit {
     this.coverPhotoPreview = null;
     this.additionalPhotoFiles = [];
     this.additionalPhotoPreviews = [];
+    this.existingAdditionalImages = [];
     this.saveError = '';
     this.saveSuccess = '';
     this.showForm = true;
 
-    // Load existing cover image preview
-    this.tripService.getCoverImage(String(trip.id)).subscribe({
-      next: (cover) => { if (cover?.path) this.coverPhotoPreview = '/images/' + cover.path; },
-      error: () => { /* no cover image, leave null */ }
+    // Load existing images (cover + additional)
+    this.tripService.getTripImages(String(trip.id)).subscribe({
+      next: (images) => {
+        const cover = images.find(img => img.isCover);
+        if (cover) this.coverPhotoPreview = '/images/' + cover.path;
+        this.existingAdditionalImages = images
+          .filter(img => !img.isCover)
+          .map(img => ({ id: img.id, path: img.path }));
+      },
+      error: () => { /* ignore */ }
     });
   }
 
@@ -877,6 +890,15 @@ export class TripManagementComponent implements OnInit {
   removeAdditionalPhoto(index: number) {
     this.additionalPhotoFiles.splice(index, 1);
     this.additionalPhotoPreviews.splice(index, 1);
+  }
+
+  removeExistingAdditionalImage(index: number) {
+    if (!this.editingTripId) return;
+    const img = this.existingAdditionalImages[index];
+    this.tripService.deleteImage(this.editingTripId, img.id).subscribe({
+      next: () => { this.existingAdditionalImages.splice(index, 1); },
+      error: () => alert('Neizdevās dzēst attēlu.')
+    });
   }
 
   addFlightEntry() {
@@ -943,6 +965,7 @@ export class TripManagementComponent implements OnInit {
     this.coverPhotoPreview = null;
     this.additionalPhotoFiles = [];
     this.additionalPhotoPreviews = [];
+    this.existingAdditionalImages = [];
     this.saveError = '';
     this.saveSuccess = '';
     this.showForm = true;
@@ -986,6 +1009,8 @@ export class TripManagementComponent implements OnInit {
 
   // TypeScript helper to use String() in template
   String(val: unknown): string { return String(val); }
+
+  trackByIndex(index: number): number { return index; }
 
   async saveTrip() {
     if (!this.form.name || !this.form.startDate || !this.form.endDate) {

@@ -51,14 +51,14 @@ public class AboutPageController {
         }
         try {
             String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
-            Path dest = Paths.get(imagesPath).resolve(filename);
+            Path dest = Paths.get(imagesPath).toAbsolutePath().resolve(filename);
             Files.createDirectories(dest.getParent());
             file.transferTo(dest.toFile());
 
             // Remove existing record (and file) for this slot
             aboutPageImageRepository.findBySlotIndex(slotIndex).ifPresent(existing -> {
                 try {
-                    Files.deleteIfExists(Paths.get(imagesPath).resolve(existing.getPath()));
+                    Files.deleteIfExists(Paths.get(imagesPath).toAbsolutePath().resolve(existing.getPath()));
                 } catch (Exception ignored) {
                 }
                 aboutPageImageRepository.delete(existing);
@@ -85,7 +85,7 @@ public class AboutPageController {
     public ResponseEntity<Void> deleteAboutImage(@PathVariable int slotIndex) {
         aboutPageImageRepository.findBySlotIndex(slotIndex).ifPresent(img -> {
             try {
-                Files.deleteIfExists(Paths.get(imagesPath).resolve(img.getPath()));
+                Files.deleteIfExists(Paths.get(imagesPath).toAbsolutePath().resolve(img.getPath()));
             } catch (Exception ignored) {
             }
             aboutPageImageRepository.delete(img);

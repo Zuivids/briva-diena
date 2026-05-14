@@ -153,6 +153,7 @@ import { Review } from '../../shared/models/review.model';
           <div class="mt-1 d-flex align-items-center gap-2">
             <button class="btn btn-primary btn-sm" (click)="saveAboutPage()">Saglabāt</button>
             <span *ngIf="aboutPageSaved" class="text-success small">Saglabāts!</span>
+            <span *ngIf="aboutImageError" class="text-danger small">{{ aboutImageError }}</span>
           </div>
         </section>
 
@@ -630,6 +631,7 @@ export class AdminDashboardComponent implements OnInit {
   aboutPageContent = '';
   aboutSections: string[] = ['', '', ''];
   aboutPageSaved = false;
+  aboutImageError = '';
   aboutPageImagePreview: string | null = null;
   aboutPageImages: string[] = [];
   readonly slotIndices = [0, 1, 2];
@@ -937,25 +939,33 @@ export class AdminDashboardComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
+    this.aboutImageError = '';
     this.aboutImageService.uploadImage(index, file).subscribe({
       next: (img) => {
         const updated = [...this.aboutPageImages];
         updated[index] = '/images/' + img.path;
         this.aboutPageImages = updated;
       },
-      error: () => {}
+      error: (err) => {
+        this.aboutImageError = 'Attēla augšupielāde neizdevās. Pārbaudiet, vai backend darbojas (localhost:8080).';
+        console.error('About image upload error:', err);
+      }
     });
     input.value = '';
   }
 
   removeAboutPageSideImage(index: number): void {
+    this.aboutImageError = '';
     this.aboutImageService.deleteImage(index).subscribe({
       next: () => {
         const updated = [...this.aboutPageImages];
         updated[index] = '';
         this.aboutPageImages = updated;
       },
-      error: () => {}
+      error: (err) => {
+        this.aboutImageError = 'Attēla dzēšana neizdevās.';
+        console.error('About image delete error:', err);
+      }
     });
   }
 

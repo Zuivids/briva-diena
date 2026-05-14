@@ -243,7 +243,7 @@ import { catchError, switchMap, map } from 'rxjs/operators';
     }
     .btn-register-sm:hover { background: #cf6510; color: #fff; }
 
-    .about-text { font-size: 1.05rem; line-height: 1.7; color: #444; }
+    .about-text { font-size: 1.05rem; line-height: 1.7; color: #444; white-space: pre-wrap; }
 
     .review-card {
       background: #fff; border: 1px solid #e8ebf4;
