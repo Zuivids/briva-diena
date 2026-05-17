@@ -42,6 +42,9 @@ public class Registration {
     @Column(name = "passport_expiration_date")
     private LocalDate passportExpirationDate;
 
+    @Column(name = "parent_id")
+    private Long parentId;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -152,5 +155,13 @@ public class Registration {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 }

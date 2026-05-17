@@ -54,13 +54,15 @@ public class RegistrationController {
         m.put("passportNumber", r.getPassportNumber());
         m.put("passportExpirationDate", r.getPassportExpirationDate());
         m.put("status", r.getStatus());
+        m.put("parentId", r.getParentId());
         m.put("createdAt", r.getCreatedAt());
         if (r.getTrip() != null) {
             m.put("trip", Map.of(
                     "id", r.getTrip().getId(),
                     "name", r.getTrip().getName(),
                     "startDate", r.getTrip().getStartDate() != null ? r.getTrip().getStartDate().toString() : "",
-                    "endDate", r.getTrip().getEndDate() != null ? r.getTrip().getEndDate().toString() : ""));
+                    "endDate", r.getTrip().getEndDate() != null ? r.getTrip().getEndDate().toString() : "",
+                    "priceCents", r.getTrip().getPriceCents() != null ? r.getTrip().getPriceCents() : 0L));
         }
         return m;
     }
@@ -135,11 +137,22 @@ public class RegistrationController {
 
             Object expiryRaw = body.get("passportExpiryDate");
             if (expiryRaw != null && !expiryRaw.toString().isBlank()) {
-                // Accept both "yyyy-MM-dd" and full ISO datetime strings
-                String dateStr = expiryRaw.toString().length() > 10
-                        ? expiryRaw.toString().substring(0, 10)
-                        : expiryRaw.toString();
-                reg.setPassportExpirationDate(LocalDate.parse(dateStr));
+                try {
+                    String dateStr = expiryRaw.toString().length() > 10
+                            ? expiryRaw.toString().substring(0, 10)
+                            : expiryRaw.toString();
+                    reg.setPassportExpirationDate(LocalDate.parse(dateStr));
+                } catch (Exception e) {
+                    log.warn("Invalid passport expiry date '{}', ignoring", expiryRaw);
+                }
+            }
+
+            Object parentIdRaw = body.get("parentId");
+            if (parentIdRaw != null) {
+                try {
+                    reg.setParentId(Long.parseLong(parentIdRaw.toString()));
+                } catch (NumberFormatException ignored) {
+                }
             }
 
             Registration saved = registrationRepository.save(reg);

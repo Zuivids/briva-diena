@@ -2,6 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { PdfService } from '../../shared/services/pdf.service';
 
 interface RegistrationRow {
   id: number;
@@ -14,7 +15,9 @@ interface RegistrationRow {
   passportExpirationDate?: string;
   status: string;
   createdAt: string;
-  trip?: { id: number; name: string; startDate?: string; endDate?: string };
+  parentId?: number;
+  companions?: RegistrationRow[];
+  trip?: { id: number; name: string; startDate?: string; endDate?: string; priceCents?: number };
   updating?: boolean;
 }
 
@@ -57,6 +60,7 @@ interface RegistrationRow {
                   <th>Ceļojuma datums</th>
                   <th>Statuss</th>
                   <th>Reģistrācijas datums</th>
+                  <th></th>
                 </tr>
                 <tr class="filter-row">
                   <th></th>
@@ -77,40 +81,79 @@ interface RegistrationRow {
                     </select>
                   </th>
                   <th><input type="text" [(ngModel)]="filterCreatedAt" (ngModelChange)="onFilterChange()" class="filter-input" placeholder="dd.mm.gggg" /></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let r of paged">
-                  <td class="text-muted small">{{ r.id }}</td>
-                  <td class="fw-semibold">{{ r.firstName }} {{ r.lastName }}</td>
-                  <td>{{ r.phone }}</td>
-                  <td>
-                    <a [href]="'mailto:' + r.email" class="email-link">{{ r.email }}</a>
-                  </td>
-                  <td>{{ r.personalIdNumber || 'â€”' }}</td>
-                  <td>{{ r.passportNumber || 'â€”' }}</td>
-                  <td>{{ r.passportExpirationDate ? (r.passportExpirationDate | date:'dd.MM.yyyy') : 'â€”' }}</td>
-                  <td>{{ r.trip?.name || '—' }}</td>
-                  <td class="text-muted small">
-                    <span *ngIf="r.trip?.startDate">{{ r.trip!.startDate | date:'dd.MM.yyyy' }} – {{ r.trip!.endDate | date:'dd.MM.yyyy' }}</span>
-                    <span *ngIf="!r.trip?.startDate">—</span>
-                  </td>
-                  <td>
-                    <div class="status-cell">
-                      <select [(ngModel)]="r.status"
-                              (change)="updateStatus(r)"
-                              [disabled]="!!r.updating"
-                              class="status-select"
-                              [class]="'status-select status-' + (r.status | lowercase)">
-                        <option value="PENDING">Gaida</option>
-                        <option value="CONFIRMED">Apstiprināts</option>
-                        <option value="CANCELLED">Atcelts</option>
-                      </select>
-                      <span *ngIf="r.updating" class="spinner-border spinner-border-sm ms-1 text-primary"></span>
-                    </div>
-                  </td>
-                  <td class="text-muted small">{{ r.createdAt | date:'dd.MM.yyyy HH:mm' }}</td>
-                </tr>
+                <ng-container *ngFor="let r of paged">
+                  <tr>
+                    <td class="text-muted small">{{ r.id }}</td>
+                    <td class="fw-semibold">{{ r.firstName }} {{ r.lastName }}</td>
+                    <td>{{ r.phone }}</td>
+                    <td>
+                      <a [href]="'mailto:' + r.email" class="email-link">{{ r.email }}</a>
+                    </td>
+                    <td>{{ r.personalIdNumber || '—' }}</td>
+                    <td>{{ r.passportNumber || '—' }}</td>
+                    <td>{{ r.passportExpirationDate ? (r.passportExpirationDate | date:'dd.MM.yyyy') : '—' }}</td>
+                    <td>{{ r.trip?.name || '—' }}</td>
+                    <td class="text-muted small">
+                      <span *ngIf="r.trip?.startDate">{{ r.trip!.startDate | date:'dd.MM.yyyy' }} – {{ r.trip!.endDate | date:'dd.MM.yyyy' }}</span>
+                      <span *ngIf="!r.trip?.startDate">—</span>
+                    </td>
+                    <td>
+                      <div class="status-cell">
+                        <select [(ngModel)]="r.status"
+                                (change)="updateStatus(r)"
+                                [disabled]="!!r.updating"
+                                class="status-select"
+                                [class]="'status-select status-' + (r.status | lowercase)">
+                          <option value="PENDING">Gaida</option>
+                          <option value="CONFIRMED">Apstiprināts</option>
+                          <option value="CANCELLED">Atcelts</option>
+                        </select>
+                        <span *ngIf="r.updating" class="spinner-border spinner-border-sm ms-1 text-primary"></span>
+                      </div>
+                    </td>
+                    <td class="text-muted small">{{ r.createdAt | date:'dd.MM.yyyy HH:mm' }}</td>
+                    <td><button class="btn-pdf" (click)="downloadPdf(r)">PDF</button></td>
+                  </tr>
+                  <!-- Companion rows linked to this registration -->
+                  <tr *ngFor="let c of r.companions" class="companion-row">
+                    <td class="text-muted small companion-id">
+                      <span class="companion-badge">&#8627;</span> {{ c.id }}
+                    </td>
+                    <td>{{ c.firstName }} {{ c.lastName }}</td>
+                    <td>{{ c.phone }}</td>
+                    <td>
+                      <a [href]="'mailto:' + c.email" class="email-link">{{ c.email }}</a>
+                    </td>
+                    <td>{{ c.personalIdNumber || '—' }}</td>
+                    <td>{{ c.passportNumber || '—' }}</td>
+                    <td>{{ c.passportExpirationDate ? (c.passportExpirationDate | date:'dd.MM.yyyy') : '—' }}</td>
+                    <td>{{ c.trip?.name || '—' }}</td>
+                    <td class="text-muted small">
+                      <span *ngIf="c.trip?.startDate">{{ c.trip!.startDate | date:'dd.MM.yyyy' }} – {{ c.trip!.endDate | date:'dd.MM.yyyy' }}</span>
+                      <span *ngIf="!c.trip?.startDate">—</span>
+                    </td>
+                    <td>
+                      <div class="status-cell">
+                        <select [(ngModel)]="c.status"
+                                (change)="updateStatus(c)"
+                                [disabled]="!!c.updating"
+                                class="status-select"
+                                [class]="'status-select status-' + (c.status | lowercase)">
+                          <option value="PENDING">Gaida</option>
+                          <option value="CONFIRMED">Apstiprināts</option>
+                          <option value="CANCELLED">Atcelts</option>
+                        </select>
+                        <span *ngIf="c.updating" class="spinner-border spinner-border-sm ms-1 text-primary"></span>
+                      </div>
+                    </td>
+                    <td class="text-muted small">{{ c.createdAt | date:'dd.MM.yyyy HH:mm' }}</td>
+                    <td></td>
+                  </tr>
+                </ng-container>
               </tbody>
             </table>
           </div>
@@ -338,6 +381,41 @@ interface RegistrationRow {
       min-width: 54px;
       text-align: center;
     }
+
+    .btn-pdf {
+      background: #1746a0;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    .btn-pdf:hover {
+      background: #5C4033;
+    }
+
+    .companion-row {
+      background: #f0f5ff;
+    }
+
+    .companion-row:hover {
+      background: #e4ecff !important;
+    }
+
+    .companion-badge {
+      color: #1746a0;
+      font-size: 1rem;
+      margin-right: 2px;
+    }
+
+    .companion-id {
+      padding-left: 10px;
+    }
   `]
 })
 export class AdminRegistrationsComponent implements OnInit {
@@ -411,12 +489,46 @@ export class AdminRegistrationsComponent implements OnInit {
 
   private readonly apiUrl = '/api/registrations';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private pdfService: PdfService) {}
 
   ngOnInit(): void {
     this.http.get<RegistrationRow[]>(this.apiUrl).subscribe({
-      next: (data) => { this.registrations = data; this.loading = false; },
+      next: (data) => {
+        // Build parent-child tree
+        const byId = new Map<number, RegistrationRow>();
+        data.forEach(r => { r.companions = []; byId.set(r.id, r); });
+        data.forEach(r => {
+          if (r.parentId) {
+            const parent = byId.get(r.parentId);
+            if (parent) parent.companions!.push(r);
+          }
+        });
+        // Only main registrations (no parentId) appear as top-level rows
+        this.registrations = data.filter(r => !r.parentId);
+        this.loading = false;
+      },
       error: () => { this.error = 'Neizdevās ielādēt pieteikumus.'; this.loading = false; }
+    });
+  }
+
+  downloadPdf(r: RegistrationRow): void {
+    this.pdfService.downloadAgreement({
+      firstName: r.firstName,
+      lastName: r.lastName,
+      personalId: r.personalIdNumber ?? '',
+      email: r.email,
+      phone: r.phone,
+      tripName: r.trip?.name,
+      tripStartDate: r.trip?.startDate ? new Date(r.trip.startDate).toLocaleDateString('lv-LV') : undefined,
+      tripEndDate: r.trip?.endDate ? new Date(r.trip.endDate).toLocaleDateString('lv-LV') : undefined,
+      tripPriceCents: r.trip?.priceCents,
+      companions: (r.companions ?? []).map(c => ({
+        firstName: c.firstName,
+        lastName: c.lastName,
+        personalId: c.personalIdNumber ?? '',
+        phone: c.phone,
+        email: c.email,
+      })),
     });
   }
 

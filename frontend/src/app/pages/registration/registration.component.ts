@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { RouterLink, ActivatedRoute } from '@angular/router';
+import { lastValueFrom } from 'rxjs';
 import { TripService } from '../../shared/services/trip.service';
 import { RegistrationService } from '../../shared/services/registration.service';
 import { PdfService } from '../../shared/services/pdf.service';
@@ -105,6 +106,65 @@ import { Trip } from '../../shared/models/trip.model';
               </div>
             </div>
 
+            <!-- Additional Travelers -->
+            <div class="form-section" formArrayName="additionalTravelers">
+              <div class="section-header-row">
+                <h5 class="section-label mb-0">Papildu ceļotāji</h5>
+                <button type="button" class="btn-add-traveler" (click)="addTraveler()">+ Pievienot ceļotāju</button>
+              </div>
+              <p *ngIf="travelers.length === 0" class="no-travelers-text">Nav pievienotu papildu ceļotāju.</p>
+              <div *ngFor="let traveler of travelers.controls; let i = index" [formGroupName]="i" class="traveler-block">
+                <div class="traveler-header">
+                  <span class="traveler-title">Ceļotājs {{ i + 2 }}</span>
+                  <button type="button" class="btn-remove-traveler" (click)="removeTraveler(i)">&#10005;</button>
+                </div>
+                <div class="row g-3">
+                  <div class="col-sm-6">
+                    <label class="field-label">Vārds <span class="req">*</span></label>
+                    <input formControlName="firstName" type="text" class="form-control field-input"
+                      [class.is-invalid]="submitted && traveler.get('firstName')?.errors" placeholder="Jānis" />
+                    <div *ngIf="submitted && traveler.get('firstName')?.errors" class="invalid-feedback">Lūdzu ievadiet vārdu.</div>
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="field-label">Uzvārds <span class="req">*</span></label>
+                    <input formControlName="lastName" type="text" class="form-control field-input"
+                      [class.is-invalid]="submitted && traveler.get('lastName')?.errors" placeholder="Bērziņš" />
+                    <div *ngIf="submitted && traveler.get('lastName')?.errors" class="invalid-feedback">Lūdzu ievadiet uzvārdu.</div>
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="field-label">Telefons <span class="req">*</span></label>
+                    <input formControlName="phone" type="tel" class="form-control field-input"
+                      [class.is-invalid]="submitted && traveler.get('phone')?.errors" placeholder="+371 20000000" />
+                    <div *ngIf="submitted && traveler.get('phone')?.errors" class="invalid-feedback">Lūdzu ievadiet derīgu tālruņa numuru.</div>
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="field-label">E-pasts <span class="req">*</span></label>
+                    <input formControlName="email" type="email" class="form-control field-input"
+                      [class.is-invalid]="submitted && traveler.get('email')?.errors" placeholder="janis@example.lv" />
+                    <div *ngIf="submitted && traveler.get('email')?.errors" class="invalid-feedback">Lūdzu ievadiet derīgu e-pasta adresi.</div>
+                  </div>
+                  <div class="col-12">
+                    <label class="field-label">Personas kods <span class="req">*</span></label>
+                    <input formControlName="personalIdNumber" type="text" class="form-control field-input"
+                      [class.is-invalid]="submitted && traveler.get('personalIdNumber')?.errors" placeholder="XXXXXX-XXXXX" />
+                    <div *ngIf="submitted && traveler.get('personalIdNumber')?.errors" class="invalid-feedback">Lūdzu ievadiet personas kodu.</div>
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="field-label">ID vai pases numurs <span class="req">*</span></label>
+                    <input formControlName="passportNumber" type="text" class="form-control field-input"
+                      [class.is-invalid]="submitted && traveler.get('passportNumber')?.errors" placeholder="AB1234567" />
+                    <div *ngIf="submitted && traveler.get('passportNumber')?.errors" class="invalid-feedback">Lūdzu ievadiet pases numuru.</div>
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="field-label">Derīguma termiņš <span class="req">*</span></label>
+                    <input formControlName="passportExpiryDate" type="date" class="form-control field-input"
+                      [class.is-invalid]="submitted && traveler.get('passportExpiryDate')?.errors" />
+                    <div *ngIf="submitted && traveler.get('passportExpiryDate')?.errors" class="invalid-feedback">Lūdzu ievadiet derīguma termiņu.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Consents -->
             <div class="form-section">
               <h5 class="section-label">Piekrišanas</h5>
@@ -126,7 +186,7 @@ import { Trip } from '../../shared/models/trip.model';
                 <label class="consent-label">
                   <input formControlName="travelAgreement" type="checkbox" class="consent-checkbox" />
                   <span>
-                    Piekrītu <button type="button" class="policy-link-btn" (click)="downloadAgreement()" [disabled]="!canDownloadAgreement" [title]="!canDownloadAgreement ? 'Lūdzu aizpildiet visus obligātos laukus un izvēlieties ceļojumu' : ''" >ceļošanas līgumam</button>. Ceļotājs apliecina, ka ir iepazinies ar līguma noteikumiem
+                    Piekrītu <button type="button" class="policy-link-btn" (click)="downloadAgreement()">ceļošanas līgumam</button>. Ceļotājs apliecina, ka ir iepazinies ar līguma noteikumiem
                     un tiem piekrīt pilnā apmērā, veicot avansa maksājumu. Avansa maksājuma veikšana tiek
                     uzskatīta par Ceļotāja nepārprotamu piekrišanu šī līguma noteikumiem un ir juridiski
                     saistoša. Līgums uzskatāms par noslēgtu brīdī, kad Tūrisma operators ir saņēmis avansa
@@ -145,7 +205,7 @@ import { Trip } from '../../shared/models/trip.model';
 
             <!-- Submit -->
             <div class="d-flex align-items-center gap-3 mt-2">
-              <button type="submit" class="btn btn-submit" [disabled]="loading">
+              <button type="submit" class="btn btn-submit" [disabled]="loading || form.invalid">
                 <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
                 Iesniegt pieteikumu
               </button>
@@ -390,6 +450,87 @@ import { Trip } from '../../shared/models/trip.model';
       padding: 16px 36px 0;
     }
 
+    /* Additional travelers */
+    .section-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e8eef8;
+    }
+
+    .section-header-row .section-label {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .btn-add-traveler {
+      background: #5C4033;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 5px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-add-traveler:hover {
+      background: #e87722;
+    }
+
+    .traveler-block {
+      background: #f8faff;
+      border: 1.5px solid #d1d9ee;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .traveler-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .traveler-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #5C4033;
+    }
+
+    .btn-remove-traveler {
+      background: #fee2e2;
+      color: #991b1b;
+      border: none;
+      border-radius: 6px;
+      width: 26px;
+      height: 26px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+
+    .btn-remove-traveler:hover {
+      background: #fca5a5;
+    }
+
+    .no-travelers-text {
+      color: #9ca3af;
+      font-size: 0.83rem;
+      margin: 6px 0 0;
+    }
+
     @media (max-width: 576px) {
       .reg-header { padding: 22px 20px 18px; }
       form { padding: 20px 16px 24px; }
@@ -424,7 +565,8 @@ export class RegistrationComponent implements OnInit {
       passportNumber: [''],
       passportExpiryDate: [''],
       privacyConsent: [false, Validators.requiredTrue],
-      travelAgreement: [false, Validators.requiredTrue]
+      travelAgreement: [false, Validators.requiredTrue],
+      additionalTravelers: this.fb.array([])
     });
   }
 
@@ -464,33 +606,54 @@ export class RegistrationComponent implements OnInit {
 
   get f() { return this.form.controls; }
 
-  get canDownloadAgreement(): boolean {
-    const v = this.form.value;
-    return !!(
-      v.firstName?.trim() &&
-      v.lastName?.trim() &&
-      v.phone?.trim() &&
-      v.email?.trim() &&
-      v.personalIdNumber?.trim() &&
-      this.trip
-    );
+  get travelers(): FormArray {
+    return this.form.get('additionalTravelers') as FormArray;
+  }
+
+  private newTravelerGroup(): FormGroup {
+    return this.fb.group({
+      firstName: ['', [Validators.required, Validators.minLength(2)]],
+      lastName: ['', [Validators.required, Validators.minLength(2)]],
+      phone: ['', [Validators.required, Validators.pattern(/^\+?[\d\s\-]{7,20}$/)]],
+      email: ['', [Validators.required, Validators.email]],
+      personalIdNumber: ['', Validators.required],
+      passportNumber: ['', Validators.required],
+      passportExpiryDate: ['', Validators.required]
+    });
+  }
+
+  addTraveler(): void {
+    this.travelers.push(this.newTravelerGroup());
+  }
+
+  removeTraveler(index: number): void {
+    this.travelers.removeAt(index);
   }
 
   downloadAgreement(): void {
     const v = this.form.value;
+    const additionalTravelers: any[] = v.additionalTravelers || [];
     this.pdfService.downloadAgreement({
-      firstName: v.firstName ?? '',
-      lastName: v.lastName ?? '',
-      personalId: v.personalIdNumber ?? '',
-      email: v.email ?? '',
-      phone: v.phone ?? '',
+      firstName: v.firstName || '',
+      lastName: v.lastName || '',
+      personalId: v.personalIdNumber || '',
+      email: v.email || '',
+      phone: v.phone || '',
       tripName: this.trip?.name,
       tripStartDate: this.trip?.startDate ? new Date(this.trip.startDate).toLocaleDateString('lv-LV') : undefined,
       tripEndDate: this.trip?.endDate ? new Date(this.trip.endDate).toLocaleDateString('lv-LV') : undefined,
+      tripPriceCents: this.trip?.priceCents,
+      companions: additionalTravelers.map(t => ({
+        firstName: t.firstName || '',
+        lastName: t.lastName || '',
+        personalId: t.personalIdNumber || '',
+        phone: t.phone || '',
+        email: t.email || '',
+      })),
     });
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     this.submitted = true;
     this.error = '';
     if (this.form.invalid) return;
@@ -498,26 +661,45 @@ export class RegistrationComponent implements OnInit {
     this.loading = true;
     const tripId = this.selectedTripId || this.route.snapshot.paramMap.get('tripId') || '';
     const v = this.form.value;
+    const additionalTravelers: any[] = v.additionalTravelers || [];
 
-    this.registrationService.createRegistration({
-      tripId,
-      firstName: v.firstName,
-      lastName: v.lastName,
-      phone: v.phone,
-      email: v.email,
-      personalId: v.personalIdNumber,
-      passportNumber: v.passportNumber || undefined,
-      passportExpiryDate: v.passportExpiryDate || undefined
-    }).subscribe({
-      next: () => { this.loading = false; this.success = true; },
-      error: (err) => {
-        this.loading = false;
-        if (err.status === 409) {
-          this.error = 'Šis ceļojums ir pilns. Diemžēl nav brīvu vietu.';
-        } else {
-          this.error = 'Kļūda piesakoties. Lūdzu, mēģiniet vēlāk.';
-        }
+    try {
+      const mainResult = await lastValueFrom(this.registrationService.createRegistration({
+        tripId,
+        firstName: v.firstName,
+        lastName: v.lastName,
+        phone: v.phone,
+        email: v.email,
+        personalId: v.personalIdNumber,
+        passportNumber: v.passportNumber || undefined,
+        passportExpiryDate: v.passportExpiryDate || undefined
+      })) as any;
+
+      const mainId: number | undefined = mainResult?.id;
+
+      for (const t of additionalTravelers) {
+        await lastValueFrom(this.registrationService.createRegistration({
+          tripId,
+          firstName: t.firstName,
+          lastName: t.lastName,
+          phone: t.phone,
+          email: t.email,
+          personalId: t.personalIdNumber,
+          passportNumber: t.passportNumber || undefined,
+          passportExpiryDate: t.passportExpiryDate || undefined,
+          parentId: mainId
+        }));
       }
-    });
+
+      this.loading = false;
+      this.success = true;
+    } catch (err: any) {
+      this.loading = false;
+      if (err.status === 409) {
+        this.error = 'Šis ceļojums ir pilns. Diemžēl nav brīvu vietu.';
+      } else {
+        this.error = 'Kļūda piesakoties. Lūdzu, mēģiniet vēlāk.';
+      }
+    }
   }
 }

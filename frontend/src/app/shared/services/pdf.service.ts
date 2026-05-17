@@ -5,6 +5,14 @@ import { TDocumentDefinitions, Content, TableCell } from 'pdfmake/interfaces';
 
 (pdfMake as any).vfs = (pdfFonts as any).vfs;
 
+export interface AgreementCompanion {
+  firstName: string;
+  lastName: string;
+  personalId: string;
+  phone: string;
+  email: string;
+}
+
 export interface AgreementData {
   firstName: string;
   lastName: string;
@@ -14,17 +22,29 @@ export interface AgreementData {
   tripName?: string;
   tripStartDate?: string;
   tripEndDate?: string;
+  tripPriceCents?: number;
+  companions?: AgreementCompanion[];
 }
 
 @Injectable({ providedIn: 'root' })
 export class PdfService {
+
+  downloadSimplePdf(): void {
+    const doc: TDocumentDefinitions = {
+      pageSize: 'A4',
+      pageMargins: [65, 60, 50, 60],
+      defaultStyle: { font: 'Roboto', fontSize: 12 },
+      content: [{ text: 'TEST TEST TEST', alignment: 'center', margin: [0, 200, 0, 0] }],
+    };
+    pdfMake.createPdf(doc).download('celojuma-ligums.pdf');
+  }
 
   downloadAgreement(data: AgreementData): void {
     const stored = parseInt(localStorage.getItem('bd_contract_num') || '0', 10);
     const contractNum = stored + 1;
     localStorage.setItem('bd_contract_num', String(contractNum));
     const doc = this.buildDocument(data, contractNum);
-    pdfMake.createPdf(doc).download(`celojuma-ligums-${data.firstName}-${data.lastName}.pdf`);
+    pdfMake.createPdf(doc).download(`ceļojuma līgums ${data.firstName} ${data.lastName}.pdf`);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -36,6 +56,10 @@ export class PdfService {
     const tripName  = data.tripName      ?? '_______________';
     const tripStart = data.tripStartDate ?? '_______________';
     const tripEnd   = data.tripEndDate   ?? '_______________';
+    const totalTravelers = 1 + (data.companions?.length ?? 0);
+    const perPersonEur = data.tripPriceCents != null ? data.tripPriceCents / 100 : null;
+    const totalEur = perPersonEur != null ? perPersonEur * totalTravelers : null;
+    const fmtEur = (n: number) => Number.isInteger(n) ? `${n}` : n.toFixed(2);
     const latvianMonths = ['janvāris', 'februāris', 'marts', 'aprīlis', 'maijs', 'jūnijs',
                            'jūlijs', 'augusts', 'septembris', 'oktobris', 'novembris', 'decembris'];
     const now = new Date();
@@ -144,7 +168,7 @@ export class PdfService {
         {
           text: [
             { text: '"Brīva Diena" SIA', bold: true },
-            { text: ' Reģ. Nr. 40203699357, adrese Turaidas iela 110 k-2 - 47, Jūrmala, LV-2015, Latvija speciālās atļaujas (licences) Nr.______, Diāna Pujate, kura ir pilnvarota un attiecīgi tiesīga noslēgt un parakstīt šo kompleksā tūrisma pakalpojuma līgumu, no vienas puses (turpmāk tekstā – ' },
+            { text: ' Reģ. Nr. 40203699357, adrese Turaidas iela 110 k-2 - 47, Jūrmala, LV-2015, Latvija speciālās atļaujas (licences) Nr. 40203699357, Diāna Pujate, kura ir pilnvarota un attiecīgi tiesīga noslēgt un parakstīt šo kompleksā tūrisma pakalpojuma līgumu, no vienas puses (turpmāk tekstā – ' },
             { text: 'TŪRISMA OPERATORS', bold: true },
             { text: '), un ceļotājs vai ceļotāji, par kuriem ziņas ir norādītas 1.punktā, turpmāk atsevišķi vai visi kopā saukti – ' },
             { text: 'CEĻOTĀJS', bold: true },
@@ -176,6 +200,12 @@ export class PdfService {
                 { text: data.phone || '_______________', fontSize: 10, border: [true, true, true, true] },
                 { text: data.email || '_______________', fontSize: 10, border: [true, true, true, true] },
               ],
+              ...(data.companions ?? []).map(c => [
+                { text: `${c.firstName} ${c.lastName}` || '_______________', fontSize: 10, border: [true, true, true, true] },
+                { text: c.personalId || '_______________', fontSize: 10, border: [true, true, true, true] },
+                { text: c.phone || '_______________', fontSize: 10, border: [true, true, true, true] },
+                { text: c.email || '_______________', fontSize: 10, border: [true, true, true, true] },
+              ]),
             ],
           },
         } as Content,
@@ -189,7 +219,7 @@ export class PdfService {
 
         // ── 3. CENA, NORĒĶINU KĀRTĪBA UN CEĻOJUMA ATCELŠANAS NOTEIKUMI ──
         heading('3. CENA, NORĒĶINU KĀRTĪBA UN CEĻOJUMA ATCELŠANAS NOTEIKUMI'),
-        clause('3.1.', 'CEĻOJUMA kopējā summa ir ____ euro. CEĻOJUMA cena vienam CEĻOTĀJAM ir ____ euro. Ceļojuma apmaksa tiek veikta šādā kārtībā:'),
+        clause('3.1.', `CEĻOJUMA kopējā summa ir ${totalEur != null ? fmtEur(totalEur) : '____'} euro. CEĻOJUMA cena vienam CEĻOTĀJAM ir ${perPersonEur != null ? fmtEur(perPersonEur) : '____'} euro. Ceļojuma apmaksa tiek veikta šādā kārtībā:`),
         clause('3.1.1.', 'Priekšapmaksas maksājums 300 EUR apmērā no personas tiek veikts CEĻOJUMA rezervācijas brīdī. Atlikusī summa ir maksājama ne vēlāk kā 4 nedēļas pirms CEĻOJUMA sākuma.', 14),
         clause('3.1.2.', 'Ja līdz CEĻOJUMAM ir atlicis mazāk kā 4 nedēļas, ir jāveic pilna CEĻOJUMA apmaksa.', 14),
         clause('3.2.', 'CEĻOTĀJAM, iesniedzot TŪRISMA OPERATORAM rakstisku uzteikumu, ir tiesības jebkurā brīdī pirms CEĻOJUMA sākuma vienpusēji izbeigt LĪGUMU. Rakstisko uzteikumu TŪRISMA OPERATORAM var iesniegt vienā no šādiem veidiem: nosūtot uz epastu briva.diena.lv@gmail.com'),

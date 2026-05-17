@@ -8,5 +8,6 @@ export interface Registration {
   personalId?: string; // Personas kods (optional)
   passportNumber?: string;
   passportExpiryDate?: Date;
+  parentId?: number;
   createdAt?: Date;
 }
