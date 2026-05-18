@@ -99,11 +99,13 @@ import { AdminStateService } from '../../services/admin-state.service';
       background-color: #ffffff;
       backdrop-filter: none;
       z-index: 1040;
-      padding: 20px;
-      border-left: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 0 0 0 0;
+      padding: 24px 28px 28px;
+      border-left: 1px solid rgba(92, 64, 51, 0.08);
+      border-bottom: 1px solid rgba(92, 64, 51, 0.06);
+      border-radius: 0 0 0 14px;
       transform: translateX(100%);
-      transition: transform 0.3s ease;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: none;
       overflow-y: auto;
       flex-basis: auto !important;
       display: flex !important;
@@ -112,6 +114,8 @@ import { AdminStateService } from '../../services/admin-state.service';
 
     .navbar-collapse-custom.show {
       transform: translateX(0);
+      box-shadow: -4px 12px 32px rgba(92, 64, 51, 0.10),
+                  -1px 0 8px rgba(0, 0, 0, 0.04);
     }
 
     .navbar-admin ~ nav .navbar-collapse-custom {
@@ -149,10 +153,22 @@ import { AdminStateService } from '../../services/admin-state.service';
     }
 
     .navbar-collapse-custom .nav-link {
-      padding: 10px 0;
-      border-bottom: 1px solid #f0f0f0;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f0ee;
       display: block;
       color: #444 !important;
+      font-size: 0.92rem;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: color 0.2s, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  letter-spacing 0.3s ease;
+      transform-origin: left center;
+    }
+
+    .navbar-collapse-custom .nav-link:hover {
+      transform: scale(1.07);
+      letter-spacing: 0.09em;
     }
 
     .navbar-collapse-custom .nav-link-admin {
@@ -192,13 +208,15 @@ import { AdminStateService } from '../../services/admin-state.service';
     .nav-link {
       color: #444;
       font-weight: 400;
-      transition: color 0.2s;
+      transition: color 0.2s, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: inline-block;
     }
 
     .nav-link:hover,
     .nav-link.active {
       color: #e87722 !important;
       font-weight: 500;
+      transform: scale(1.10);
     }
 
     /* Admin mode: white nav links */
