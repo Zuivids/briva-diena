@@ -76,7 +76,7 @@ import { AdminStateService } from '../../services/admin-state.service';
               <a class="nav-link nav-link-admin" routerLink="/admin/registrations" routerLinkActive="active" (click)="closeMenu()">Pieteikumi</a>
             </li>
             <li class="nav-item ms-1" *ngIf="isAdmin">
-              <button class="btn btn-sm btn-outline-light" (click)="logout()">Iziet</button>
+              <button class="btn btn-sm btn-outline-admin" (click)="logout()">Iziet</button>
             </li>
           </ul>
         </div>
@@ -156,8 +156,8 @@ import { AdminStateService } from '../../services/admin-state.service';
     }
 
     .navbar-collapse-custom .nav-link-admin {
-      color: rgba(255, 255, 255, 0.88) !important;
-      border-bottom-color: rgba(255, 255, 255, 0.1);
+      color: #5C4033 !important;
+      border-bottom-color: #cbb5ae;
     }
 
     .navbar-collapse-custom .nav-link:last-of-type {
@@ -278,6 +278,21 @@ import { AdminStateService } from '../../services/admin-state.service';
       color: #e87722;
     }
 
+    /* Iziet button — adapts to context */
+    .btn-outline-admin {
+      color: #5C4033;
+      border: 1.5px solid #5C4033;
+      background: transparent;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    .btn-outline-admin:hover {
+      background-color: #5C4033;
+      color: #fff;
+    }
+
     /* Responsive adjustments */
     @media (min-width: 992px) {
       .navbar-toggler {
@@ -328,8 +343,29 @@ import { AdminStateService } from '../../services/admin-state.service';
         margin-top: 0;
       }
 
+      /* On desktop brown navbar, Iziet uses white */
+      .btn-outline-admin {
+        color: rgba(255, 255, 255, 0.88);
+        border-color: rgba(255, 255, 255, 0.7);
+      }
+      .btn-outline-admin:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        border-color: #fff;
+      }
+
       .navbar-backdrop {
         display: none !important;
+      }
+
+      /* On desktop, admin links are white (brown navbar background) */
+      .navbar-collapse-custom .nav-link-admin {
+        color: rgba(255, 255, 255, 0.88) !important;
+        border-bottom: none;
+      }
+      .navbar-collapse-custom .nav-link-admin:hover,
+      .navbar-collapse-custom .nav-link-admin.active {
+        color: #fff !important;
       }
     }
   `]

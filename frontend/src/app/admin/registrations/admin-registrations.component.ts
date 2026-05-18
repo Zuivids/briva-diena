@@ -116,7 +116,10 @@ interface RegistrationRow {
                       </div>
                     </td>
                     <td class="text-muted small">{{ r.createdAt | date:'dd.MM.yyyy HH:mm' }}</td>
-                    <td><button class="btn-pdf" (click)="downloadPdf(r)">PDF</button></td>
+                    <td class="action-cell">
+                      <button class="btn-pdf" (click)="downloadPdf(r)">PDF</button>
+                      <button class="btn-delete" (click)="deleteRegistration(r)">Dzēst</button>
+                    </td>
                   </tr>
                   <!-- Companion rows linked to this registration -->
                   <tr *ngFor="let c of r.companions" class="companion-row">
@@ -183,11 +186,29 @@ interface RegistrationRow {
 
       </div>
     </div>
+
+    <!-- Delete confirmation modal -->
+    <div *ngIf="deleteTarget" class="modal-backdrop" (click)="cancelDelete()">
+      <div class="modal-box" (click)="$event.stopPropagation()">
+        <div class="modal-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </div>
+        <h3 class="modal-title">Dzēst pieteikumu?</h3>
+        <p class="modal-body">
+          Vai tiešām vēlaties neatgriezeniski dzēst pieteikumu:
+          <strong>{{ deleteTarget!.firstName }} {{ deleteTarget!.lastName }}</strong>?
+        </p>
+        <div class="modal-actions">
+          <button class="modal-btn-cancel" (click)="cancelDelete()">Atcelt</button>
+          <button class="modal-btn-confirm" (click)="confirmDelete()">Dzēst</button>
+        </div>
+      </div>
+    </div>
   `,
   styles: [`
     .reg-admin-page {
       min-height: 100vh;
-      background: #f4f6fb;
+      background: #faf5f3;
     }
 
     .page-header {
@@ -199,13 +220,13 @@ interface RegistrationRow {
     .page-title {
       font-size: 1.5rem;
       font-weight: 700;
-      color: #1746a0;
+      color: #5C4033;
       margin: 0;
     }
 
     .badge-count {
-      background: #e8eef8;
-      color: #1746a0;
+      background: #f0e7e2;
+      color: #5C4033;
       font-size: 0.8rem;
       font-weight: 600;
       padding: 3px 10px;
@@ -215,12 +236,12 @@ interface RegistrationRow {
     .table-card {
       background: #fff;
       border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(23, 70, 160, 0.07);
+      box-shadow: 0 2px 12px rgba(92, 64, 51, 0.07);
       overflow: hidden;
     }
 
     .reg-table thead th {
-      background: #1746a0;
+      background: #5C4033;
       color: #fff;
       font-size: 0.78rem;
       font-weight: 600;
@@ -235,7 +256,7 @@ interface RegistrationRow {
       padding: 11px 14px;
       font-size: 0.875rem;
       vertical-align: middle;
-      border-color: #f0f3fa;
+      border-color: #faf0ed;
     }
 
     .reg-table tbody tr:hover {
@@ -243,7 +264,7 @@ interface RegistrationRow {
     }
 
     .email-link {
-      color: #1746a0;
+      color: #5C4033;
       text-decoration: none;
     }
 
@@ -293,24 +314,24 @@ interface RegistrationRow {
     }
 
     .filter-row th {
-      background: #e8eef8;
+      background: #f0e7e2;
       padding: 6px 8px;
     }
 
     .filter-input {
       width: 100%;
-      border: 1px solid #c8d4ec;
+      border: 1px solid #cbb5ae;
       border-radius: 6px;
       padding: 4px 8px;
       font-size: 0.78rem;
       background: #fff;
-      color: #1a1a2e;
+      color: #2e1a15;
       outline: none;
     }
 
     .filter-input:focus {
-      border-color: #1746a0;
-      box-shadow: 0 0 0 2px rgba(23,70,160,0.12);
+      border-color: #5C4033;
+      box-shadow: 0 0 0 2px rgba(92,64,51,0.12);
     }
 
     .filter-select {
@@ -322,8 +343,8 @@ interface RegistrationRow {
       align-items: center;
       justify-content: space-between;
       padding: 12px 16px;
-      background: #f8faff;
-      border-top: 1px solid #e8eef8;
+      background: #fdf8f6;
+      border-top: 1px solid #f0e7e2;
       flex-wrap: wrap;
       gap: 10px;
     }
@@ -337,7 +358,7 @@ interface RegistrationRow {
     }
 
     .page-size-select {
-      border: 1px solid #c8d4ec;
+      border: 1px solid #cbb5ae;
       border-radius: 6px;
       padding: 3px 8px;
       font-size: 0.82rem;
@@ -358,21 +379,21 @@ interface RegistrationRow {
 
     .page-btn {
       background: #fff;
-      border: 1px solid #c8d4ec;
+      border: 1px solid #cbb5ae;
       border-radius: 6px;
       width: 30px;
       height: 30px;
       font-size: 1.1rem;
       line-height: 1;
       cursor: pointer;
-      color: #1746a0;
+      color: #5C4033;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: background 0.15s;
     }
 
-    .page-btn:hover:not(:disabled) { background: #e8eef8; }
+    .page-btn:hover:not(:disabled) { background: #f0e7e2; }
     .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .page-num {
@@ -383,7 +404,7 @@ interface RegistrationRow {
     }
 
     .btn-pdf {
-      background: #1746a0;
+      background: #5C4033;
       color: #fff;
       border: none;
       border-radius: 6px;
@@ -396,19 +417,19 @@ interface RegistrationRow {
     }
 
     .btn-pdf:hover {
-      background: #5C4033;
+      background: #3d2a22;
     }
 
     .companion-row {
-      background: #f0f5ff;
+      background: #fdf5f2;
     }
 
     .companion-row:hover {
-      background: #e4ecff !important;
+      background: #f5e6df !important;
     }
 
     .companion-badge {
-      color: #1746a0;
+      color: #5C4033;
       font-size: 1rem;
       margin-right: 2px;
     }
@@ -416,12 +437,121 @@ interface RegistrationRow {
     .companion-id {
       padding-left: 10px;
     }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 15, 10, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 8px 40px rgba(92, 64, 51, 0.18);
+      padding: 36px 40px 28px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      animation: modalIn 0.18s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.94) translateY(-10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-icon {
+      font-size: 2.2rem;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #5C4033;
+      margin: 0 0 10px;
+    }
+
+    .modal-body {
+      font-size: 0.9rem;
+      color: #444;
+      margin: 0 0 24px;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .modal-btn-cancel {
+      background: #f0e7e2;
+      color: #5C4033;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 24px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .modal-btn-cancel:hover {
+      background: #e8d5ce;
+    }
+
+    .modal-btn-confirm {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 24px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .modal-btn-confirm:hover {
+      background: #991b1b;
+    }
+
+    .action-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-delete {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    .btn-delete:hover {
+      background: #991b1b;
+    }
   `]
 })
 export class AdminRegistrationsComponent implements OnInit {
   registrations: RegistrationRow[] = [];
   loading = true;
   error = '';
+  deleteTarget: RegistrationRow | null = null;
 
   // Filters
   filterName = '';
@@ -529,6 +659,25 @@ export class AdminRegistrationsComponent implements OnInit {
         phone: c.phone,
         email: c.email,
       })),
+    });
+  }
+
+  deleteRegistration(r: RegistrationRow): void {
+    this.deleteTarget = r;
+  }
+
+  cancelDelete(): void {
+    this.deleteTarget = null;
+  }
+
+  confirmDelete(): void {
+    const r = this.deleteTarget!;
+    this.deleteTarget = null;
+    this.http.delete(`${this.apiUrl}/${r.id}`).subscribe({
+      next: () => {
+        this.registrations = this.registrations.filter(reg => reg.id !== r.id);
+      },
+      error: () => { this.error = 'Neizdevās dzēst pieteikumu.'; }
     });
   }
 

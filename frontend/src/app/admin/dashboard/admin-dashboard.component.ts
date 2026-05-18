@@ -311,14 +311,14 @@ import { Review } from '../../shared/models/review.model';
   styles: [`
     .admin-panel {
       min-height: 100vh;
-      background: #f4f6fb;
+      background: #faf5f3;
     }
 
     .panel-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #1746a0;
+      background: #5C4033;
       color: #fff;
       padding: 14px 24px;
       font-weight: 600;
@@ -338,7 +338,7 @@ import { Review } from '../../shared/models/review.model';
     .section-heading {
       font-size: 1rem;
       font-weight: 600;
-      color: #1746a0;
+      color: #5C4033;
       margin-bottom: 16px;
     }
 
@@ -416,15 +416,15 @@ import { Review } from '../../shared/models/review.model';
     }
 
     .edit-panel {
-      background: #f0f4ff;
-      border-top: 1px solid #d4daf5;
+      background: #fdf5f2;
+      border-top: 1px solid #f0e7e2;
       padding: 16px;
     }
 
     .edit-panel-title {
       font-size: 0.85rem;
       font-weight: 600;
-      color: #1746a0;
+      color: #5C4033;
       margin-bottom: 10px;
     }
 
@@ -535,16 +535,16 @@ import { Review } from '../../shared/models/review.model';
       justify-content: center;
       width: 90px;
       height: 68px;
-      border: 2px dashed #99acdf;
+      border: 2px dashed #cbb5ae;
       border-radius: 6px;
       font-size: 0.75rem;
-      color: #1746a0;
+      color: #5C4033;
       cursor: pointer;
       text-align: center;
     }
 
     .image-upload-btn:hover {
-      background: #e8eeff;
+      background: #f0e7e2;
     }
 
     .section-url {
@@ -620,6 +620,25 @@ import { Review } from '../../shared/models/review.model';
       border-radius: 8px;
       border: 2px solid #e87722;
       display: block;
+    }
+
+    .btn-primary {
+      background-color: #5C4033 !important;
+      border-color: #5C4033 !important;
+      color: #fff !important;
+    }
+    .btn-primary:hover:not(:disabled), .btn-primary:focus {
+      background-color: #3d2a22 !important;
+      border-color: #3d2a22 !important;
+    }
+    .btn-outline-primary {
+      color: #5C4033 !important;
+      border-color: #5C4033 !important;
+      background: transparent !important;
+    }
+    .btn-outline-primary:hover {
+      background-color: #5C4033 !important;
+      color: #fff !important;
     }
   `]
 })

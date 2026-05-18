@@ -387,10 +387,10 @@ interface TripForm {
     </div>
   `,
   styles: [`
-    .tm-page { min-height: 100vh; background: #f4f6fb; }
+    .tm-page { min-height: 100vh; background: #faf5f3; }
 
     .panel-header {
-      background: linear-gradient(135deg, #0d6efd 0%, #1746a0 100%);
+      background: linear-gradient(135deg, #7a5548 0%, #5C4033 100%);
       color: #fff;
       padding: 14px 24px;
       display: flex;
@@ -407,7 +407,7 @@ interface TripForm {
       background: #fff;
       border-radius: 12px;
       padding: 28px 32px;
-      box-shadow: 0 2px 12px rgba(23,70,160,0.07);
+      box-shadow: 0 2px 12px rgba(92,64,51,0.07);
       margin-bottom: 24px;
     }
 
@@ -421,7 +421,7 @@ interface TripForm {
     .section-heading {
       font-size: 1.1rem;
       font-weight: 700;
-      color: #1746a0;
+      color: #5C4033;
       margin: 0;
     }
 
@@ -434,9 +434,9 @@ interface TripForm {
       justify-content: space-between;
       gap: 12px;
       padding: 12px 14px;
-      border: 1.5px solid #e8eef8;
+      border: 1.5px solid #f0e7e2;
       border-radius: 8px;
-      background: #f8faff;
+      background: #fdf8f6;
     }
 
     .trip-list-name { display: block; font-size: 0.95rem; margin-bottom: 6px; color: #1a202c; }
@@ -453,10 +453,10 @@ interface TripForm {
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.07em;
-      color: #1746a0;
+      color: #5C4033;
       margin-bottom: 14px;
       padding-bottom: 8px;
-      border-bottom: 2px solid #e8eef8;
+      border-bottom: 2px solid #f0e7e2;
     }
 
     .field-label {
@@ -471,15 +471,15 @@ interface TripForm {
     .optional { font-weight: 400; color: #9ca3af; font-size: 0.78rem; }
 
     .field-input {
-      border: 1.5px solid #d1d9ee;
+      border: 1.5px solid #cbb5ae;
       border-radius: 8px;
       font-size: 0.9rem;
       transition: border-color 0.18s, box-shadow 0.18s;
     }
 
     .field-input:focus {
-      border-color: #1746a0;
-      box-shadow: 0 0 0 3px rgba(23,70,160,0.12);
+      border-color: #5C4033;
+      box-shadow: 0 0 0 3px rgba(92,64,51,0.12);
     }
 
     /* Cover photo */
@@ -490,7 +490,7 @@ interface TripForm {
       height: 180px;
       border-radius: 10px;
       overflow: hidden;
-      border: 2px solid #d1d9ee;
+      border: 2px solid #cbb5ae;
     }
 
     .cover-preview img { width: 100%; height: 100%; object-fit: cover; }
@@ -499,8 +499,8 @@ interface TripForm {
       width: 320px;
       height: 180px;
       border-radius: 10px;
-      border: 2px dashed #c1cfec;
-      background: #f4f6fb;
+      border: 2px dashed #cbb5ae;
+      background: #faf5f3;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -510,11 +510,11 @@ interface TripForm {
 
     /* Day cards */
     .day-card {
-      border: 1.5px solid #e0e8f5;
+      border: 1.5px solid #f0e7e2;
       border-radius: 10px;
       padding: 16px 18px;
       margin-bottom: 14px;
-      background: #f8faff;
+      background: #fdf8f6;
     }
 
     .day-card-header {
@@ -525,7 +525,7 @@ interface TripForm {
     }
 
     .day-badge {
-      background: #1746a0;
+      background: #5C4033;
       color: #fff;
       font-size: 0.8rem;
       font-weight: 700;
@@ -542,7 +542,7 @@ interface TripForm {
       height: 60px;
       border-radius: 6px;
       overflow: hidden;
-      border: 1.5px solid #d1d9ee;
+      border: 1.5px solid #cbb5ae;
     }
 
     .day-photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -561,7 +561,7 @@ interface TripForm {
       height: 75px;
       border-radius: 8px;
       overflow: hidden;
-      border: 1.5px solid #d1d9ee;
+      border: 1.5px solid #cbb5ae;
     }
 
     .add-photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -587,19 +587,19 @@ interface TripForm {
       width: 100px;
       height: 75px;
       border-radius: 8px;
-      border: 2px dashed #c1cfec;
-      background: #f4f6fb;
+      border: 2px dashed #cbb5ae;
+      background: #faf5f3;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      color: #6b7fc4;
+      color: #7a5548;
       font-size: 0.78rem;
       text-align: center;
       transition: border-color 0.18s;
     }
 
-    .add-photo-add-btn:hover { border-color: #1746a0; }
+    .add-photo-add-btn:hover { border-color: #5C4033; }
 
     .flight-entry-row {
       display: flex;
@@ -615,7 +615,7 @@ interface TripForm {
       display: flex;
       gap: 12px;
       padding-top: 20px;
-      border-top: 2px solid #e8eef8;
+      border-top: 2px solid #f0e7e2;
       margin-top: 8px;
     }
 
@@ -657,6 +657,25 @@ interface TripForm {
       .cover-preview, .cover-placeholder { width: 100%; }
       .admin-filters { flex-direction: column; }
       .af-field { min-width: 100%; }
+    }
+
+    .btn-primary {
+      background-color: #5C4033 !important;
+      border-color: #5C4033 !important;
+      color: #fff !important;
+    }
+    .btn-primary:hover:not(:disabled), .btn-primary:focus {
+      background-color: #3d2a22 !important;
+      border-color: #3d2a22 !important;
+    }
+    .btn-outline-primary {
+      color: #5C4033 !important;
+      border-color: #5C4033 !important;
+      background: transparent !important;
+    }
+    .btn-outline-primary:hover {
+      background-color: #5C4033 !important;
+      color: #fff !important;
     }
   `]
 })
