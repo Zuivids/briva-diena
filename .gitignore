@@ -1,6 +1,7 @@
 # Secrets — never commit
 .env
 *.env
+SECURITY.txt
 
 # BFG cleanup reports
 ..bfg-report/
