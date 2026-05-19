@@ -4,9 +4,18 @@
 # This sets up systemd services for production deployment
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RDS_HOST=${RDS_HOST:-"briva-diena-db.c10oq8we434z.eu-north-1.rds.amazonaws.com"}
-RDS_USER=${RDS_USER:-"briva_diena_user"}
-RDS_PASSWORD=${RDS_PASSWORD:-"briva_diena_password"}
+
+# Load secrets from .env file if present (never committed to git)
+if [ -f "$SCRIPT_DIR/.env" ]; then
+  set -a
+  source "$SCRIPT_DIR/.env"
+  set +a
+fi
+
+# Require these to be set — no hardcoded defaults
+: "${RDS_HOST:?RDS_HOST is not set. Export it or add it to .env}"
+: "${RDS_USER:?RDS_USER is not set. Export it or add it to .env}"
+: "${RDS_PASSWORD:?RDS_PASSWORD is not set. Export it or add it to .env}"
 
 echo ""
 echo "============================================"
