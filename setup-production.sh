@@ -6,7 +6,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RDS_HOST=${RDS_HOST:-"briva-diena-db.c10oq8we434z.eu-north-1.rds.amazonaws.com"}
 RDS_USER=${RDS_USER:-"briva_diena_user"}
-RDS_PASSWORD=${RDS_PASSWORD:-"***REMOVED***"}
+RDS_PASSWORD=${RDS_PASSWORD:-"briva_diena_password"}
 
 echo ""
 echo "============================================"

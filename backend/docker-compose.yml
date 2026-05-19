@@ -7,7 +7,7 @@ services:
       MARIADB_ROOT_PASSWORD: example-root-pw
       MARIADB_DATABASE: briva_diena
       MARIADB_USER: briva_diena_user
-      MARIADB_PASSWORD: ***REMOVED***
+      MARIADB_PASSWORD: briva_diena_password
     ports:
       - "3307:3306"
     volumes:

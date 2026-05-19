@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { PdfService } from '../../shared/services/pdf.service';
+import { WordService } from '../../shared/services/word.service';
 
 interface RegistrationRow {
   id: number;
@@ -116,9 +117,12 @@ interface RegistrationRow {
                       </div>
                     </td>
                     <td class="text-muted small">{{ r.createdAt | date:'dd.MM.yyyy HH:mm' }}</td>
-                    <td class="action-cell">
-                      <button class="btn-pdf" (click)="downloadPdf(r)">PDF</button>
-                      <button class="btn-delete" (click)="deleteRegistration(r)">Dzēst</button>
+                    <td>
+                      <div class="action-cell">
+                        <button class="btn-word" (click)="downloadWord(r)">Word</button>
+                        <button class="btn-pdf" (click)="downloadPdf(r)">PDF</button>
+                        <button class="btn-delete" (click)="deleteRegistration(r)">Dzēst</button>
+                      </div>
                     </td>
                   </tr>
                   <!-- Companion rows linked to this registration -->
@@ -403,6 +407,23 @@ interface RegistrationRow {
       text-align: center;
     }
 
+    .btn-word {
+      background: #1e5f9e;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    .btn-word:hover {
+      background: #154878;
+    }
+
     .btn-pdf {
       background: #5C4033;
       color: #fff;
@@ -525,6 +546,7 @@ interface RegistrationRow {
     .action-cell {
       display: flex;
       align-items: center;
+      justify-content: flex-start;
       gap: 6px;
       white-space: nowrap;
     }
@@ -619,7 +641,7 @@ export class AdminRegistrationsComponent implements OnInit {
 
   private readonly apiUrl = '/api/registrations';
 
-  constructor(private http: HttpClient, private pdfService: PdfService) {}
+  constructor(private http: HttpClient, private pdfService: PdfService, private wordService: WordService) {}
 
   ngOnInit(): void {
     this.http.get<RegistrationRow[]>(this.apiUrl).subscribe({
@@ -638,6 +660,27 @@ export class AdminRegistrationsComponent implements OnInit {
         this.loading = false;
       },
       error: () => { this.error = 'Neizdevās ielādēt pieteikumus.'; this.loading = false; }
+    });
+  }
+
+  downloadWord(r: RegistrationRow): void {
+    this.wordService.downloadAgreement({
+      firstName: r.firstName,
+      lastName: r.lastName,
+      personalId: r.personalIdNumber ?? '',
+      email: r.email,
+      phone: r.phone,
+      tripName: r.trip?.name,
+      tripStartDate: r.trip?.startDate ? new Date(r.trip.startDate).toLocaleDateString('lv-LV') : undefined,
+      tripEndDate: r.trip?.endDate ? new Date(r.trip.endDate).toLocaleDateString('lv-LV') : undefined,
+      tripPriceCents: r.trip?.priceCents,
+      companions: (r.companions ?? []).map(c => ({
+        firstName: c.firstName,
+        lastName: c.lastName,
+        personalId: c.personalIdNumber ?? '',
+        phone: c.phone,
+        email: c.email,
+      })),
     });
   }
 
