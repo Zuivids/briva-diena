@@ -253,58 +253,6 @@ import { Review } from '../../shared/models/review.model';
 
         <hr class="section-divider" />
 
-        <!-- ── Reviews ── -->
-        <section class="admin-section">
-          <h4 class="section-heading">Atsauksmes</h4>
-
-          <div class="items-list mb-3">
-            <div *ngFor="let review of reviews" class="list-item">
-              <div class="list-item-info">
-                <strong>{{ review.customerName }}</strong>
-                <span class="ms-2 text-muted small">
-                  {{ review.reviewText.length > 90 ? (review.reviewText | slice:0:90) + '...' : review.reviewText }}
-                </span>
-                <span class="ms-2">
-                  <span *ngFor="let s of getStars(review.rating)" class="star">★</span>
-                </span>
-              </div>
-              <button class="btn btn-sm btn-outline-danger" (click)="removeReview(review.id)">Dzēst</button>
-            </div>
-            <p *ngIf="reviews.length === 0" class="text-muted small mb-0">Nav pievienotu atsauksmju.</p>
-          </div>
-
-          <div class="add-form">
-            <p class="add-form-label">Pievienot atsauksmi</p>
-            <div class="row g-2">
-              <div class="col-md-5">
-                <input type="text" [(ngModel)]="newReviewName" name="rName"
-                  class="form-control form-control-sm" placeholder="Vārds" />
-              </div>
-              <div class="col-md-3">
-                <select [(ngModel)]="newReviewRating" name="rRating"
-                  class="form-select form-select-sm">
-                  <option [value]="5">5 ★</option>
-                  <option [value]="4">4 ★</option>
-                  <option [value]="3">3 ★</option>
-                  <option [value]="2">2 ★</option>
-                  <option [value]="1">1 ★</option>
-                </select>
-              </div>
-              <div class="col-12">
-                <textarea [(ngModel)]="newReviewText" name="rText"
-                  class="form-control form-control-sm" rows="2"
-                  placeholder="Atsauksmes teksts"></textarea>
-              </div>
-              <div class="col-md-3">
-                <button class="btn btn-primary btn-sm" (click)="addReview()">Pievienot</button>
-              </div>
-              <div *ngIf="reviewError" class="col-12">
-                <span class="text-danger small">{{ reviewError }}</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
       </div>
     </div>
   `,
