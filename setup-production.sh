@@ -5,17 +5,22 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Load secrets from .env file if present (never committed to git)
-if [ -f "$SCRIPT_DIR/.env" ]; then
+# Load secrets from backend/.env (never committed to git)
+if [ -f "$SCRIPT_DIR/backend/.env" ]; then
   set -a
-  source "$SCRIPT_DIR/.env"
+  source "$SCRIPT_DIR/backend/.env"
   set +a
 fi
 
 # Require these to be set — no hardcoded defaults
-: "${RDS_HOST:?RDS_HOST is not set. Export it or add it to .env}"
-: "${RDS_USER:?RDS_USER is not set. Export it or add it to .env}"
-: "${RDS_PASSWORD:?RDS_PASSWORD is not set. Export it or add it to .env}"
+: "${DB_USER:?DB_USER is not set. Add it to backend/.env}"
+: "${DB_PASSWORD:?DB_PASSWORD is not set. Add it to backend/.env}"
+: "${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD is not set. Add it to backend/.env}"
+
+# DB is the local Docker container
+DB_HOST="localhost"
+DB_PORT="3307"
+DB_NAME="${DB_NAME:-briva_diena}"
 
 echo ""
 echo "============================================"
@@ -28,9 +33,9 @@ echo "Creating application configuration..."
 cat > "$SCRIPT_DIR/backend/src/main/resources/application.yaml" << EOF
 spring:
   datasource:
-    url: jdbc:mariadb://$RDS_HOST:3306/briva_diena
-    username: $RDS_USER
-    password: $RDS_PASSWORD
+    url: jdbc:mariadb://$DB_HOST:$DB_PORT/$DB_NAME
+    username: $DB_USER
+    password: $DB_PASSWORD
   jpa:
     hibernate:
       ddl-auto: none
@@ -110,9 +115,9 @@ RestartSec=10
 StandardOutput=journal
 StandardError=journal
 
-Environment="SPRING_DATASOURCE_URL=jdbc:mariadb://$RDS_HOST:3306/briva_diena"
-Environment="SPRING_DATASOURCE_USERNAME=$RDS_USER"
-Environment="SPRING_DATASOURCE_PASSWORD=$RDS_PASSWORD"
+Environment="SPRING_DATASOURCE_URL=jdbc:mariadb://$DB_HOST:$DB_PORT/$DB_NAME"
+Environment="SPRING_DATASOURCE_USERNAME=$DB_USER"
+Environment="SPRING_DATASOURCE_PASSWORD=$DB_PASSWORD"
 Environment="APP_UPLOADS_PATH=/var/uploads"
 Environment="APP_IMAGES_PATH=/var/images"
 

@@ -3,11 +3,13 @@ services:
   mariadb:
     image: mariadb:11
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      MARIADB_ROOT_PASSWORD: example-root-pw
-      MARIADB_DATABASE: briva_diena
-      MARIADB_USER: briva_diena_user
-      MARIADB_PASSWORD: briva_diena_password
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DB_NAME:-briva_diena}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3307:3306"
     volumes:
