@@ -157,6 +157,9 @@ interface TripImage { id: number; path: string; isCover: boolean; }
                   <li *ngIf="trip.groupSize">
                     <span><strong>Dalībnieku skaits:</strong> {{ trip.groupSize }}</span>
                   </li>
+                  <li *ngIf="trip.transportationType">
+                    <span><strong>Pārvietošanās:</strong> {{ trip.transportationType }}</span>
+                  </li>
                   <li *ngIf="trip.accommodation">
                     <span><strong>Naktsmītnes:</strong> {{ trip.accommodation }}</span>
                   </li>
