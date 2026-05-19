@@ -16,7 +16,10 @@ echo ""
 
 # ── 1. Pull latest code ─────────────────────────────
 echo "[1/5] Pulling latest changes from git..."
-git -C "$SCRIPT_DIR" pull origin main
+# Fix ownership in case previous root runs corrupted it
+chown -R ubuntu:ubuntu "$SCRIPT_DIR" 2>/dev/null || true
+sudo -u ubuntu git -C "$SCRIPT_DIR" fetch origin
+sudo -u ubuntu git -C "$SCRIPT_DIR" reset --hard origin/main
 echo "[OK] Code updated"
 echo ""
 
