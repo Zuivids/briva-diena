@@ -21,8 +21,14 @@ import { catchError, switchMap, map } from 'rxjs/operators';
       <!-- Hero Section -->
       <section class="hero-section">
         <img *ngIf="heroImageLoaded" [src]="(adminState.heroImageSrc$ | async) || 'landing_page_image.png'" alt="Hero image" class="hero-image" />
-        <div class="hero-text">
-          <h1>Mazas grupas – lieli iespaidi</h1>
+        <div class="hero-overlay" [style.background]="heroOverlayBg"></div>
+        <div class="hero-text" [ngStyle]="heroTextPositionStyle">
+          <h1
+            [style.fontFamily]="heroTextFont"
+            [style.fontWeight]="heroTextBold ? 700 : 400"
+            [style.fontSize.px]="heroTextSize">
+            {{ heroTextContent }}
+          </h1>
         </div>
       </section>
 
@@ -149,9 +155,9 @@ import { catchError, switchMap, map } from 'rxjs/operators';
 
     .hero-section { position: relative; width: 100%; overflow: hidden; }
     .hero-image { width: 100%; height: auto; max-height: 40vh; display: block; object-fit: cover; }
+    .hero-overlay { position: absolute; inset: 0; pointer-events: none; }
     .hero-text {
-      position: absolute; top: 50%; left: 0; padding: 0 2rem;
-      transform: translateY(-50%);
+      position: absolute; top: 50%;
     }
     .hero-text h1 {
       color: #fff; font-size: clamp(1.4rem, 4vw, 2.5rem); font-weight: 700;
@@ -247,6 +253,12 @@ import { catchError, switchMap, map } from 'rxjs/operators';
 })
 export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   heroImageLoaded = false;
+  heroOverlayBg = 'none';
+  heroTextContent = 'Mazas grupas \u2013 lieli iespaidi';
+  heroTextFont = 'inherit';
+  heroTextBold = true;
+  heroTextSize = 32;
+  heroTextPosition = 'left';
   topTrips: Trip[] = [];
   lastChanceTrips: Trip[] = [];
   coverMapTop: Record<string, string> = {};
@@ -271,6 +283,21 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
         if (res.path) {
           this.adminState.heroImageSrc$.next('/images/' + res.path);
         }
+        const opacity = res.overlayOpacity ?? 0;
+        if (opacity < 0) {
+          this.heroOverlayBg = `rgba(0,0,0,${Math.abs(opacity) / 100})`;
+        } else if (opacity > 0) {
+          this.heroOverlayBg = `rgba(255,255,255,${opacity / 100})`;
+        } else {
+          this.heroOverlayBg = 'none';
+        }
+        this.heroTextContent = res.textContent || 'Mazas grupas \u2013 lieli iespaidi';
+        this.heroTextFont = res.textFont || 'inherit';
+        this.heroTextBold = res.textBold ?? true;
+        this.heroTextSize = res.textSize || 32;
+        this.heroTextPosition = res.textPosition || 'left';
+        const fontNames = (res.googleFonts || '').split(',').map((f: string) => f.trim()).filter(Boolean);
+        this.loadGoogleFonts(fontNames);
         this.heroImageLoaded = true;
       },
       error: () => { this.heroImageLoaded = true; }
@@ -295,6 +322,30 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {}
+
+  get heroTextPositionStyle(): { [key: string]: string } {
+    switch (this.heroTextPosition) {
+      case 'center':
+        return { left: '50%', right: 'auto', transform: 'translate(-50%, -50%)', width: '100%', textAlign: 'center', padding: '0 2rem' };
+      case 'right':
+        return { left: 'auto', right: '0', transform: 'translateY(-50%)', textAlign: 'right', padding: '0 2rem' };
+      default:
+        return { left: '0', right: 'auto', transform: 'translateY(-50%)', textAlign: 'left', padding: '0 2rem' };
+    }
+  }
+
+  private loadGoogleFonts(fontNames: string[]): void {
+    fontNames.forEach(name => {
+      const encoded = name.replace(/\s+/g, '+');
+      const href = `https://fonts.googleapis.com/css2?family=${encoded}:wght@400;700&display=swap`;
+      if (!this.document.querySelector(`link[href="${href}"]`)) {
+        const link = this.document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        this.document.head.appendChild(link);
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     this.processInstagramEmbeds();

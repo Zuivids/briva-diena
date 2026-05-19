@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AdminStateService } from '../../shared/services/admin-state.service';
@@ -23,10 +23,12 @@ import { Review } from '../../shared/models/review.model';
 
       <div class="container py-4">
 
-        <!-- ── Hero Image ── -->
+        <!-- ── Hero / Titulbildes rediģēšana ── -->
         <section class="admin-section">
-          <h4 class="section-heading">Galvenās lapas attēls</h4>
-          <div class="hero-row">
+          <h4 class="section-heading">Titulbildes rediģēšana</h4>
+
+          <!-- Image upload row -->
+          <div class="hero-row mb-3">
             <img [src]="heroPreview" alt="Hero preview" class="hero-thumb" />
             <div class="ms-3">
               <label class="btn btn-outline-primary btn-sm upload-btn" for="heroFile">
@@ -41,6 +43,86 @@ import { Review } from '../../shared/models/review.model';
               </label>
               <p class="hint mt-2">Ieteicamais izmērs: 1600 × 900 px</p>
             </div>
+          </div>
+
+          <!-- Overlay brightness -->
+          <div class="mb-3">
+            <label class="form-label-sm d-block mb-1">
+              Attēla spilgtums: <strong>{{ heroOverlayOpacity > 0 ? '+' : '' }}{{ heroOverlayOpacity }}%</strong>
+            </label>
+            <p class="hint mb-1">Negatīvs = tumšāks, pozitīvs = gaišāks</p>
+            <input type="range" class="form-range" min="-100" max="100" step="1"
+              [(ngModel)]="heroOverlayOpacity" name="heroOverlayOpacity" />
+          </div>
+
+          <hr class="my-3" />
+
+          <!-- Hero text settings -->
+          <p class="add-form-label mb-2">Virsraksta teksts</p>
+
+          <div class="mb-2">
+            <label class="form-label-sm d-block mb-1">Teksts</label>
+            <input type="text" class="form-control form-control-sm"
+              [(ngModel)]="heroTextContent" name="heroTextContent"
+              placeholder="Mazas grupas – lieli iespaidi" />
+          </div>
+
+          <div class="row g-2 mb-2">
+            <div class="col-md-5">
+              <label class="form-label-sm d-block mb-1">Fonts</label>
+              <select class="form-select form-select-sm" [(ngModel)]="heroTextFont" name="heroTextFont">
+                <option value="inherit">Noklusētais</option>
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="Georgia, serif">Georgia</option>
+                <option value="'Times New Roman', serif">Times New Roman</option>
+                <option value="Verdana, sans-serif">Verdana</option>
+                <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                <option *ngFor="let opt of googleFontOptions" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label-sm d-block mb-1">Teksta novietojums</label>
+              <select class="form-select form-select-sm" [(ngModel)]="heroTextPosition" name="heroTextPosition">
+                <option value="left">Kreisi</option>
+                <option value="center">Centrā</option>
+                <option value="right">Labajā pusē</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label-sm d-block mb-1">Izmērs (px)</label>
+              <input type="number" class="form-control form-control-sm"
+                [(ngModel)]="heroTextSize" name="heroTextSize" min="8" max="120" />
+            </div>
+            <div class="col-md-1 d-flex align-items-end pb-1">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="heroTextBold"
+                  [(ngModel)]="heroTextBold" name="heroTextBold" />
+                <label class="form-check-label" for="heroTextBold">Treknraksts</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Google Fonts -->
+          <div class="mb-3">
+            <label class="form-label-sm d-block mb-1">Pievienot Google fontu</label>
+            <div class="d-flex gap-2">
+              <input type="text" class="form-control form-control-sm"
+                [(ngModel)]="newGoogleFont" name="newGoogleFont"
+                placeholder="piem., Playfair Display"
+                (keydown.enter)="addGoogleFont()" />
+              <button class="btn btn-outline-primary btn-sm flex-shrink-0" (click)="addGoogleFont()">Pievienot</button>
+            </div>
+            <div class="d-flex flex-wrap gap-1 mt-2" *ngIf="googleFontsList.length > 0">
+              <span *ngFor="let f of googleFontsList" class="google-font-chip">
+                {{ f }}
+                <button (click)="removeGoogleFont(f)" class="google-font-chip-remove">&times;</button>
+              </span>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-primary btn-sm" (click)="saveHeroSettings()">Saglabāt</button>
+            <span *ngIf="heroSettingsSaved" class="text-success small">Saglabāts!</span>
           </div>
         </section>
 
@@ -588,6 +670,27 @@ import { Review } from '../../shared/models/review.model';
       background-color: #5C4033 !important;
       color: #fff !important;
     }
+
+    .google-font-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #5C4033;
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .google-font-chip-remove {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.9rem;
+      line-height: 1;
+      padding: 0;
+    }
   `]
 })
 export class AdminDashboardComponent implements OnInit {
@@ -613,6 +716,16 @@ export class AdminDashboardComponent implements OnInit {
   newInstagramUrl = '';
   instagramError = '';
   heroPreview = 'italy_mountain.png';
+  heroOverlayOpacity = 0;
+  heroTextContent = 'Mazas grupas \u2013 lieli iespaidi';
+  heroTextFont = 'inherit';
+  heroTextBold = true;
+  heroTextSize = 32;
+  heroTextPosition = 'left';
+  googleFonts = '';
+  googleFontsList: string[] = [];
+  newGoogleFont = '';
+  heroSettingsSaved = false;
 
   // Trip form
   newTripName = '';
@@ -646,7 +759,8 @@ export class AdminDashboardComponent implements OnInit {
     private heroImageService: HeroImageService,
     private siteContentService: SiteContentService,
     private faqService: FaqService,
-    private router: Router
+    private router: Router,
+    @Inject(DOCUMENT) private document: Document
   ) {}
 
   ngOnInit(): void {
@@ -657,6 +771,17 @@ export class AdminDashboardComponent implements OnInit {
           this.heroPreview = src;
           this.adminState.heroImageSrc$.next(src);
         }
+        this.heroOverlayOpacity = res.overlayOpacity ?? 0;
+        this.heroTextContent = res.textContent || 'Mazas grupas \u2013 lieli iespaidi';
+        this.heroTextFont = res.textFont || 'inherit';
+        this.heroTextBold = res.textBold ?? true;
+        this.heroTextSize = res.textSize || 32;
+        this.heroTextPosition = res.textPosition || 'left';
+        this.googleFonts = res.googleFonts || '';
+        this.googleFontsList = this.googleFonts
+          ? this.googleFonts.split(',').map(f => f.trim()).filter(Boolean)
+          : [];
+        this.googleFontsList.forEach(f => this.loadGoogleFont(f));
       },
       error: () => {}
     });
@@ -711,9 +836,70 @@ export class AdminDashboardComponent implements OnInit {
         const src = '/images/' + res.path;
         this.heroPreview = src;
         this.adminState.heroImageSrc$.next(src);
+        this.heroOverlayOpacity = res.overlayOpacity ?? 0;
+        this.heroTextContent = res.textContent || 'Mazas grupas \u2013 lieli iespaidi';
+        this.heroTextFont = res.textFont || 'inherit';
+        this.heroTextBold = res.textBold ?? true;
+        this.heroTextSize = res.textSize || 32;
+        this.heroTextPosition = res.textPosition || 'left';
+        this.googleFonts = res.googleFonts || '';
+        this.googleFontsList = this.googleFonts
+          ? this.googleFonts.split(',').map(f => f.trim()).filter(Boolean)
+          : [];
       },
       error: () => {}
     });
+  }
+
+  saveHeroSettings(): void {
+    this.heroImageService.updateSettings({
+      overlayOpacity: this.heroOverlayOpacity,
+      textContent: this.heroTextContent,
+      textFont: this.heroTextFont,
+      textBold: this.heroTextBold,
+      textSize: this.heroTextSize,
+      textPosition: this.heroTextPosition,
+      googleFonts: this.googleFonts
+    }).subscribe({
+      next: () => {
+        this.heroSettingsSaved = true;
+        setTimeout(() => (this.heroSettingsSaved = false), 2000);
+      },
+      error: () => {}
+    });
+  }
+
+  get googleFontOptions(): { value: string; label: string }[] {
+    return this.googleFontsList.map(f => ({ value: "'" + f + "', sans-serif", label: f }));
+  }
+
+  addGoogleFont(): void {
+    const name = this.newGoogleFont.trim();
+    if (!name) return;
+    if (this.googleFontsList.includes(name)) {
+      this.newGoogleFont = '';
+      return;
+    }
+    this.googleFontsList = [...this.googleFontsList, name];
+    this.googleFonts = this.googleFontsList.join(',');
+    this.loadGoogleFont(name);
+    this.newGoogleFont = '';
+  }
+
+  removeGoogleFont(name: string): void {
+    this.googleFontsList = this.googleFontsList.filter(f => f !== name);
+    this.googleFonts = this.googleFontsList.join(',');
+  }
+
+  private loadGoogleFont(name: string): void {
+    const encoded = name.trim().replace(/\s+/g, '+');
+    const href = `https://fonts.googleapis.com/css2?family=${encoded}:wght@400;700&display=swap`;
+    if (!this.document.querySelector(`link[href="${href}"]`)) {
+      const link = this.document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      this.document.head.appendChild(link);
+    }
   }
 
   addTrip(): void {
