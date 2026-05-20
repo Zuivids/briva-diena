@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from '@angular/core';
+﻿import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TripService } from '../../shared/services/trip.service';
@@ -113,11 +113,11 @@ interface TripImage { id: number; path: string; isCover: boolean; }
               <section class="detail-section" *ngIf="galleryImages.length > 0">
                 <h3 class="detail-heading">Foto galerija</h3>
                 <div class="gallery-grid">
-                  <img *ngFor="let img of galleryImages"
+                  <img *ngFor="let img of galleryImages; let i = index"
                        [src]="imageBase + img.path"
                        [alt]="trip.name"
                        class="gallery-img"
-                       (click)="openLightbox(img.path)"
+                       (click)="openLightbox(img.path, i)"
                   />
                 </div>
               </section>
@@ -180,6 +180,20 @@ interface TripImage { id: number; path: string; isCover: boolean; }
       <div *ngIf="lightboxSrc" class="lightbox" (click)="closeLightbox()">
         <img [src]="imageBase + lightboxSrc" class="lightbox-img" (click)="$event.stopPropagation()" />
         <button class="lightbox-close" (click)="closeLightbox()">&#x2715;</button>
+        <button *ngIf="lightboxIndex !== null && galleryImages.length > 1"
+                class="lightbox-nav lightbox-prev"
+                (click)="lightboxPrev(); $event.stopPropagation()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <button *ngIf="lightboxIndex !== null && galleryImages.length > 1"
+                class="lightbox-nav lightbox-next"
+                (click)="lightboxNext(); $event.stopPropagation()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
       </div>
 
     </div>
@@ -452,6 +466,66 @@ interface TripImage { id: number; path: string; isCover: boolean; }
       line-height: 1;
     }
 
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      color: #fff;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 2001;
+      transition:
+        background 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .lightbox-nav svg {
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .lightbox-prev { left: 24px; }
+    .lightbox-next { right: 24px; }
+
+    .lightbox-prev:hover {
+      background: rgba(255, 255, 255, 0.28);
+      border-color: rgba(255, 255, 255, 0.65);
+      transform: translateY(-50%) scale(1.13) translateX(-3px);
+      box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.07), 0 8px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    .lightbox-next:hover {
+      background: rgba(255, 255, 255, 0.28);
+      border-color: rgba(255, 255, 255, 0.65);
+      transform: translateY(-50%) scale(1.13) translateX(3px);
+      box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.07), 0 8px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    .lightbox-nav:hover svg {
+      transform: scale(1.15);
+    }
+
+    .lightbox-nav:active {
+      transition-duration: 0.1s;
+      transform: translateY(-50%) scale(0.93);
+    }
+
+    @media (max-width: 576px) {
+      .lightbox-nav { width: 40px; height: 40px; }
+      .lightbox-prev { left: 10px; }
+      .lightbox-next { right: 10px; }
+    }
+
     @media (max-width: 576px) {
       .day-body.has-image { grid-template-columns: 1fr; }
     }
@@ -468,11 +542,12 @@ interface TripImage { id: number; path: string; isCover: boolean; }
     }
   `]
 })
-export class TripDetailComponent implements OnInit {
+export class TripDetailComponent implements OnInit, OnDestroy {
   trip: Trip | null = null;
   images: TripImage[] = [];
   heroImage: string | null = null;
   lightboxSrc: string | null = null;
+  lightboxIndex: number | null = null;
   loading = true;
   error = '';
   itinerary: TripDay[] = [];
@@ -528,6 +603,37 @@ export class TripDetailComponent implements OnInit {
     return this.images.filter(img => !img.isCover);
   }
 
-  openLightbox(path: string): void { this.lightboxSrc = path; }
-  closeLightbox(): void { this.lightboxSrc = null; }
+  openLightbox(path: string, galleryIndex?: number): void {
+    this.lightboxSrc = path;
+    this.lightboxIndex = galleryIndex ?? null;
+  }
+
+  closeLightbox(): void {
+    this.lightboxSrc = null;
+    this.lightboxIndex = null;
+  }
+
+  lightboxPrev(): void {
+    if (this.lightboxIndex === null) return;
+    const imgs = this.galleryImages;
+    this.lightboxIndex = (this.lightboxIndex - 1 + imgs.length) % imgs.length;
+    this.lightboxSrc = imgs[this.lightboxIndex].path;
+  }
+
+  lightboxNext(): void {
+    if (this.lightboxIndex === null) return;
+    const imgs = this.galleryImages;
+    this.lightboxIndex = (this.lightboxIndex + 1) % imgs.length;
+    this.lightboxSrc = imgs[this.lightboxIndex].path;
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(e: KeyboardEvent): void {
+    if (!this.lightboxSrc) return;
+    if (e.key === 'Escape') { this.closeLightbox(); }
+    if (e.key === 'ArrowLeft') { this.lightboxPrev(); }
+    if (e.key === 'ArrowRight') { this.lightboxNext(); }
+  }
+
+  ngOnDestroy(): void {}
 }

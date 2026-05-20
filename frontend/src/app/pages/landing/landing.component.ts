@@ -26,7 +26,7 @@ import { catchError, switchMap, map } from 'rxjs/operators';
           <h1
             [style.fontFamily]="heroTextFont"
             [style.fontWeight]="heroTextBold ? 700 : 400"
-            [style.fontSize.px]="heroTextSize">
+            [style.fontSize]="heroFontSizeStyle">
             {{ heroTextContent }}
           </h1>
         </div>
@@ -160,8 +160,9 @@ import { catchError, switchMap, map } from 'rxjs/operators';
       position: absolute; top: 50%;
     }
     .hero-text h1 {
-      color: #fff; font-size: clamp(1.4rem, 4vw, 2.5rem); font-weight: 700;
+      color: #fff; font-weight: 700;
       text-shadow: 0 2px 12px rgba(0,0,0,0.45); margin: 0; line-height: 1.2;
+      white-space: nowrap;
     }
 
     .section-title { color: #5C4033;text-align: center; font-weight: 700; }
@@ -322,6 +323,13 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {}
+
+  get heroFontSizeStyle(): string {
+    // Scale proportionally with viewport width; cap at admin-set size
+    // Assumes the design reference width is ~1400px
+    const vw = +(this.heroTextSize / 14).toFixed(2);
+    return `clamp(0.75rem, ${vw}vw, ${this.heroTextSize}px)`;
+  }
 
   get heroTextPositionStyle(): { [key: string]: string } {
     switch (this.heroTextPosition) {
