@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-contacts',
@@ -67,7 +68,17 @@ import { FormsModule } from '@angular/forms';
                 ></textarea>
               </div>
               <div class="text-center">
-                <button type="submit" class="btn btn-submit">Nosūtīt ziņu</button>
+                <button type="submit" class="btn btn-submit" [disabled]="loading">
+                  <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                  {{ loading ? 'Sūta...' : 'Nosūtīt ziņu' }}
+                </button>
+              </div>
+
+              <div *ngIf="submitted" class="alert alert-success mt-4 text-center">
+                Paldies! Tavs ziņojums ir nosūtīts. Sazināsimies ar tevi drīzumā.
+              </div>
+              <div *ngIf="errorMsg" class="alert alert-danger mt-4 text-center">
+                {{ errorMsg }}
               </div>
             </form>
         </div>
@@ -151,16 +162,29 @@ import { FormsModule } from '@angular/forms';
   `]
 })
 export class ContactsComponent {
-  formData = {
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
-  };
+  formData = { name: '', email: '', phone: '', message: '' };
+  loading = false;
+  submitted = false;
+  errorMsg = '';
+
+  constructor(private http: HttpClient) {}
 
   onSubmit() {
-    // Form submission handled by backend
-    console.log('Contact form submitted', this.formData);
-    this.formData = { name: '', email: '', phone: '', message: '' };
+    if (!this.formData.email || !this.formData.message) return;
+    this.loading = true;
+    this.errorMsg = '';
+    this.submitted = false;
+
+    this.http.post('/api/contact', this.formData).subscribe({
+      next: () => {
+        this.submitted = true;
+        this.loading = false;
+        this.formData = { name: '', email: '', phone: '', message: '' };
+      },
+      error: () => {
+        this.errorMsg = 'Neizdevās nosūtīt ziņojumu. Lūdzu, mēģini vēlreiz vai sazinies pa e-pastu tieši.';
+        this.loading = false;
+      }
+    });
   }
 }

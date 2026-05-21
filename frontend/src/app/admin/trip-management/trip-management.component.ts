@@ -318,7 +318,7 @@ interface TripForm {
           <div class="form-section">
             <h5 class="section-label">11. Lidojumu datumi un laiki</h5>
 
-            <div *ngFor="let entry of flightSchedules; let i = index; trackBy: trackByIndex" class="flight-entry-row">
+            <div *ngFor="let entry of flightSchedules; let i = index" class="flight-entry-row">
               <input type="text" [(ngModel)]="flightSchedules[i]" [name]="'flight' + i"
                      class="form-control field-input"
                      placeholder="piem., Rīga – Milāna (08:25 – 10:10) 13.06.2026" />

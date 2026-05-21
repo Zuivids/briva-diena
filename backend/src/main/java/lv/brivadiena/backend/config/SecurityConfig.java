@@ -47,6 +47,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/site-content/**").permitAll()
                         // Customers submitting their own registration — public
                         .requestMatchers(HttpMethod.POST, "/api/registrations").permitAll()
+                        // Contact form — public
+                        .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
                         // Static file serving
                         .requestMatchers("/uploads/**", "/images/**").permitAll()
                         // Everything else requires a valid JWT
