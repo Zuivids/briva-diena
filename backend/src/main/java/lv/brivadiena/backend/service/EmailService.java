@@ -22,7 +22,6 @@ public class EmailService {
         }
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setTo(contactEmail);
-        msg.setFrom(contactEmail);
         msg.setReplyTo(senderEmail);
         msg.setSubject("Jauns ziņojums no " + (name != null && !name.isBlank() ? name : "Kontaktu formas"));
 
