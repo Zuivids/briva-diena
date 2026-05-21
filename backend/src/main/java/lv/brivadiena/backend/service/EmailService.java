@@ -9,13 +9,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
-    @Autowired
+    @Autowired(required = false)
     private JavaMailSender mailSender;
 
     @Value("${app.contact-email:info@brivadiena.lv}")
     private String contactEmail;
 
     public void sendContactEmail(String name, String senderEmail, String phone, String message) {
+        if (mailSender == null) {
+            throw new IllegalStateException(
+                    "Mail service is not configured (APP_MAIL_USERNAME/APP_MAIL_PASSWORD missing)");
+        }
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setTo(contactEmail);
         msg.setFrom(contactEmail);
