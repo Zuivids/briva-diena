@@ -474,7 +474,7 @@ export class TripsComponent implements OnInit {
     this.tripService.getAllTrips().subscribe({
       next: (data) => {
         const visible = data.filter(t => !t.hidden)
-          .sort((a, b) => b.startDate.localeCompare(a.startDate));
+          .sort((a, b) => a.startDate.localeCompare(b.startDate));
         this.trips = visible;
         this.filteredTrips = [...visible];
         this.loading = false;
@@ -544,7 +544,7 @@ export class TripsComponent implements OnInit {
       if (this.minPrice !== null && euros < this.minPrice) return false;
       if (this.maxPrice !== null && euros > this.maxPrice) return false;
       return true;
-    }).sort((a, b) => b.startDate.localeCompare(a.startDate));
+    }).sort((a, b) => a.startDate.localeCompare(b.startDate));
   }
 
   resetFilters(): void {
