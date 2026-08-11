@@ -7,6 +7,7 @@ import { SplashService } from '../../shared/services/splash.service';
 import { Trip } from '../../shared/models/trip.model';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { bgImageUrl } from '../../shared/utils/image-url.util';
 
 const LATVIAN_MONTHS = [
   'Janvāris','Februāris','Marts','Aprīlis','Maijs','Jūnijs',
@@ -79,7 +80,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
                 <a [routerLink]="['/trip', trip.id]" class="trip-card-link">
                 <div class="trip-card">
                   <div class="trip-card-img"
-                    [style.backgroundImage]="coverMap[trip.id] ? 'url(/images/' + coverMap[trip.id] + ')' : 'none'"
+                    [style.backgroundImage]="bgImageUrl(coverMap[trip.id])"
                     [class.no-cover]="!coverMap[trip.id]">
                     <div *ngIf="trip.availableSpots === 0" class="soldout-overlay">Izpārdots</div>
                   </div>
@@ -434,6 +435,8 @@ interface MonthOption { key: string; year: number; month: number; label: string;
   `]
 })
 export class TripsComponent implements OnInit {
+  readonly bgImageUrl = bgImageUrl;
+
   trips: Trip[] = [];
   filteredTrips: Trip[] = [];
   coverMap: Record<string, string> = {};

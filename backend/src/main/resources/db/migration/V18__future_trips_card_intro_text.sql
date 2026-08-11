@@ -1,0 +1,1 @@
+ALTER TABLE future_trips_card ADD COLUMN intro_text VARCHAR(2000) NOT NULL DEFAULT '2027. gadā plānojam vairākus jaunus ceļojumu virzienus. Precīzi datumi un cenas vēl tiek apstiprināti — piesakies uz jebkuru no tēmām, un mēs tevi informēsim, tiklīdz būs jaunumi.';

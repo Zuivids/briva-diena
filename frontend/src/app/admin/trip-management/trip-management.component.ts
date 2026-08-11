@@ -5,6 +5,8 @@ import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { TripService } from '../../shared/services/trip.service';
 import { AdminStateService } from '../../shared/services/admin-state.service';
+import { FutureTripsCardService } from '../../shared/services/future-trips-card.service';
+import { FutureTripTopicService, FutureTripTopic } from '../../shared/services/future-trip-topic.service';
 import { Trip } from '../../shared/models/trip.model';
 
 interface FormDay {
@@ -42,6 +44,55 @@ interface TripForm {
     <div class="tm-page">
 
       <div class="container py-4">
+
+        <!-- ── Future trips teaser card (fixed at top) ── -->
+        <section class="admin-section future-card-section">
+          <div class="section-top-row">
+            <h4 class="section-heading">"Jaunie ceļojumi" kartīte (GAIDĀMIE CEĻOJUMI sadaļā)</h4>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="futureCardEnabled" [(ngModel)]="futureCardEnabled">
+              <label class="form-check-label" for="futureCardEnabled">Rādīt</label>
+            </div>
+          </div>
+          <div class="future-card-form">
+            <input type="text" class="form-control field-input" [(ngModel)]="futureCardTitle" placeholder="Kartītes virsraksts" />
+            <button class="btn btn-primary btn-sm" [disabled]="futureCardSaving" (click)="saveFutureCardConfig()">
+              {{ futureCardSaving ? 'Saglabā...' : 'Saglabāt' }}
+            </button>
+            <span *ngIf="futureCardSaveMsg" class="future-card-msg">{{ futureCardSaveMsg }}</span>
+          </div>
+
+          <div class="future-card-intro-row">
+            <label class="af-label">Ievada teksts lapā "Jaunumi par ceļojumiem"</label>
+            <textarea class="form-control field-input" rows="3" [(ngModel)]="futureCardIntroText"></textarea>
+          </div>
+
+          <div class="future-card-image-row">
+            <div class="future-card-image-preview">
+              <img *ngIf="futureCardImagePath" [src]="imageBase + futureCardImagePath" alt="Kartītes attēls" />
+              <span *ngIf="!futureCardImagePath" class="text-muted small">Nav attēla</span>
+            </div>
+            <label class="btn btn-outline-primary btn-sm upload-label">
+              {{ futureCardImagePath ? 'Mainīt attēlu' : 'Pievienot attēlu' }}
+              <input type="file" accept="image/*" class="visually-hidden" (change)="onFutureCardImageChange($event)" />
+            </label>
+            <span *ngIf="futureCardImageUploading" class="future-card-msg">Augšupielādē...</span>
+          </div>
+
+          <div class="future-topics-block">
+            <h5 class="section-label">Tēmas lapā "Jaunumi par ceļojumiem"</h5>
+            <div *ngFor="let topic of futureTopics" class="future-topic-row">
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="topic.title" placeholder="Virsraksts" />
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="topic.description" placeholder="Apraksts" />
+              <button class="btn btn-sm btn-outline-primary" [disabled]="futureTopicSaving[topic.id]" (click)="saveFutureTopic(topic)">
+                {{ futureTopicSaving[topic.id] ? 'Saglabā...' : 'Saglabāt' }}
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="deleteFutureTopic(topic)">Dzēst</button>
+              <span *ngIf="futureTopicSaveMsg[topic.id]" class="future-card-msg">{{ futureTopicSaveMsg[topic.id] }}</span>
+            </div>
+            <button class="btn btn-sm btn-outline-secondary mt-2" (click)="addFutureTopic()">+ Pievienot tēmu</button>
+          </div>
+        </section>
 
         <!-- ── Existing trips ── -->
         <section class="admin-section" *ngIf="!showForm">
@@ -425,6 +476,75 @@ interface TripForm {
       margin: 0;
     }
 
+    .future-card-section { border: 1.5px solid #e8ebf4; }
+
+    .future-card-form {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .future-card-form .field-input { flex: 1; }
+
+    .future-card-msg {
+      font-size: 0.85rem;
+      color: #198754;
+      white-space: nowrap;
+    }
+
+    .future-card-intro-row {
+      margin-top: 14px;
+    }
+
+    .future-card-intro-row .af-label {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .future-card-intro-row textarea {
+      resize: vertical;
+    }
+
+    .future-card-image-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .future-card-image-preview {
+      width: 90px;
+      height: 60px;
+      border: 1.5px dashed #cbb5ae;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex: none;
+      background: #faf5f3;
+    }
+
+    .future-card-image-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .future-topics-block {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #f0e7e2;
+    }
+
+    .future-topic-row {
+      display: grid;
+      grid-template-columns: 1fr 2fr auto auto auto;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
     /* Trips list */
     .trips-list { display: flex; flex-direction: column; gap: 10px; }
 
@@ -680,7 +800,7 @@ interface TripForm {
   `]
 })
 export class TripManagementComponent implements OnInit {
-  readonly imageBase = '/api/images/';
+  readonly imageBase = '/images/';
 
   trips: Trip[] = [];
   loadingTrips = false;
@@ -733,14 +853,110 @@ export class TripManagementComponent implements OnInit {
   saveSuccess = '';
   saveProgress = 0;
 
+  futureCardTitle = 'Uzzini par jaunākiem ceļojumiem 2027';
+  futureCardEnabled = false;
+  futureCardImagePath = '';
+  futureCardImageUploading = false;
+  futureCardIntroText = '';
+  futureCardSaving = false;
+  futureCardSaveMsg = '';
+
+  futureTopics: FutureTripTopic[] = [];
+  futureTopicSaving: Record<number, boolean> = {};
+  futureTopicSaveMsg: Record<number, string> = {};
+
   constructor(
     private tripService: TripService,
     private adminState: AdminStateService,
+    private futureTripsCardService: FutureTripsCardService,
+    private futureTripTopicService: FutureTripTopicService,
     private router: Router
   ) {}
 
   ngOnInit() {
     this.loadTrips();
+    this.loadFutureCardConfig();
+    this.loadFutureTopics();
+  }
+
+  loadFutureCardConfig(): void {
+    this.futureTripsCardService.get().subscribe({
+      next: (res) => {
+        this.futureCardTitle = res.title;
+        this.futureCardEnabled = res.enabled;
+        this.futureCardImagePath = res.imagePath || '';
+        this.futureCardIntroText = res.introText || '';
+      },
+      error: () => {}
+    });
+  }
+
+  saveFutureCardConfig(): void {
+    this.futureCardSaving = true;
+    this.futureCardSaveMsg = '';
+    this.futureTripsCardService.updateSettings(this.futureCardTitle, this.futureCardEnabled, this.futureCardIntroText).subscribe({
+      next: () => {
+        this.futureCardSaving = false;
+        this.futureCardSaveMsg = 'Saglabāts.';
+        setTimeout(() => { this.futureCardSaveMsg = ''; }, 2500);
+      },
+      error: () => {
+        this.futureCardSaving = false;
+        this.futureCardSaveMsg = 'Neizdevās saglabāt.';
+      }
+    });
+  }
+
+  onFutureCardImageChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.futureCardImageUploading = true;
+    this.futureTripsCardService.uploadImage(file).subscribe({
+      next: (res) => {
+        this.futureCardImagePath = res.imagePath || '';
+        this.futureCardImageUploading = false;
+      },
+      error: () => { this.futureCardImageUploading = false; }
+    });
+  }
+
+  loadFutureTopics(): void {
+    this.futureTripTopicService.getAll().subscribe({
+      next: (topics) => { this.futureTopics = topics; },
+      error: () => {}
+    });
+  }
+
+  addFutureTopic(): void {
+    this.futureTripTopicService.create({ title: 'Jauna tēma', description: '', sortOrder: this.futureTopics.length + 1 })
+      .subscribe({
+        next: (topic) => { this.futureTopics.push(topic); },
+        error: () => {}
+      });
+  }
+
+  saveFutureTopic(topic: FutureTripTopic): void {
+    this.futureTopicSaving[topic.id] = true;
+    this.futureTopicSaveMsg[topic.id] = '';
+    this.futureTripTopicService.update(topic.id, topic).subscribe({
+      next: () => {
+        this.futureTopicSaving[topic.id] = false;
+        this.futureTopicSaveMsg[topic.id] = 'Saglabāts.';
+        setTimeout(() => { this.futureTopicSaveMsg[topic.id] = ''; }, 2500);
+      },
+      error: () => {
+        this.futureTopicSaving[topic.id] = false;
+        this.futureTopicSaveMsg[topic.id] = 'Neizdevās saglabāt.';
+      }
+    });
+  }
+
+  deleteFutureTopic(topic: FutureTripTopic): void {
+    this.futureTripTopicService.delete(topic.id).subscribe({
+      next: () => { this.futureTopics = this.futureTopics.filter(t => t.id !== topic.id); },
+      error: () => {}
+    });
   }
 
   get durationDays(): number {

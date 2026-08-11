@@ -10,6 +10,9 @@ export interface LoginResponse {
   preToken?: string;
   secret?: string;
   qrCodeUri?: string;
+  // Present only when MFA is disabled (app.mfa-enabled=false, local/dev only)
+  token?: string;
+  expiresIn?: number;
 }
 
 export interface AuthToken {
@@ -44,9 +47,17 @@ export class AuthService {
     }
   }
 
-  /** Step 1: validate username + password. Returns MFA challenge info. */
+  /** Step 1: validate username + password. Returns MFA challenge info (or a token directly if MFA is disabled). */
   login(username: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { username, password });
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { username, password }).pipe(
+      tap(response => {
+        if (response.token) {
+          this.setToken(response.token);
+          this.isAuthenticatedSubject.next(true);
+          this.startInactivityWatch();
+        }
+      })
+    );
   }
 
   /** Step 2: verify TOTP code and receive the full access token. */

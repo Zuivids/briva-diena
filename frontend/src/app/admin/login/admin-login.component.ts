@@ -159,6 +159,10 @@ export class AdminLoginComponent implements OnInit {
     this.authService.login(this.username, this.password).subscribe({
       next: (res: LoginResponse) => {
         this.loading = false;
+        if (res.token) {
+          this.router.navigate(['/admin/dashboard']);
+          return;
+        }
         this.preToken = res.preToken!;
         if (res.mfaSetupRequired) {
           this.totpSecret = res.secret!;

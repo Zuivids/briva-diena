@@ -31,6 +31,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/faq/faq.component').then(m => m.FAQComponent)
   },
   {
+    path: 'jaunumi-par-celojumiem',
+    loadComponent: () => import('./pages/jaunumi-par-celojumiem/jaunumi-par-celojumiem.component').then(m => m.JaunumiParCelojumiemComponent)
+  },
+  {
     path: 'registration',
     loadComponent: () => import('./pages/registration/registration.component').then(m => m.RegistrationComponent)
   },
@@ -67,6 +71,11 @@ export const routes: Routes = [
   {
     path: 'admin/trips',
     loadComponent: () => import('./admin/trip-management/trip-management.component').then(m => m.TripManagementComponent),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'admin/jaunumi',
+    loadComponent: () => import('./admin/newsletter-signups/newsletter-signups.component').then(m => m.AdminNewsletterSignupsComponent),
     canActivate: [AuthGuard]
   }
 ];

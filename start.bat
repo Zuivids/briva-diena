@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 echo.
 echo ============================================
-echo   Briva Diena - Starting Database, Backend & Frontend
+echo   Briva Diena - Starting Database, Backend ^& Frontend
 echo ============================================
 echo.
 

@@ -45,10 +45,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/faq").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/instagram-posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/site-content/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/future-trips-card").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/future-trip-topics/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/google-reviews").permitAll()
                         // Customers submitting their own registration — public
                         .requestMatchers(HttpMethod.POST, "/api/registrations").permitAll()
                         // Contact form — public
                         .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
+                        // Future trips newsletter signup — public (list stays admin-only)
+                        .requestMatchers(HttpMethod.POST, "/api/newsletter-signups").permitAll()
                         // Static file serving
                         .requestMatchers("/uploads/**", "/images/**").permitAll()
                         // Everything else requires a valid JWT

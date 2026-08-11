@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TripService } from '../../shared/services/trip.service';
 import { Trip, TripDay } from '../../shared/models/trip.model';
 import { HttpStatusCode } from '@angular/common/http';
+import { bgImageUrl } from '../../shared/utils/image-url.util';
 
 interface TripImage { id: number; path: string; isCover: boolean; }
 
@@ -29,7 +30,7 @@ interface TripImage { id: number; path: string; isCover: boolean; }
       <ng-container *ngIf="!loading && trip">
 
         <!-- Hero image -->
-        <div class="trip-hero" [style.backgroundImage]="heroImage ? 'url(' + imageBase + heroImage + ')' : 'none'">
+        <div class="trip-hero" [style.backgroundImage]="bgImageUrl(heroImage, imageBase)">
           <div class="trip-hero-overlay">
             <div class="container">
               <a routerLink="/trips" class="back-link">&#8592; Visi ceļojumi</a>
@@ -555,6 +556,7 @@ export class TripDetailComponent implements OnInit, OnDestroy {
   priceIncludedItems: string[] = [];
   extraChargeItems: string[] = [];
   readonly imageBase = '/images/';
+  readonly bgImageUrl = bgImageUrl;
 
   constructor(private route: ActivatedRoute, private tripService: TripService) {}
 

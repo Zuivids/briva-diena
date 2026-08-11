@@ -7,6 +7,7 @@ import lv.brivadiena.backend.config.TotpUtil;
 import lv.brivadiena.backend.model.AdminUser;
 import lv.brivadiena.backend.repository.AdminUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -33,6 +34,10 @@ public class AdminAuthController {
     @Autowired
     private TotpUtil totpUtil;
 
+    // Local/dev escape hatch only — must stay true in any deployed environment.
+    @Value("${app.mfa-enabled:true}")
+    private boolean mfaEnabled;
+
     /**
      * Step 1 — validate username + password.
      * Returns a short-lived pre-auth token plus MFA instructions.
@@ -42,6 +47,9 @@ public class AdminAuthController {
      *
      * Response when MFA already configured:
      *   { mfaRequired: true, preToken }
+     *
+     * Response when MFA is disabled via app.mfa-enabled=false (local/dev only):
+     *   { token, expiresIn }
      */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
@@ -64,6 +72,15 @@ public class AdminAuthController {
         }
 
         AdminUser user = userOpt.get();
+
+        if (!mfaEnabled) {
+            String accessToken = jwtUtil.generateAccessToken(username);
+            return ResponseEntity.ok(Map.of(
+                    "token", accessToken,
+                    "expiresIn", jwtUtil.getAccessTokenExpirySeconds()
+            ));
+        }
+
         String preToken = jwtUtil.generatePreAuthToken(username);
 
         if (!user.isMfaEnabled()) {

@@ -10,11 +10,15 @@ import { SplashService } from '../../shared/services/splash.service';
 import { Trip } from '../../shared/models/trip.model';
 import { Observable, of, forkJoin } from 'rxjs';
 import { catchError, switchMap, map } from 'rxjs/operators';
+import { NewsletterSignupModalComponent } from '../../shared/components/newsletter-signup-modal/newsletter-signup-modal.component';
+import { FutureTripsCardService } from '../../shared/services/future-trips-card.service';
+import { bgImageUrl } from '../../shared/utils/image-url.util';
+import { GoogleReviewsComponent } from '../../shared/components/google-reviews/google-reviews.component';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, NewsletterSignupModalComponent, GoogleReviewsComponent],
   template: `
     <div class="landing-page">
 
@@ -37,17 +41,17 @@ import { catchError, switchMap, map } from 'rxjs/operators';
         <div class="container">
           <h2 class="section-title mb-4">GAIDĀMIE CEĻOJUMI</h2>
 
-          <div *ngIf="topTrips.length > 0" class="row g-4 mb-4">
+          <div *ngIf="topTrips.length > 0 || futureCardEnabled" class="row g-4 mb-4" [class.justify-content-center]="gaidamieCardCount < 3">
             <div *ngFor="let trip of topTrips" class="col-md-4">
               <a [routerLink]="['/trip', trip.id]" class="trip-card-link">
               <div class="trip-card">
-                <div class="trip-card-img" [style.backgroundImage]="coverMapTop[trip.id] ? 'url(/images/' + coverMapTop[trip.id] + ')' : 'none'" [class.no-cover]="!coverMapTop[trip.id]">
+                <div class="trip-card-img" [style.backgroundImage]="bgImageUrl(coverMapTop[trip.id])" [class.no-cover]="!coverMapTop[trip.id]">
                   <div *ngIf="trip.availableSpots === 0" class="soldout-overlay">Izpārdots</div>
                 </div>
                 <div class="trip-card-body">
                   <h2 class="trip-title">{{ trip.name }}</h2>
                   <p class="trip-dates mb-2">
-                    {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }} 
+                    {{ trip.startDate | date:'dd.MM.yyyy' }} &ndash; {{ trip.endDate | date:'dd.MM.yyyy' }}
                   </p>
                   <p class="trip-spots mb-2">Brīvās vietas: <strong>{{ trip.availableSpots }}</strong></p>
                   <div class="trip-footer">
@@ -61,8 +65,24 @@ import { catchError, switchMap, map } from 'rxjs/operators';
               </div>
               </a>
             </div>
+
+            <!-- Future trips teaser card -->
+            <div *ngIf="futureCardEnabled" class="col-md-4">
+              <div class="trip-card">
+                <div class="trip-card-img" [style.backgroundImage]="bgImageUrl(futureCardImagePath)" [class.no-cover]="!futureCardImagePath"></div>
+                <div class="trip-card-body">
+                  <h2 class="trip-title">{{ futureCardTitle }}</h2>
+                  <div class="trip-footer future-footer">
+                    <div class="trip-actions">
+                      <a routerLink="/jaunumi-par-celojumiem" class="btn btn-sm btn-outline-secondary">Apskatīt</a>
+                      <button type="button" class="btn btn-sm btn-register-sm" (click)="futureModalOpen = true">Pieteikties</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <p *ngIf="topTrips.length === 0 && !topLoading" class="text-muted">Šobrīd nav izvēlētu "Gaidāmie ceļojumi".</p>
+          <p *ngIf="topTrips.length === 0 && !futureCardEnabled && !topLoading" class="text-muted">Šobrīd nav izvēlētu "Gaidāmie ceļojumi".</p>
 
           <div class="text-center mt-2">
             <a routerLink="/trips" class="btn btn-primary btn-lg">Apskatīt visus</a>
@@ -87,7 +107,7 @@ import { catchError, switchMap, map } from 'rxjs/operators';
             <div *ngFor="let trip of lastChanceTrips" class="col-md-4">
               <a [routerLink]="['/trip', trip.id]" class="trip-card-link">
               <div class="trip-card">
-                <div class="trip-card-img" [style.backgroundImage]="coverMapLastChance[trip.id] ? 'url(/images/' + coverMapLastChance[trip.id] + ')' : 'none'" [class.no-cover]="!coverMapLastChance[trip.id]">
+                <div class="trip-card-img" [style.backgroundImage]="bgImageUrl(coverMapLastChance[trip.id])" [class.no-cover]="!coverMapLastChance[trip.id]">
                   <div *ngIf="trip.availableSpots === 0" class="soldout-overlay">Izpārdots</div>
                 </div>
                 <div class="trip-card-body">
@@ -139,15 +159,11 @@ import { catchError, switchMap, map } from 'rxjs/operators';
       </section>
 
       <!-- Reviews Section -->
-      <section class="reviews-section py-5">
-        <div class="container">
-          <h2 class="section-title mb-5">ATSAUKSMES</h2>
-          <div class="elfsight-app-6601583c-d804-470b-9bd7-9fc8d21ba0c3" data-elfsight-app-lazy></div>
-        </div>
-      </section>
+      <app-google-reviews></app-google-reviews>
 
     </div>
 
+    <app-newsletter-signup-modal [open]="futureModalOpen" (closed)="futureModalOpen = false"></app-newsletter-signup-modal>
 
   `,
   styles: [`
@@ -224,6 +240,7 @@ import { catchError, switchMap, map } from 'rxjs/operators';
     .trip-dates { color: #666; }
     .trip-spots { color: #666; margin-bottom: 8px !important; }
     .trip-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+    .trip-footer.future-footer { justify-content: flex-end; }
     .trip-price { font-size: 2rem; font-weight: 700; color: #e87722; }
     .trip-actions { display: flex; gap: 6px; }
     .btn-register-sm {
@@ -253,6 +270,8 @@ import { catchError, switchMap, map } from 'rxjs/operators';
   `]
 })
 export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
+  readonly bgImageUrl = bgImageUrl;
+
   heroImageLoaded = false;
   heroOverlayBg = 'none';
   heroTextContent = 'Mazas grupas \u2013 lieli iespaidi';
@@ -267,6 +286,14 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   topLoading = true;
   lastChanceLoading = true;
   instagramUrls: string[] = [];
+  futureCardEnabled = false;
+  futureCardTitle = 'Uzzini par jaunākiem ceļojumiem 2027';
+  futureCardImagePath = '';
+  futureModalOpen = false;
+
+  get gaidamieCardCount(): number {
+    return this.topTrips.length + (this.futureCardEnabled ? 1 : 0);
+  }
 
   constructor(
     public adminState: AdminStateService,
@@ -274,6 +301,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     private instagramService: InstagramService,
     private heroImageService: HeroImageService,
     private siteContentService: SiteContentService,
+    private futureTripsCardService: FutureTripsCardService,
     private splashService: SplashService,
     @Inject(DOCUMENT) private document: Document
   ) {}
@@ -305,6 +333,14 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     this.siteContentService.get('about_text').subscribe({
       next: (res) => { this.adminState.aboutText$.next(res.value); },
+      error: () => {}
+    });
+    this.futureTripsCardService.get().subscribe({
+      next: (res) => {
+        this.futureCardEnabled = res.enabled;
+        if (res.title) this.futureCardTitle = res.title;
+        this.futureCardImagePath = res.imagePath || '';
+      },
       error: () => {}
     });
     forkJoin([this.loadSection('TOP'), this.loadSection('LAST_CHANCE')])
