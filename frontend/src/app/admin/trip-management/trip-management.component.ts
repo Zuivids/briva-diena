@@ -45,55 +45,6 @@ interface TripForm {
 
       <div class="container py-4">
 
-        <!-- ── Future trips teaser card (fixed at top) ── -->
-        <section class="admin-section future-card-section">
-          <div class="section-top-row">
-            <h4 class="section-heading">"Jaunie ceļojumi" kartīte (GAIDĀMIE CEĻOJUMI sadaļā)</h4>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="futureCardEnabled" [(ngModel)]="futureCardEnabled">
-              <label class="form-check-label" for="futureCardEnabled">Rādīt</label>
-            </div>
-          </div>
-          <div class="future-card-form">
-            <input type="text" class="form-control field-input" [(ngModel)]="futureCardTitle" placeholder="Kartītes virsraksts" />
-            <button class="btn btn-primary btn-sm" [disabled]="futureCardSaving" (click)="saveFutureCardConfig()">
-              {{ futureCardSaving ? 'Saglabā...' : 'Saglabāt' }}
-            </button>
-            <span *ngIf="futureCardSaveMsg" class="future-card-msg">{{ futureCardSaveMsg }}</span>
-          </div>
-
-          <div class="future-card-intro-row">
-            <label class="af-label">Ievada teksts lapā "Jaunumi par ceļojumiem"</label>
-            <textarea class="form-control field-input" rows="3" [(ngModel)]="futureCardIntroText"></textarea>
-          </div>
-
-          <div class="future-card-image-row">
-            <div class="future-card-image-preview">
-              <img *ngIf="futureCardImagePath" [src]="imageBase + futureCardImagePath" alt="Kartītes attēls" />
-              <span *ngIf="!futureCardImagePath" class="text-muted small">Nav attēla</span>
-            </div>
-            <label class="btn btn-outline-primary btn-sm upload-label">
-              {{ futureCardImagePath ? 'Mainīt attēlu' : 'Pievienot attēlu' }}
-              <input type="file" accept="image/*" class="visually-hidden" (change)="onFutureCardImageChange($event)" />
-            </label>
-            <span *ngIf="futureCardImageUploading" class="future-card-msg">Augšupielādē...</span>
-          </div>
-
-          <div class="future-topics-block">
-            <h5 class="section-label">Tēmas lapā "Jaunumi par ceļojumiem"</h5>
-            <div *ngFor="let topic of futureTopics" class="future-topic-row">
-              <input type="text" class="form-control form-control-sm" [(ngModel)]="topic.title" placeholder="Virsraksts" />
-              <input type="text" class="form-control form-control-sm" [(ngModel)]="topic.description" placeholder="Apraksts" />
-              <button class="btn btn-sm btn-outline-primary" [disabled]="futureTopicSaving[topic.id]" (click)="saveFutureTopic(topic)">
-                {{ futureTopicSaving[topic.id] ? 'Saglabā...' : 'Saglabāt' }}
-              </button>
-              <button class="btn btn-sm btn-outline-danger" (click)="deleteFutureTopic(topic)">Dzēst</button>
-              <span *ngIf="futureTopicSaveMsg[topic.id]" class="future-card-msg">{{ futureTopicSaveMsg[topic.id] }}</span>
-            </div>
-            <button class="btn btn-sm btn-outline-secondary mt-2" (click)="addFutureTopic()">+ Pievienot tēmu</button>
-          </div>
-        </section>
-
         <!-- ── Existing trips ── -->
         <section class="admin-section" *ngIf="!showForm">
           <div class="section-top-row">
@@ -434,6 +385,65 @@ interface TripForm {
 
         </section>
 
+        <!-- ── Future trips teaser card (fixed at top) ── -->
+                <section class="admin-section future-card-section">
+                  <div class="section-top-row">
+                    <h4 class="section-heading">"Jaunumi par ceļojumiem" </h4>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="futureCardEnabled" [(ngModel)]="futureCardEnabled">
+                      <label class="form-check-label" for="futureCardEnabled">Rādīt</label>
+                    </div>
+                  </div>
+                  <div class="future-card-form">
+                    <input type="text" class="form-control field-input" [(ngModel)]="futureCardTitle" placeholder="Kartītes virsraksts" />
+                    <button class="btn btn-primary btn-sm" [disabled]="futureCardSaving" (click)="saveFutureCardConfig()">
+                      {{ futureCardSaving ? 'Saglabā...' : 'Saglabāt' }}
+                    </button>
+                    <span *ngIf="futureCardSaveMsg" class="future-card-msg">{{ futureCardSaveMsg }}</span>
+                  </div>
+
+                  <div class="future-card-intro-row">
+                    <label class="af-label">Ievada teksts lapā "Jaunumi par ceļojumiem"</label>
+                    <textarea class="form-control field-input" rows="3" [(ngModel)]="futureCardIntroText"></textarea>
+                  </div>
+
+                  <div class="future-card-image-row">
+                    <div class="future-card-image-preview">
+                      <img *ngIf="futureCardImagePath" [src]="imageBase + futureCardImagePath" alt="Kartītes attēls" />
+                      <span *ngIf="!futureCardImagePath" class="text-muted small">Nav attēla</span>
+                    </div>
+                    <label class="btn btn-outline-primary btn-sm upload-label">
+                      {{ futureCardImagePath ? 'Mainīt attēlu' : 'Pievienot attēlu' }}
+                      <input type="file" accept="image/*" class="visually-hidden" (change)="onFutureCardImageChange($event)" />
+                    </label>
+                    <span *ngIf="futureCardImageUploading" class="future-card-msg">Augšupielādē...</span>
+                  </div>
+
+                  <div class="future-topics-block">
+                    <h5 class="section-label">Tēmas lapā "Jaunumi par ceļojumiem"</h5>
+                    <div *ngFor="let topic of futureTopics" class="future-topic-row">
+                      <div class="future-topic-image-cell">
+                        <div class="future-topic-image-preview">
+                          <img *ngIf="topic.imagePath" [src]="'/images/' + topic.imagePath" alt="" />
+                        </div>
+                        <label class="btn btn-outline-primary btn-sm upload-label">
+                          {{ topic.imagePath ? 'Mainīt' : 'Pievienot' }}
+                          <input type="file" accept="image/*" class="visually-hidden" (change)="onFutureTopicImageChange(topic, $event)" />
+                        </label>
+                      </div>
+                      <input type="text" class="form-control form-control-sm" [(ngModel)]="topic.title" placeholder="Virsraksts" />
+                      <input type="text" class="form-control form-control-sm" [(ngModel)]="topic.description" placeholder="Apraksts" />
+                      <button class="btn btn-sm btn-outline-primary" [disabled]="futureTopicSaving[topic.id]" (click)="saveFutureTopic(topic)">
+                        {{ futureTopicSaving[topic.id] ? 'Saglabā...' : 'Saglabāt' }}
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="deleteFutureTopic(topic)">Dzēst</button>
+                      <span *ngIf="futureTopicImageUploading[topic.id]; else topicSaveMsg" class="future-card-msg">Augšupielādē...</span>
+                      <ng-template #topicSaveMsg><span *ngIf="futureTopicSaveMsg[topic.id]" class="future-card-msg">{{ futureTopicSaveMsg[topic.id] }}</span></ng-template>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary mt-2" (click)="addFutureTopic()">+ Pievienot tēmu</button>
+                  </div>
+                </section>
+
       </div>
     </div>
   `,
@@ -539,10 +549,35 @@ interface TripForm {
 
     .future-topic-row {
       display: grid;
-      grid-template-columns: 1fr 2fr auto auto auto;
+      grid-template-columns: auto 1fr 2fr auto auto auto;
       gap: 8px;
       margin-bottom: 8px;
       align-items: center;
+    }
+
+    .future-topic-image-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .future-topic-image-preview {
+      width: 60px;
+      height: 44px;
+      border: 1.5px dashed #cbb5ae;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex: none;
+      background: #faf5f3;
+    }
+
+    .future-topic-image-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     /* Trips list */
@@ -864,6 +899,7 @@ export class TripManagementComponent implements OnInit {
   futureTopics: FutureTripTopic[] = [];
   futureTopicSaving: Record<number, boolean> = {};
   futureTopicSaveMsg: Record<number, string> = {};
+  futureTopicImageUploading: Record<number, boolean> = {};
 
   constructor(
     private tripService: TripService,
@@ -956,6 +992,20 @@ export class TripManagementComponent implements OnInit {
     this.futureTripTopicService.delete(topic.id).subscribe({
       next: () => { this.futureTopics = this.futureTopics.filter(t => t.id !== topic.id); },
       error: () => {}
+    });
+  }
+
+  onFutureTopicImageChange(topic: FutureTripTopic, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.futureTopicImageUploading[topic.id] = true;
+    this.futureTripTopicService.uploadImage(topic.id, file).subscribe({
+      next: (updated) => {
+        topic.imagePath = updated.imagePath;
+        this.futureTopicImageUploading[topic.id] = false;
+      },
+      error: () => { this.futureTopicImageUploading[topic.id] = false; }
     });
   }
 

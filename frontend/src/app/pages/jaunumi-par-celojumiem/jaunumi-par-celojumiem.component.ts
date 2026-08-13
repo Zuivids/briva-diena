@@ -14,9 +14,10 @@ import { FutureTripsCardService } from '../../shared/services/future-trips-card.
         <h1 class="page-title mb-3">JAUNIE CEĻOJUMI 2027</h1>
         <p class="page-intro mb-5">{{ introText }}</p>
 
-        <div class="row g-4">
+        <div class="row g-4 topics-row">
           <div *ngFor="let topic of topics" class="col-md-4">
             <div class="topic-card">
+              <img *ngIf="topic.imagePath" [src]="'/images/' + topic.imagePath" class="topic-image" alt="{{ topic.title }}" />
               <h2 class="topic-title">{{ topic.title }}</h2>
               <p class="topic-desc">{{ topic.description }}</p>
               <button class="btn-register-sm" (click)="openModal(topic.title)">Pieteikties</button>
@@ -32,6 +33,15 @@ import { FutureTripsCardService } from '../../shared/services/future-trips-card.
     .topics-page { min-height: 100vh; padding-top: 90px; background: #faf5f3; }
     .page-title { color: #5C4033; text-align: center; font-weight: 700; }
     .page-intro { color: #555; text-align: left; max-width: 720px; margin: 0 auto; line-height: 1.6; white-space: pre-line; }
+
+    .topics-row { justify-content: center; }
+
+    .topic-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      margin-bottom: 16px;
+    }
 
     .topic-card {
       border: 1px solid #e8ebf4;
@@ -49,7 +59,7 @@ import { FutureTripsCardService } from '../../shared/services/future-trips-card.
     .topic-desc { color: #666; flex-grow: 1; margin-bottom: 16px; }
 
     .btn-register-sm {
-      align-self: flex-start;
+      align-self: center;
       background: #e87722; color: #fff; border: none;
       border-radius: 6px; font-size: 0.85rem; font-weight: 500; padding: 6px 16px;
       cursor: pointer; transition: background 0.15s;

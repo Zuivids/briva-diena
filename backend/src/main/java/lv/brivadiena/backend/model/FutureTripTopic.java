@@ -19,6 +19,9 @@ public class FutureTripTopic {
     @Column(name = "sort_order", nullable = false)
     private int sortOrder = 0;
 
+    @Column(name = "image_path", nullable = false)
+    private String imagePath = "";
+
     public Long getId() {
         return id;
     }
@@ -45,5 +48,13 @@ public class FutureTripTopic {
 
     public void setSortOrder(int sortOrder) {
         this.sortOrder = sortOrder;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }

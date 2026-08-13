@@ -7,6 +7,7 @@ export interface FutureTripTopic {
   title: string;
   description: string;
   sortOrder: number;
+  imagePath: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -29,5 +30,11 @@ export class FutureTripTopicService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
+  }
+
+  uploadImage(id: number, file: File): Observable<FutureTripTopic> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<FutureTripTopic>(`${this.base}/${id}/image`, formData);
   }
 }
