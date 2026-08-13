@@ -63,6 +63,52 @@ public class NewsletterSignupController {
     }
 
     /**
+     * PUT /api/newsletter-signups/{id} - admin only: edit a subscriber's email/topic.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        Optional<NewsletterSignup> opt = newsletterSignupRepository.findById(id);
+        if (opt.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        String email = body.get("email");
+        if (email == null || email.isBlank() || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid email"));
+        }
+        email = email.trim();
+
+        Optional<NewsletterSignup> existing = newsletterSignupRepository.findByEmail(email);
+        if (existing.isPresent() && !existing.get().getId().equals(id)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "Email already exists"));
+        }
+
+        String topic = body.get("topic");
+        if (topic == null || topic.isBlank()) {
+            topic = "Visi";
+        }
+        topic = topic.trim();
+        if (topic.length() > 255) {
+            topic = topic.substring(0, 255);
+        }
+
+        NewsletterSignup signup = opt.get();
+        signup.setEmail(email);
+        signup.setTopic(topic);
+        return ResponseEntity.ok(newsletterSignupRepository.save(signup));
+    }
+
+    /**
+     * DELETE /api/newsletter-signups/{id} - admin only: remove a subscriber.
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        if (!newsletterSignupRepository.existsById(id))
+            return ResponseEntity.notFound().build();
+        newsletterSignupRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
      * POST /api/newsletter-signups/send-email - admin only: broadcast a message
      * to the given subset of subscribers (BCC'd, sent from brivadiena@gmail.com).
      * Recipients are cross-checked against stored signups so this can only reach

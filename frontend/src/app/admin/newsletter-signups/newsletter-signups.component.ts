@@ -40,7 +40,7 @@ import { NewsletterService, NewsletterSignup } from '../../shared/services/newsl
                   <th>E-pasts</th>
                   <th>Tēma</th>
                   <th>Pieteikšanās datums</th>
-                  <th>Atlasīts</th>
+                  <th></th>
                 </tr>
                 <tr class="filter-row">
                   <th></th>
@@ -58,10 +58,27 @@ import { NewsletterService, NewsletterSignup } from '../../shared/services/newsl
               <tbody>
                 <tr *ngFor="let s of paged">
                   <td class="text-muted small">{{ s.id }}</td>
-                  <td><a [href]="'mailto:' + s.email" class="email-link">{{ s.email }}</a></td>
-                  <td><span class="topic-badge">{{ s.topic }}</span></td>
+                  <td>
+                    <a *ngIf="editingId !== s.id" [href]="'mailto:' + s.email" class="email-link">{{ s.email }}</a>
+                    <input *ngIf="editingId === s.id" type="email" [(ngModel)]="editEmail" class="filter-input" />
+                  </td>
+                  <td>
+                    <span *ngIf="editingId !== s.id" class="topic-badge">{{ s.topic }}</span>
+                    <input *ngIf="editingId === s.id" type="text" [(ngModel)]="editTopic" class="filter-input" />
+                  </td>
                   <td class="text-muted small">{{ s.createdAt | date:'dd.MM.yyyy HH:mm' }}</td>
-                  <td class="text-center"><input type="checkbox" [checked]="isSelected(s.id)" (change)="toggleSelected(s.id)" /></td>
+                  <td class="row-actions">
+                    <input type="checkbox" [checked]="isSelected(s.id)" (change)="toggleSelected(s.id)" />
+                    <ng-container *ngIf="editingId === s.id; else viewActions">
+                      <button class="btn-edit" [disabled]="rowSaving" (click)="saveEdit(s)">Saglabāt</button>
+                      <button class="btn-cancel" [disabled]="rowSaving" (click)="cancelEdit()">Atcelt</button>
+                      <span *ngIf="rowError" class="row-error">{{ rowError }}</span>
+                    </ng-container>
+                    <ng-template #viewActions>
+                      <button class="btn-edit" (click)="startEdit(s)">Rediģēt</button>
+                      <button class="btn-delete" (click)="deleteRecord(s)">Dzēst</button>
+                    </ng-template>
+                  </td>
                 </tr>
                 <tr *ngIf="filtered.length === 0">
                   <td colspan="5" class="text-muted text-center py-4">Nav ierakstu, kas atbilst filtriem.</td>
@@ -175,6 +192,53 @@ import { NewsletterService, NewsletterSignup } from '../../shared/services/newsl
     }
 
     .empty-state { text-align: center; padding: 60px 0; }
+
+    .row-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      white-space: nowrap;
+      padding-right: 20px;
+    }
+
+    .btn-edit, .btn-cancel, .btn-delete {
+      border: none;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-edit {
+      background: #f0e7e2;
+      color: #5C4033;
+    }
+    .btn-edit:hover:not(:disabled) { background: #e8d5ce; }
+    .btn-edit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-cancel {
+      background: #f0e7e2;
+      color: #777;
+    }
+    .btn-cancel:hover:not(:disabled) { background: #e5e5e5; }
+    .btn-cancel:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-delete {
+      background: #dc2626;
+      color: #fff;
+    }
+    .btn-delete:hover { background: #b91c1c; }
+
+    .row-error {
+      display: block;
+      width: 100%;
+      color: #dc2626;
+      font-size: 0.75rem;
+      margin-top: 4px;
+    }
 
     .filter-row th {
       background: #f0e7e2;
@@ -329,6 +393,12 @@ export class AdminNewsletterSignupsComponent implements OnInit {
   copyMsg = '';
   copyError = false;
 
+  editingId: number | null = null;
+  editEmail = '';
+  editTopic = '';
+  rowSaving = false;
+  rowError = '';
+
   constructor(private newsletterService: NewsletterService) {}
 
   ngOnInit(): void {
@@ -445,6 +515,51 @@ export class AdminNewsletterSignupsComponent implements OnInit {
     } else {
       onFailure();
     }
+  }
+
+  startEdit(s: NewsletterSignup): void {
+    this.editingId = s.id;
+    this.editEmail = s.email;
+    this.editTopic = s.topic;
+    this.rowError = '';
+  }
+
+  cancelEdit(): void {
+    this.editingId = null;
+    this.rowError = '';
+  }
+
+  saveEdit(s: NewsletterSignup): void {
+    const email = this.editEmail.trim();
+    if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      this.rowError = 'Ievadi derīgu e-pasta adresi.';
+      return;
+    }
+    this.rowSaving = true;
+    this.rowError = '';
+    this.newsletterService.update(s.id, email, this.editTopic.trim() || 'Visi').subscribe({
+      next: (updated) => {
+        s.email = updated.email;
+        s.topic = updated.topic;
+        this.rowSaving = false;
+        this.editingId = null;
+      },
+      error: (err) => {
+        this.rowSaving = false;
+        this.rowError = err?.error?.error === 'Email already exists' ? 'Šāds e-pasts jau eksistē.' : 'Neizdevās saglabāt.';
+      }
+    });
+  }
+
+  deleteRecord(s: NewsletterSignup): void {
+    if (!confirm(`Vai tiešām dzēst pieteikumu "${s.email}"?`)) return;
+    this.newsletterService.delete(s.id).subscribe({
+      next: () => {
+        this.signups = this.signups.filter(x => x.id !== s.id);
+        this.selectedIds.delete(s.id);
+      },
+      error: () => { alert('Neizdevās dzēst ierakstu.'); }
+    });
   }
 
   sendBroadcast(): void {

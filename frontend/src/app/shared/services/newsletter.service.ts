@@ -23,6 +23,14 @@ export class NewsletterService {
     return this.http.get<NewsletterSignup[]>(this.base);
   }
 
+  update(id: number, email: string, topic: string): Observable<NewsletterSignup> {
+    return this.http.put<NewsletterSignup>(`${this.base}/${id}`, { email, topic });
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${id}`);
+  }
+
   sendBroadcast(emails: string[], message: string): Observable<{ success: boolean; sentCount: number }> {
     return this.http.post<{ success: boolean; sentCount: number }>(`${this.base}/send-email`, { emails, message });
   }
