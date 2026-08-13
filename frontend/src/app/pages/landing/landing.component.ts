@@ -13,12 +13,11 @@ import { catchError, switchMap, map } from 'rxjs/operators';
 import { NewsletterSignupModalComponent } from '../../shared/components/newsletter-signup-modal/newsletter-signup-modal.component';
 import { FutureTripsCardService } from '../../shared/services/future-trips-card.service';
 import { bgImageUrl } from '../../shared/utils/image-url.util';
-import { GoogleReviewsComponent } from '../../shared/components/google-reviews/google-reviews.component';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, RouterLink, NewsletterSignupModalComponent, GoogleReviewsComponent],
+  imports: [CommonModule, RouterLink, NewsletterSignupModalComponent],
   template: `
     <div class="landing-page">
 
@@ -159,7 +158,12 @@ import { GoogleReviewsComponent } from '../../shared/components/google-reviews/g
       </section>
 
       <!-- Reviews Section -->
-      <app-google-reviews></app-google-reviews>
+      <section class="reviews-section py-5">
+        <div class="container">
+          <h2 class="section-title mb-5">ATSAUKSMES</h2>
+          <div class="elfsight-app-6601583c-d804-470b-9bd7-9fc8d21ba0c3" data-elfsight-app-lazy></div>
+        </div>
+      </section>
 
     </div>
 
