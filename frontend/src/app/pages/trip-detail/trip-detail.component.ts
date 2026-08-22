@@ -5,6 +5,8 @@ import { TripService } from '../../shared/services/trip.service';
 import { Trip, TripDay } from '../../shared/models/trip.model';
 import { HttpStatusCode } from '@angular/common/http';
 import { bgImageUrl } from '../../shared/utils/image-url.util';
+import { tripSlug, tripDetailPath } from '../../shared/utils/trip-slug.util';
+import { SeoService } from '../../shared/services/seo.service';
 
 interface TripImage { id: number; path: string; isCover: boolean; }
 
@@ -558,40 +560,136 @@ export class TripDetailComponent implements OnInit, OnDestroy {
   readonly imageBase = '/images/';
   readonly bgImageUrl = bgImageUrl;
 
-  constructor(private route: ActivatedRoute, private tripService: TripService) {}
+  constructor(private route: ActivatedRoute, private tripService: TripService, private seo: SeoService) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id')!;
-    this.tripService.getTrip(id).subscribe({
-      next: (trip) => {
-        this.trip = trip;
-        this.loading = false;
-        if (trip.itineraryJson) {
-          try { this.itinerary = JSON.parse(trip.itineraryJson); } catch { /* ignore */ }
-        }
-        if (trip.flightScheduleJson) {
-          try { this.flightSchedules = JSON.parse(trip.flightScheduleJson); } catch { /* ignore */ }
-        }
-        this.priceIncludedItems = trip.priceIncluded
-          ? trip.priceIncluded.split('\n').map(s => s.replace(/^[•\-\*]\s*/, '').trim()).filter(s => s)
-          : [];
-        this.extraChargeItems = trip.extraCharge
-          ? trip.extraCharge.split('\n').map(s => s.replace(/^[•\-\*]\s*/, '').trim()).filter(s => s)
-          : [];
-        this.tripService.getTripImages(id).subscribe({
-          next: (imgs) => { this.images = imgs; },
-          error: () => {}
-        });
-        this.tripService.getCoverImage(id).subscribe({
-          next: (cover) => { this.heroImage = cover.path; },
-          error: () => { this.heroImage = null; }
-        });
-      },
-      error: () => {
-        this.error = 'Ceļojums nav atrasts.';
-        this.loading = false;
-      }
+    const idParam = this.route.snapshot.paramMap.get('id');
+    const slugParam = this.route.snapshot.paramMap.get('slug');
+
+    if (idParam) {
+      // Legacy /trip/:id link — still resolves, but canonical tag points to the slug URL.
+      this.tripService.getTrip(idParam).subscribe({
+        next: (trip) => this.onTripLoaded(trip),
+        error: () => this.onTripError()
+      });
+    } else if (slugParam) {
+      // Canonical /:slug URL — the slug is the only identifier, so it has to be
+      // matched against every trip's computed slug (keep in sync with the
+      // Node build script that generates prerender routes / sitemap.xml).
+      this.tripService.getAllTrips().subscribe({
+        next: (trips) => {
+          const match = trips.find(t => tripSlug(t.name, t.startDate) === slugParam);
+          match ? this.onTripLoaded(match) : this.onTripError();
+        },
+        error: () => this.onTripError()
+      });
+    } else {
+      this.onTripError();
+    }
+  }
+
+  private onTripLoaded(trip: Trip): void {
+    this.trip = trip;
+    this.loading = false;
+    if (trip.itineraryJson) {
+      try { this.itinerary = JSON.parse(trip.itineraryJson); } catch { /* ignore */ }
+    }
+    if (trip.flightScheduleJson) {
+      try { this.flightSchedules = JSON.parse(trip.flightScheduleJson); } catch { /* ignore */ }
+    }
+    this.priceIncludedItems = trip.priceIncluded
+      ? trip.priceIncluded.split('\n').map(s => s.replace(/^[•\-\*]\s*/, '').trim()).filter(s => s)
+      : [];
+    this.extraChargeItems = trip.extraCharge
+      ? trip.extraCharge.split('\n').map(s => s.replace(/^[•\-\*]\s*/, '').trim()).filter(s => s)
+      : [];
+
+    this.updateSeo();
+
+    this.tripService.getTripImages(trip.id).subscribe({
+      next: (imgs) => { this.images = imgs; },
+      error: () => {}
     });
+    this.tripService.getCoverImage(trip.id).subscribe({
+      // 204 No Content (no cover set yet) resolves with a null body.
+      next: (cover) => { this.heroImage = cover?.path ?? null; this.updateSeo(); },
+      error: () => { this.heroImage = null; this.updateSeo(); }
+    });
+  }
+
+  private onTripError(): void {
+    this.error = 'Ceļojums nav atrasts.';
+    this.loading = false;
+  }
+
+  private formatDisplayDate(iso: string): string {
+    const [y, m, d] = iso.split('-');
+    return `${d}.${m}.${y}`;
+  }
+
+  private buildMetaDescription(trip: Trip): string {
+    const dateRange = `${this.formatDisplayDate(trip.startDate)}–${this.formatDisplayDate(trip.endDate)}`;
+    const price = `no €${Math.round(trip.priceCents / 100)}`;
+    const base = (trip.description || `${trip.name} ceļojums.`).trim().replace(/\s+/g, ' ');
+    const full = `${base} ${dateRange}, ${price}.`;
+    return full.length > 160 ? full.slice(0, 157).trimEnd() + '...' : full;
+  }
+
+  private buildJsonLd(trip: Trip, canonicalUrl: string): object {
+    const itineraryItems = this.itinerary.map((day, idx) => {
+      const position = day.dayNumber ?? idx + 1;
+      return {
+        '@type': 'ListItem',
+        position,
+        name: `${position}. diena`,
+        description: day.description
+      };
+    });
+
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'TouristTrip',
+      name: trip.name,
+      description: trip.description || undefined,
+      url: canonicalUrl,
+      image: this.heroImage ? this.seo.absoluteUrl(this.imageBase + this.heroImage) : undefined,
+      startDate: trip.startDate,
+      endDate: trip.endDate,
+      provider: {
+        '@type': 'TravelAgency',
+        name: 'Brīva Diena',
+        url: this.seo.siteUrl
+      },
+      offers: {
+        '@type': 'Offer',
+        price: (trip.priceCents / 100).toFixed(2),
+        priceCurrency: trip.currency || 'EUR',
+        availability: trip.availableSpots > 0 ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut',
+        url: canonicalUrl
+      },
+      itinerary: itineraryItems.length > 0 ? {
+        '@type': 'ItemList',
+        itemListElement: itineraryItems
+      } : undefined
+    };
+  }
+
+  private updateSeo(): void {
+    const trip = this.trip;
+    if (!trip) return;
+
+    const canonicalPath = tripDetailPath(trip.name, trip.startDate);
+    const canonicalUrl = this.seo.absoluteUrl(canonicalPath);
+
+    this.seo.update({
+      title: `${trip.name} | ${this.formatDisplayDate(trip.startDate)}–${this.formatDisplayDate(trip.endDate)} | Brīva Diena`,
+      description: this.buildMetaDescription(trip),
+      canonicalUrl,
+      image: this.heroImage ? this.seo.absoluteUrl(this.imageBase + this.heroImage) : undefined,
+      type: 'website'
+    });
+
+    this.seo.setJsonLd(this.buildJsonLd(trip, canonicalUrl));
   }
 
   get durationDays(): number {
@@ -637,5 +735,7 @@ export class TripDetailComponent implements OnInit, OnDestroy {
     if (e.key === 'ArrowRight') { this.lightboxNext(); }
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.seo.removeJsonLd();
+  }
 }

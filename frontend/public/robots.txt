@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+Disallow: /admin/
+
+Sitemap: https://brivadiena.lv/sitemap.xml

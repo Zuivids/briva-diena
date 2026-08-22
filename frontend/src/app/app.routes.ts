@@ -77,6 +77,12 @@ export const routes: Routes = [
     path: 'admin/jaunumi',
     loadComponent: () => import('./admin/newsletter-signups/newsletter-signups.component').then(m => m.AdminNewsletterSignupsComponent),
     canActivate: [AuthGuard]
+  },
+  // Canonical SEO-friendly trip URL (title-slug + start date, no id) — must stay
+  // last so it doesn't shadow any of the fixed single-segment paths above.
+  {
+    path: ':slug',
+    loadComponent: () => import('./pages/trip-detail/trip-detail.component').then(m => m.TripDetailComponent)
   }
 ];
 

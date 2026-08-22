@@ -70,6 +70,10 @@ fi
 echo "[OK] Backend built successfully"
 
 # 3. Build frontend
+# Note: this first build runs before the backend service has ever started, so
+# the SEO prerender step (scripts/generate-seo-build-files.mjs) can't reach
+# /api/trips yet — trip pages will fall back to client-side rendering until
+# you run deploy.sh once the backend is up, at which point they get prerendered.
 echo ""
 echo "Building frontend..."
 cd "$SCRIPT_DIR/frontend"

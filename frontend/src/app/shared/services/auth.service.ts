@@ -1,4 +1,5 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -40,7 +41,12 @@ export class AuthService {
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  constructor(private http: HttpClient, private router: Router, private ngZone: NgZone) {
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private ngZone: NgZone,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     // Resume inactivity watch on page refresh if already logged in
     if (this.hasToken()) {
       this.startInactivityWatch();
@@ -90,18 +96,22 @@ export class AuthService {
   }
 
   getToken(): string | null {
+    if (!isPlatformBrowser(this.platformId)) return null;
     return localStorage.getItem(this.tokenKey);
   }
 
   private setToken(token: string): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     localStorage.setItem(this.tokenKey, token);
   }
 
   private clearTokens(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     localStorage.removeItem(this.tokenKey);
   }
 
   private hasToken(): boolean {
+    if (!isPlatformBrowser(this.platformId)) return false;
     return !!localStorage.getItem(this.tokenKey);
   }
 

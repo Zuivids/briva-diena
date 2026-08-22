@@ -8,6 +8,8 @@ import { Trip } from '../../shared/models/trip.model';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { bgImageUrl } from '../../shared/utils/image-url.util';
+import { tripDetailPath } from '../../shared/utils/trip-slug.util';
+import { SeoService } from '../../shared/services/seo.service';
 
 const LATVIAN_MONTHS = [
   'Janvāris','Februāris','Marts','Aprīlis','Maijs','Jūnijs',
@@ -77,7 +79,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
           <div class="trips-area">
             <div *ngIf="filteredTrips.length > 0" class="row g-4">
               <div *ngFor="let trip of pagedTrips" class="col-sm-6 col-xl-4">
-                <a [routerLink]="['/trip', trip.id]" class="trip-card-link">
+                <a [routerLink]="tripDetailPath(trip.name, trip.startDate)" class="trip-card-link">
                 <div class="trip-card">
                   <div class="trip-card-img"
                     [style.backgroundImage]="bgImageUrl(coverMap[trip.id])"
@@ -91,7 +93,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
                     <div class="trip-footer">
                       <span class="trip-price">&#8364;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
                       <div class="trip-actions">
-                        <a [routerLink]="['/trip', trip.id]" class="btn btn-sm btn-outline-secondary" (click)="$event.stopPropagation()">Apskatīt</a>
+                        <a [routerLink]="tripDetailPath(trip.name, trip.startDate)" class="btn btn-sm btn-outline-secondary" (click)="$event.stopPropagation()">Apskatīt</a>
                         <a [routerLink]="['/registration', trip.id]" class="btn btn-sm btn-orange" (click)="$event.stopPropagation()">Pieteikties</a>
                       </div>
                     </div>
@@ -436,6 +438,7 @@ interface MonthOption { key: string; year: number; month: number; label: string;
 })
 export class TripsComponent implements OnInit {
   readonly bgImageUrl = bgImageUrl;
+  readonly tripDetailPath = tripDetailPath;
 
   trips: Trip[] = [];
   filteredTrips: Trip[] = [];
@@ -471,9 +474,14 @@ export class TripsComponent implements OnInit {
   minPrice: number | null = null;
   maxPrice: number | null = null;
 
-  constructor(private tripService: TripService, private splashService: SplashService) {}
+  constructor(private tripService: TripService, private splashService: SplashService, private seo: SeoService) {}
 
   ngOnInit(): void {
+    this.seo.update({
+      title: 'Ceļojumi | Brīva Diena',
+      description: 'Pārlūko visus Brīva Diena ceļojumus — datumus, cenas un galamērķus vienā vietā.',
+      canonicalUrl: this.seo.absoluteUrl('/trips')
+    });
     this.tripService.getAllTrips().subscribe({
       next: (data) => {
         const visible = data.filter(t => !t.hidden)

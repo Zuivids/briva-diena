@@ -1,5 +1,5 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, Inject } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, OnInit, AfterViewInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminStateService } from '../../shared/services/admin-state.service';
 import { TripService } from '../../shared/services/trip.service';
@@ -13,6 +13,8 @@ import { catchError, switchMap, map } from 'rxjs/operators';
 import { NewsletterSignupModalComponent } from '../../shared/components/newsletter-signup-modal/newsletter-signup-modal.component';
 import { FutureTripsCardService } from '../../shared/services/future-trips-card.service';
 import { bgImageUrl } from '../../shared/utils/image-url.util';
+import { tripDetailPath } from '../../shared/utils/trip-slug.util';
+import { SeoService } from '../../shared/services/seo.service';
 
 @Component({
   selector: 'app-landing',
@@ -42,7 +44,7 @@ import { bgImageUrl } from '../../shared/utils/image-url.util';
 
           <div *ngIf="topTrips.length > 0 || futureCardEnabled" class="row g-4 mb-4" [class.justify-content-center]="gaidamieCardCount < 3">
             <div *ngFor="let trip of topTrips" class="col-md-4">
-              <a [routerLink]="['/trip', trip.id]" class="trip-card-link">
+              <a [routerLink]="tripDetailPath(trip.name, trip.startDate)" class="trip-card-link">
               <div class="trip-card">
                 <div class="trip-card-img" [style.backgroundImage]="bgImageUrl(coverMapTop[trip.id])" [class.no-cover]="!coverMapTop[trip.id]">
                   <div *ngIf="trip.availableSpots === 0" class="soldout-overlay">Izpārdots</div>
@@ -56,7 +58,7 @@ import { bgImageUrl } from '../../shared/utils/image-url.util';
                   <div class="trip-footer">
                     <span class="trip-price">&#8364;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
                     <div class="trip-actions">
-                      <a [routerLink]="['/trip', trip.id]" class="btn btn-sm btn-outline-secondary" (click)="$event.stopPropagation()">Apskatīt</a>
+                      <a [routerLink]="tripDetailPath(trip.name, trip.startDate)" class="btn btn-sm btn-outline-secondary" (click)="$event.stopPropagation()">Apskatīt</a>
                       <a [routerLink]="['/registration', trip.id]" class="btn btn-sm btn-register-sm" (click)="$event.stopPropagation()">Pieteikties</a>
                     </div>
                   </div>
@@ -104,7 +106,7 @@ import { bgImageUrl } from '../../shared/utils/image-url.util';
 
           <div class="row g-4 mb-4">
             <div *ngFor="let trip of lastChanceTrips" class="col-md-4">
-              <a [routerLink]="['/trip', trip.id]" class="trip-card-link">
+              <a [routerLink]="tripDetailPath(trip.name, trip.startDate)" class="trip-card-link">
               <div class="trip-card">
                 <div class="trip-card-img" [style.backgroundImage]="bgImageUrl(coverMapLastChance[trip.id])" [class.no-cover]="!coverMapLastChance[trip.id]">
                   <div *ngIf="trip.availableSpots === 0" class="soldout-overlay">Izpārdots</div>
@@ -119,7 +121,7 @@ import { bgImageUrl } from '../../shared/utils/image-url.util';
                   <div class="trip-footer">
                     <span class="trip-price">&#8364;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
                     <div class="trip-actions">
-                      <a [routerLink]="['/trip', trip.id]" class="btn btn-sm btn-outline-secondary" (click)="$event.stopPropagation()">Apskatīt</a>
+                      <a [routerLink]="tripDetailPath(trip.name, trip.startDate)" class="btn btn-sm btn-outline-secondary" (click)="$event.stopPropagation()">Apskatīt</a>
                       <a [routerLink]="['/registration', trip.id]" class="btn btn-sm btn-register-sm" (click)="$event.stopPropagation()">Pieteikties</a>
                     </div>
                   </div>
@@ -275,6 +277,7 @@ import { bgImageUrl } from '../../shared/utils/image-url.util';
 })
 export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly bgImageUrl = bgImageUrl;
+  readonly tripDetailPath = tripDetailPath;
 
   heroImageLoaded = false;
   heroOverlayBg = 'none';
@@ -307,10 +310,17 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     private siteContentService: SiteContentService,
     private futureTripsCardService: FutureTripsCardService,
     private splashService: SplashService,
-    @Inject(DOCUMENT) private document: Document
+    @Inject(DOCUMENT) private document: Document,
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private seo: SeoService
   ) {}
 
   ngOnInit(): void {
+    this.seo.update({
+      title: 'Brīva Diena – Ceļojumi, kas iedvesmo',
+      description: 'Brīva Diena organizē nelielu grupu ceļojumus uz iedvesmojošiem galamērķiem visā pasaulē.',
+      canonicalUrl: this.seo.absoluteUrl('/')
+    });
     this.heroImageService.getHeroImage().subscribe({
       next: (res) => {
         if (res.path) {
@@ -400,6 +410,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private processInstagramEmbeds(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (this.instagramUrls.length === 0) return;
     const win = window as any;
     if (win.instgrm) {

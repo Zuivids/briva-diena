@@ -8,6 +8,7 @@ import { AdminStateService } from '../../shared/services/admin-state.service';
 import { FutureTripsCardService } from '../../shared/services/future-trips-card.service';
 import { FutureTripTopicService, FutureTripTopic } from '../../shared/services/future-trip-topic.service';
 import { Trip } from '../../shared/models/trip.model';
+import { tripDetailPath } from '../../shared/utils/trip-slug.util';
 
 interface FormDay {
   dayNumber: number;
@@ -95,7 +96,7 @@ interface TripForm {
                 </div>
               </div>
               <div class="trip-list-actions">
-                <a [routerLink]="['/trip', trip.id]" class="btn btn-sm btn-outline-secondary" target="_blank">Apskatīt</a>
+                <a [routerLink]="tripDetailPath(trip.name, trip.startDate)" class="btn btn-sm btn-outline-secondary" target="_blank">Apskatīt</a>
                 <button class="btn btn-sm btn-outline-primary" (click)="openEditForm(trip)">Rediģēt</button>
                 <button class="btn btn-sm btn-outline-info" (click)="copyTrip(trip)">Kopēt</button>
                 <button class="btn btn-sm" [ngClass]="trip.hidden ? 'btn-warning' : 'btn-outline-secondary'" (click)="toggleHidden(trip)">{{ trip.hidden ? 'Parādīt' : 'Noslēpt' }}</button>
@@ -836,6 +837,7 @@ interface TripForm {
 })
 export class TripManagementComponent implements OnInit {
   readonly imageBase = '/images/';
+  readonly tripDetailPath = tripDetailPath;
 
   trips: Trip[] = [];
   loadingTrips = false;

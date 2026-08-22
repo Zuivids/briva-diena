@@ -1,6 +1,13 @@
 #!/bin/bash
 # Run this script ON the remote server to deploy the latest changes.
 # Usage: ./deploy.sh
+#
+# Ordering note: the frontend build now prerenders trip pages by calling the
+# LIVE /api/trips endpoint (for SEO — see scripts/generate-seo-build-files.mjs),
+# so the backend must still be serving requests when "npm run build" runs.
+# That's why we build+deploy the frontend BEFORE swapping the backend jar —
+# the old backend instance keeps answering /api/trips throughout the frontend
+# build, then gets stopped/replaced only at the very end.
 
 set -e
 
@@ -15,7 +22,7 @@ echo "================================================"
 echo ""
 
 # ── 1. Pull latest code ─────────────────────────────
-echo "[1/5] Pulling latest changes from git..."
+echo "[1/4] Pulling latest changes from git..."
 # Fix ownership in case previous root runs corrupted it
 chown -R ubuntu:ubuntu "$SCRIPT_DIR" 2>/dev/null || true
 sudo -u ubuntu git -C "$SCRIPT_DIR" fetch origin
@@ -23,26 +30,16 @@ sudo -u ubuntu git -C "$SCRIPT_DIR" reset --hard origin/main
 echo "[OK] Code updated"
 echo ""
 
-# ── 2. Stop backend service ─────────────────────────
-echo "[2/5] Stopping backend service..."
-if sudo systemctl is-active --quiet "$SERVICE"; then
-    sudo systemctl stop "$SERVICE"
-    echo "[OK] Backend stopped"
-else
-    echo "[INFO] Backend was not running"
-fi
-echo ""
-
-# ── 3. Build backend ────────────────────────────────
-echo "[3/5] Building backend..."
+# ── 2. Build backend jar (service keeps running the old jar for now) ──
+echo "[2/4] Building backend..."
 cd "$SCRIPT_DIR/backend"
 chmod +x mvnw
 ./mvnw clean package -DskipTests -q
 echo "[OK] Backend built"
 echo ""
 
-# ── 4. Build and deploy frontend ────────────────────
-echo "[4/5] Building frontend..."
+# ── 3. Build and deploy frontend (backend is still up, serving /api) ──
+echo "[3/4] Building frontend..."
 cd "$SCRIPT_DIR/frontend"
 npm install --silent
 npm run build
@@ -52,8 +49,14 @@ sudo cp -r dist/frontend/browser/. "$WEB_ROOT/"
 echo "[OK] Frontend deployed to $WEB_ROOT"
 echo ""
 
-# ── 5. Start backend service ────────────────────────
-echo "[5/5] Starting backend service..."
+# ── 4. Swap in the freshly built backend jar ────────
+echo "[4/4] Restarting backend service..."
+if sudo systemctl is-active --quiet "$SERVICE"; then
+    sudo systemctl stop "$SERVICE"
+    echo "[OK] Backend stopped"
+else
+    echo "[INFO] Backend was not running"
+fi
 sudo systemctl start "$SERVICE"
 
 # Wait for backend to come up (up to 30 s)
