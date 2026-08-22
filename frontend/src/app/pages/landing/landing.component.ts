@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AdminStateService } from '../../shared/services/admin-state.service';
 import { TripService } from '../../shared/services/trip.service';
 import { InstagramService } from '../../shared/services/instagram.service';
@@ -58,8 +58,8 @@ import { SeoService } from '../../shared/services/seo.service';
                   <div class="trip-footer">
                     <span class="trip-price">&#8364;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
                     <div class="trip-actions">
-                      <a [routerLink]="tripDetailPath(trip.name, trip.startDate)" class="btn btn-sm btn-outline-secondary" (click)="$event.stopPropagation()">Apskatīt</a>
-                      <a [routerLink]="['/registration', trip.id]" class="btn btn-sm btn-register-sm" (click)="$event.stopPropagation()">Pieteikties</a>
+                      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="$event.preventDefault(); $event.stopPropagation(); goToTrip(trip)">Apskatīt</button>
+                      <button type="button" class="btn btn-sm btn-register-sm" (click)="$event.preventDefault(); $event.stopPropagation(); goToRegistration(trip)">Pieteikties</button>
                     </div>
                   </div>
                 </div>
@@ -121,8 +121,8 @@ import { SeoService } from '../../shared/services/seo.service';
                   <div class="trip-footer">
                     <span class="trip-price">&#8364;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
                     <div class="trip-actions">
-                      <a [routerLink]="tripDetailPath(trip.name, trip.startDate)" class="btn btn-sm btn-outline-secondary" (click)="$event.stopPropagation()">Apskatīt</a>
-                      <a [routerLink]="['/registration', trip.id]" class="btn btn-sm btn-register-sm" (click)="$event.stopPropagation()">Pieteikties</a>
+                      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="$event.preventDefault(); $event.stopPropagation(); goToTrip(trip)">Apskatīt</button>
+                      <button type="button" class="btn btn-sm btn-register-sm" (click)="$event.preventDefault(); $event.stopPropagation(); goToRegistration(trip)">Pieteikties</button>
                     </div>
                   </div>
                 </div>
@@ -312,8 +312,17 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     private splashService: SplashService,
     @Inject(DOCUMENT) private document: Document,
     @Inject(PLATFORM_ID) private platformId: Object,
-    private seo: SeoService
+    private seo: SeoService,
+    private router: Router
   ) {}
+
+  goToTrip(trip: Trip): void {
+    this.router.navigateByUrl(tripDetailPath(trip.name, trip.startDate));
+  }
+
+  goToRegistration(trip: Trip): void {
+    this.router.navigate(['/registration', trip.id]);
+  }
 
   ngOnInit(): void {
     this.seo.update({

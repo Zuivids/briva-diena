@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TripService } from '../../shared/services/trip.service';
 import { SplashService } from '../../shared/services/splash.service';
@@ -93,8 +93,8 @@ interface MonthOption { key: string; year: number; month: number; label: string;
                     <div class="trip-footer">
                       <span class="trip-price">&#8364;{{ (trip.priceCents / 100) | number:'1.0-0' }}</span>
                       <div class="trip-actions">
-                        <a [routerLink]="tripDetailPath(trip.name, trip.startDate)" class="btn btn-sm btn-outline-secondary" (click)="$event.stopPropagation()">Apskatīt</a>
-                        <a [routerLink]="['/registration', trip.id]" class="btn btn-sm btn-orange" (click)="$event.stopPropagation()">Pieteikties</a>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="$event.preventDefault(); $event.stopPropagation(); goToTrip(trip)">Apskatīt</button>
+                        <button type="button" class="btn btn-sm btn-orange" (click)="$event.preventDefault(); $event.stopPropagation(); goToRegistration(trip)">Pieteikties</button>
                       </div>
                     </div>
                   </div>
@@ -474,7 +474,20 @@ export class TripsComponent implements OnInit {
   minPrice: number | null = null;
   maxPrice: number | null = null;
 
-  constructor(private tripService: TripService, private splashService: SplashService, private seo: SeoService) {}
+  constructor(
+    private tripService: TripService,
+    private splashService: SplashService,
+    private seo: SeoService,
+    private router: Router
+  ) {}
+
+  goToTrip(trip: Trip): void {
+    this.router.navigateByUrl(tripDetailPath(trip.name, trip.startDate));
+  }
+
+  goToRegistration(trip: Trip): void {
+    this.router.navigate(['/registration', trip.id]);
+  }
 
   ngOnInit(): void {
     this.seo.update({
