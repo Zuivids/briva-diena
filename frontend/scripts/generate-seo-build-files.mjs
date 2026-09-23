@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 // Runs before `ng build`. Fetches the live trip list and writes:
-//   - prerender-routes.txt  (parameterized routes for Angular's build-time prerenderer)
 //   - public/sitemap.xml    (copied into dist/frontend/browser as a static asset)
+//
+// Trip pages are no longer build-time prerendered (see server.ts's
+// SSR_CACHE_TTL_MS render cache) — this script now only produces the
+// sitemap, which is independent of that.
 //
 // The slug algorithm here MUST stay in sync with
 // src/app/shared/utils/trip-slug.util.ts — it's the sole lookup key for the
@@ -64,20 +67,15 @@ async function fetchTrips() {
 async function main() {
   const trips = await fetchTrips();
 
-  const routeLines = [];
   const urlEntries = STATIC_PAGES.map(path => ({ loc: `${SITE_URL}${path}` }));
 
   for (const trip of trips) {
     const slug = tripSlug(trip.name, trip.startDate);
-    routeLines.push(`/${slug}`);
-    routeLines.push(`/trip/${trip.id}`); // legacy alias, kept prerendered too
     urlEntries.push({
       loc: `${SITE_URL}/${slug}`,
       lastmod: (trip.createdAt || '').slice(0, 10) || undefined
     });
   }
-
-  await writeFile(join(ROOT, 'prerender-routes.txt'), routeLines.join('\n') + '\n', 'utf8');
 
   const urlsXml = urlEntries
     .map(u => `  <url>\n    <loc>${xmlEscape(u.loc)}</loc>${u.lastmod ? `\n    <lastmod>${u.lastmod}</lastmod>` : ''}\n  </url>`)
@@ -85,7 +83,7 @@ async function main() {
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlsXml}\n</urlset>\n`;
   await writeFile(join(ROOT, 'public', 'sitemap.xml'), sitemap, 'utf8');
 
-  console.log(`[seo-build] Wrote ${routeLines.length} prerender route(s) and ${urlEntries.length} sitemap ${urlEntries.length === 1 ? 'entry' : 'entries'}.`);
+  console.log(`[seo-build] Wrote ${urlEntries.length} sitemap ${urlEntries.length === 1 ? 'entry' : 'entries'}.`);
 }
 
 main();

@@ -71,9 +71,11 @@ echo "[OK] Backend built successfully"
 
 # 3. Build frontend
 # Note: this first build runs before the backend service has ever started, so
-# the SEO prerender step (scripts/generate-seo-build-files.mjs) can't reach
-# /api/trips yet — trip pages will fall back to client-side rendering until
-# you run deploy.sh once the backend is up, at which point they get prerendered.
+# the sitemap generation step (scripts/generate-seo-build-files.mjs) can't
+# reach /api/trips yet — the sitemap will just be missing trip URLs until you
+# run deploy.sh once the backend is up. Trip pages themselves are unaffected:
+# they're server-rendered on demand by the frontend Node service (step 6),
+# which always calls the live API at request time.
 echo ""
 echo "Building frontend..."
 cd "$SCRIPT_DIR/frontend"
@@ -89,19 +91,12 @@ echo "[OK] Frontend built successfully"
 # 4. Create directories for app
 echo ""
 echo "Creating application directories..."
-sudo mkdir -p /var/www/briva-diena
 sudo mkdir -p /var/uploads
 sudo mkdir -p /var/images
 sudo chown ubuntu:ubuntu /var/uploads /var/images
 echo "[OK] Directories created"
 
-# 5. Deploy frontend
-echo ""
-echo "Deploying frontend..."
-sudo cp -r "$SCRIPT_DIR/frontend/dist/frontend/browser/". /var/www/briva-diena/
-echo "[OK] Frontend deployed to /var/www/briva-diena"
-
-# 6. Create systemd service for backend
+# 5. Create systemd service for backend
 echo ""
 echo "Creating systemd service for backend..."
 sudo tee /etc/systemd/system/briva-diena-backend.service > /dev/null << EOF
@@ -132,6 +127,35 @@ EOF
 sudo systemctl daemon-reload
 echo "[OK] Backend service created"
 
+# 6. Create systemd service for frontend (Angular SSR, renders on demand and
+# caches each page for SSR_CACHE_TTL_MS — see frontend/server.ts)
+echo ""
+echo "Creating systemd service for frontend..."
+sudo tee /etc/systemd/system/briva-diena-frontend.service > /dev/null << EOF
+[Unit]
+Description=Brīva Diena Frontend (SSR)
+After=network.target briva-diena-backend.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=$SCRIPT_DIR/frontend
+ExecStart=/usr/bin/node dist/frontend/server/server.mjs
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+Environment="PORT=4000"
+Environment="API_BASE_URL=http://localhost:8080"
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+echo "[OK] Frontend service created"
+
 # 7. Create Nginx configuration
 echo ""
 echo "Creating Nginx reverse proxy configuration..."
@@ -142,10 +166,13 @@ server {
 
     client_max_body_size 50m;
 
-    # Frontend
+    # Frontend (Angular SSR service, port 4000 — see briva-diena-frontend.service)
     location / {
-        root /var/www/briva-diena;
-        try_files $uri $uri/ /index.html;
+        proxy_pass http://localhost:4000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 
     # Backend API
@@ -192,9 +219,11 @@ echo "  Setup complete!"
 echo "============================================"
 echo ""
 echo "Next steps:"
-echo "1. Start backend service:"
+echo "1. Start backend and frontend services:"
 echo "   sudo systemctl start briva-diena-backend"
 echo "   sudo systemctl enable briva-diena-backend"
+echo "   sudo systemctl start briva-diena-frontend"
+echo "   sudo systemctl enable briva-diena-frontend"
 echo ""
 echo "2. Start Nginx:"
 echo "   sudo systemctl start nginx"
@@ -202,9 +231,11 @@ echo "   sudo systemctl enable nginx"
 echo ""
 echo "3. Check status:"
 echo "   sudo systemctl status briva-diena-backend"
+echo "   sudo systemctl status briva-diena-frontend"
 echo "   systemctl status nginx"
 echo ""
 echo "4. View logs:"
 echo "   sudo journalctl -u briva-diena-backend -f"
+echo "   sudo journalctl -u briva-diena-frontend -f"
 echo "   sudo tail -f /var/log/nginx/error.log"
 echo ""
