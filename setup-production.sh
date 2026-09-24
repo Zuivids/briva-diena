@@ -108,7 +108,9 @@ After=network.target
 Type=simple
 User=ubuntu
 WorkingDirectory=$SCRIPT_DIR/backend
-ExecStart=/usr/bin/java -jar target/backend-*.jar
+# systemd does not expand shell globs in ExecStart, so "java -jar target/backend-*.jar"
+# would fail with "Unable to access jarfile" — the wildcard has to be expanded by a shell.
+ExecStart=/bin/bash -c 'exec /usr/bin/java -jar target/backend-*.jar'
 Restart=on-failure
 RestartSec=10
 StandardOutput=journal
