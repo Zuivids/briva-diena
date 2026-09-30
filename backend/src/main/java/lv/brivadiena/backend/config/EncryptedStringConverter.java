@@ -2,6 +2,8 @@ package lv.brivadiena.backend.config;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +31,8 @@ import java.util.Base64;
 @Component
 @Converter
 public class EncryptedStringConverter implements AttributeConverter<String, String> {
+
+    private static final Logger log = LoggerFactory.getLogger(EncryptedStringConverter.class);
 
     private static final int GCM_IV_LENGTH = 12;
     private static final int GCM_TAG_LENGTH_BITS = 128;
@@ -109,7 +113,11 @@ public class EncryptedStringConverter implements AttributeConverter<String, Stri
             // Not valid Base64 → legacy plaintext row
             return encrypted;
         } catch (Exception e) {
-            throw new RuntimeException("Field decryption failed", e);
+            // A single row's value failing to decrypt (e.g. it was encrypted under a
+            // key that's since changed) must not take down every other row in the
+            // same query — degrade that one field instead of throwing.
+            log.warn("Field decryption failed, returning placeholder: {}", e.getMessage());
+            return "[nenolasāms]";
         }
     }
 }

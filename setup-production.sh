@@ -16,6 +16,7 @@ fi
 : "${DB_USER:?DB_USER is not set. Add it to backend/.env}"
 : "${DB_PASSWORD:?DB_PASSWORD is not set. Add it to backend/.env}"
 : "${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD is not set. Add it to backend/.env}"
+: "${APP_ENCRYPTION_KEY:?APP_ENCRYPTION_KEY is not set. Add it to backend/.env — this key encrypts registration PII (personal ID / passport numbers); losing it makes existing encrypted data permanently unreadable, so it must never fall back to a default.}"
 
 # DB is the local Docker container
 DB_HOST="localhost"
@@ -121,6 +122,7 @@ Environment="SPRING_DATASOURCE_USERNAME=$DB_USER"
 Environment="SPRING_DATASOURCE_PASSWORD=$DB_PASSWORD"
 Environment="APP_UPLOADS_PATH=/var/uploads"
 Environment="APP_IMAGES_PATH=/var/images"
+Environment="APP_ENCRYPTION_KEY=$APP_ENCRYPTION_KEY"
 
 [Install]
 WantedBy=multi-user.target
