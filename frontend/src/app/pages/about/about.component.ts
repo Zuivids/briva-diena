@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AdminStateService } from '../../shared/services/admin-state.service';
 import { AboutImageService } from '../../shared/services/about-image.service';
 import { SiteContentService } from '../../shared/services/site-content.service';
+import { splitLines, trackByIndex } from '../../shared/utils/text-lines.util';
 
 @Component({
   selector: 'app-about',
@@ -18,7 +19,9 @@ import { SiteContentService } from '../../shared/services/site-content.service';
              class="about-row"
              [class.reversed]="i === 1">
           <div class="about-row-text">
-            <p class="about-para" *ngIf="sectionTexts[i]">{{ sectionTexts[i] }}</p>
+            <div class="about-para" *ngIf="sectionTexts[i]">
+              <p *ngFor="let line of splitLines(sectionTexts[i]); trackBy: trackByIndex">{{ line || ' ' }}</p>
+            </div>
           </div>
           <div class="about-row-image" *ngIf="slotImages[i]">
             <img [src]="slotImages[i]" alt="Par mums" class="about-image" />
@@ -69,7 +72,10 @@ import { SiteContentService } from '../../shared/services/site-content.service';
       line-height: 1.8;
       color: #444;
       margin-bottom: 0;
-      white-space: pre-wrap;
+    }
+
+    .about-para p {
+      margin: 0;
     }
 
     .about-image {
@@ -103,6 +109,8 @@ import { SiteContentService } from '../../shared/services/site-content.service';
   `]
 })
 export class AboutComponent implements OnInit {
+  readonly splitLines = splitLines;
+  readonly trackByIndex = trackByIndex;
   sectionTexts: string[] = ['', '', ''];
   slotImages: (string | null)[] = [null, null, null];
 

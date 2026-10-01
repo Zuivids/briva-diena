@@ -13,6 +13,7 @@ import { catchError, switchMap, map } from 'rxjs/operators';
 import { NewsletterSignupModalComponent } from '../../shared/components/newsletter-signup-modal/newsletter-signup-modal.component';
 import { FutureTripsCardService } from '../../shared/services/future-trips-card.service';
 import { bgImageUrl } from '../../shared/utils/image-url.util';
+import { splitLines, trackByIndex } from '../../shared/utils/text-lines.util';
 import { tripDetailPath } from '../../shared/utils/trip-slug.util';
 import { SeoService } from '../../shared/services/seo.service';
 
@@ -95,7 +96,9 @@ import { SeoService } from '../../shared/services/seo.service';
       <section class="about-section py-5 bg-light">
         <div class="container">
           <h2 class="section-title">KAS IR BRĪVA DIENA?</h2>
-          <p class="about-text">{{ adminState.aboutText$ | async }}</p>
+          <div class="about-text">
+            <p *ngFor="let line of splitLines(adminState.aboutText$ | async); trackBy: trackByIndex">{{ line || ' ' }}</p>
+          </div>
         </div>
       </section>
 
@@ -255,7 +258,8 @@ import { SeoService } from '../../shared/services/seo.service';
     }
     .btn-register-sm:hover { background: #cf6510; color: #fff; }
 
-    .about-text { font-size: 1.05rem; line-height: 1.7; color: #444; white-space: pre-wrap; }
+    .about-text { font-size: 1.05rem; line-height: 1.7; color: #444; }
+    .about-text p { margin: 0; }
 
     .instagram-scroll {
       display: flex;
@@ -277,6 +281,8 @@ import { SeoService } from '../../shared/services/seo.service';
 })
 export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly bgImageUrl = bgImageUrl;
+  readonly splitLines = splitLines;
+  readonly trackByIndex = trackByIndex;
   readonly tripDetailPath = tripDetailPath;
 
   heroImageLoaded = false;

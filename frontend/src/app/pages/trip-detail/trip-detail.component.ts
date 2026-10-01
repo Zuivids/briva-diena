@@ -6,6 +6,7 @@ import { Trip, TripDay } from '../../shared/models/trip.model';
 import { HttpStatusCode } from '@angular/common/http';
 import { bgImageUrl } from '../../shared/utils/image-url.util';
 import { tripSlug, tripDetailPath } from '../../shared/utils/trip-slug.util';
+import { splitLines, trackByIndex } from '../../shared/utils/text-lines.util';
 import { SeoService } from '../../shared/services/seo.service';
 
 interface TripImage { id: number; path: string; isCover: boolean; }
@@ -57,7 +58,9 @@ interface TripImage { id: number; path: string; isCover: boolean; }
               <!-- Ko mēs piedzīvosim / description -->
               <section class="detail-section" *ngIf="trip.description">
                 <h3 class="detail-heading">Ko mēs piedzīvosim</h3>
-                <p class="detail-text">{{ trip.description }}</p>
+                <div class="detail-text">
+                  <p *ngFor="let line of splitLines(trip.description); trackBy: trackByIndex">{{ line || ' ' }}</p>
+                </div>
               </section>
 
               <!-- Itinerary days -->
@@ -69,7 +72,9 @@ interface TripImage { id: number; path: string; isCover: boolean; }
                     <span *ngIf="day.date" class="day-date">{{ day.date | date:'dd.MM.yyyy' }}</span>
                   </div>
                   <div class="day-body" [class.has-image]="day.imagePath">
-                    <p class="day-desc">{{ day.description }}</p>
+                    <div class="day-desc">
+                      <p *ngFor="let line of splitLines(day.description); trackBy: trackByIndex">{{ line || ' ' }}</p>
+                    </div>
                     <img *ngIf="day.imagePath" [src]="imageBase + day.imagePath"
                          [alt]="'Diena ' + day.dayNumber"
                          class="day-img"
@@ -275,7 +280,10 @@ interface TripImage { id: number; path: string; isCover: boolean; }
     .detail-text {
       color: #444;
       line-height: 1.8;
-      white-space: pre-line;
+    }
+
+    .detail-text p {
+      margin: 0;
     }
 
     /* Flight schedule */
@@ -334,7 +342,9 @@ interface TripImage { id: number; path: string; isCover: boolean; }
     .day-desc {
       color: #444;
       line-height: 1.7;
-      white-space: pre-line;
+    }
+
+    .day-desc p {
       margin: 0;
     }
 
@@ -559,6 +569,8 @@ export class TripDetailComponent implements OnInit, OnDestroy {
   extraChargeItems: string[] = [];
   readonly imageBase = '/images/';
   readonly bgImageUrl = bgImageUrl;
+  readonly splitLines = splitLines;
+  readonly trackByIndex = trackByIndex;
 
   constructor(private route: ActivatedRoute, private tripService: TripService, private seo: SeoService) {}
 

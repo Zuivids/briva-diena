@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NewsletterSignupModalComponent } from '../../shared/components/newsletter-signup-modal/newsletter-signup-modal.component';
 import { FutureTripTopicService, FutureTripTopic } from '../../shared/services/future-trip-topic.service';
 import { FutureTripsCardService } from '../../shared/services/future-trips-card.service';
+import { splitLines, trackByIndex } from '../../shared/utils/text-lines.util';
 
 @Component({
   selector: 'app-jaunumi-par-celojumiem',
@@ -12,7 +13,9 @@ import { FutureTripsCardService } from '../../shared/services/future-trips-card.
     <div class="topics-page">
       <div class="container py-5">
         <h1 class="page-title mb-3">JAUNIE CEĻOJUMI 2027</h1>
-        <p class="page-intro mb-5">{{ introText }}</p>
+        <div class="page-intro mb-5">
+          <p *ngFor="let line of splitLines(introText); trackBy: trackByIndex">{{ line || ' ' }}</p>
+        </div>
 
         <div class="row g-4 topics-row">
           <div *ngFor="let topic of topics" class="col-md-4">
@@ -32,7 +35,8 @@ import { FutureTripsCardService } from '../../shared/services/future-trips-card.
   styles: [`
     .topics-page { min-height: 100vh; padding-top: 90px; background: #faf5f3; }
     .page-title { color: #5C4033; text-align: center; font-weight: 700; }
-    .page-intro { color: #555; text-align: left; max-width: 720px; margin: 0 auto; line-height: 1.6; white-space: pre-line; }
+    .page-intro { color: #555; text-align: left; max-width: 720px; margin: 0 auto; line-height: 1.6; }
+    .page-intro p { margin: 0; }
 
     .topics-row { justify-content: center; }
 
@@ -68,6 +72,8 @@ import { FutureTripsCardService } from '../../shared/services/future-trips-card.
   `]
 })
 export class JaunumiParCelojumiemComponent implements OnInit {
+  readonly splitLines = splitLines;
+  readonly trackByIndex = trackByIndex;
   modalOpen = false;
   modalTopic: string | null = null;
   topics: FutureTripTopic[] = [];
